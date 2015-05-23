@@ -19,7 +19,7 @@ synopsis:            A validator for CK2 mods
 -- description:         
 
 -- The license under which the package is released.
-license:             GPL-3
+license:             AGPL-3
 
 -- The file containing the license text.
 license-file:        LICENSE
