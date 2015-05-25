@@ -29,7 +29,7 @@ import System.Environment
 import System.Exit
 
 import qualified Data.ByteString as BS
-import qualified Data.ByteString.Lazy as BS(toStrict)
+import qualified Data.ByteString.Lazy as BS(toStrict,fromStrict)
 import qualified Data.Text as T
 import Data.Text.IO as TIO hiding (readFile)
 import Data.Text.Encoding (decodeLatin1)
@@ -45,10 +45,12 @@ import qualified  Data.Set as S(Set,fromList,difference,size,toList,map)
 import Control.Exception
 import Control.Monad(filterM)
 import Control.Applicative(liftA2)
+import Codec.Archive.Zip(toArchive)
 
 import Control.Monad.STM(atomically)
 import Control.Concurrent.STM.TChan
 import Control.Concurrent(forkIO)
+import Control.Parallel.Strategies(parListChunk,rseq,using)
 
 import Prelude hiding (readFile)
 
@@ -80,7 +82,7 @@ checkFile file = do
 -- the events parsed.
 checkFiles :: File file ⇒ [file] → IO [Event]
 checkFiles names = do
-  checked ← mapM checkFile names
+  checked ← sequence $ (map checkFile names `using` parListChunk 4 rseq)
   let results = zip names checked
   let errors = filter (isNothing . snd) results
   if null errors
@@ -116,7 +118,7 @@ allLocalisations game mod = do
     if any isLeft rawLocalisations
     then (Prelude.putStr $ unlines . map unlines $ map (map show) $ lefts rawLocalisations) >> return []
     else return $ concat $ rights rawLocalisations
-getLocalisations :: (FileCollection base, FileCollection mod) ⇒ base → Maybe mod → IO [Either [ParseError] [Entry]]
+getLocalisations :: (FileCollection base, FileCollection mod) ⇒ base → Maybe mod → IO [Either [T.Text] [Entry]]
 getLocalisations gamePath modPath = do
   (baseFiles,modFiles) ← getFiles gamePath modPath "localisation"
   contents ← liftA2 (<>) (zip (map fileName baseFiles) <$> decodeFiles gamePath baseFiles)
@@ -161,7 +163,7 @@ getDirectoryFiles root dir = (map (dir<>) <$> getDirectoryContents root dir)
 getFiles :: (FileCollection base, FileCollection mod)
             ⇒ base → Maybe mod → FilePath → IO ([AssocFile base],[AssocFile mod])
 getFiles base (Just mod) subPath = do
-  modFiles ← getDirectoryFiles mod ("/"<>subPath<>"/")
+  modFiles ← getDirectoryFiles mod ("geheimnisnacht" <> "/"<>subPath<>"/")
   baseFiles ← filter (not . flip elem modFiles) <$> getDirectoryFiles base ("/"<>subPath<>"/")
   return (map (getFile base) baseFiles,map (getFile mod) modFiles)
 getFiles base Nothing subPath = do
@@ -198,8 +200,8 @@ dispatchFromChan resources action response = do
 
 -- Start a checker thread for a given mod. The first TChan is used to send check
 -- requests to the thread, while the second is used to send results back
-startCheck :: FileCollection mod ⇒ Resources → FilePath → Maybe mod → IO (TChan Action, TChan T.Text)
-startCheck resources base mod = do
+startCheck :: Resources → IO (TChan Action, TChan T.Text)
+startCheck resources = do
   action ← atomically $ newTChan
   response ← atomically $ newTChan
   forkIO $ dispatchFromChan resources action response
@@ -221,10 +223,11 @@ main = do
     then (Prelude.putStrLn $ usageInfo "validator:" options) >> exitWith ExitSuccess
     else return ()
   let (modPath,gamePath) = (modRootPath args,gameRootPath args)
-  (baseEvents,modEvents) ← getEvents gamePath modPath
+  modArch ← sequence $ (toArchive . BS.fromStrict <$>) <$> (BS.readFile <$> modPath)
+  (baseEvents,modEvents) ← getEvents gamePath modArch
   -- WARNING: Partial
-  (Right locs) ← sequence <$> getLocalisations gamePath modPath
+  (Right locs) ← sequence <$> getLocalisations gamePath modArch
   Prelude.putStrLn $ show gamePath
-  (action,result) ← startCheck Resources { baseEvents, modEvents, localisations = concat locs } gamePath modPath
+  (action,result) ← startCheck Resources { baseEvents, modEvents, localisations = concat locs }
   argDispatcher args action result
   exitWith $ ExitSuccess
