@@ -16,29 +16,28 @@ module Condition
 -- This module defines both conditions and scopes. Since there is a mutual
 -- dependency, they need to go in the same module
 
-import TreeLike
 import Maker
-import Scoped(Label(),EventId)
+import Scoped(Label,Atom(..),EventId)
 
-import qualified Data.Text as T(Text,take,drop)
+import qualified Data.Text as T(Text,take,drop,pack)
 import Data.Monoid((<>))
 import Control.Applicative
 
-newtype Predicate = Predicate T.Text
+newtype Predicate = Predicate Atom
                   deriving (Eq,Ord,Show)
 
 data Condition = Condition Predicate (Value ())
                  | Scoped (Scope Condition)
                  | VariableCheck Label (Either Label Double)
                  deriving (Eq,Ord,Show)
-                          
+{-
 instance TreeLike Condition where
   toTree (Condition (Predicate p) (BooleanValue b)) = Node p [toTree b] Nothing
   toTree (Condition (Predicate p) (NumValue n)) = Node p [toTree n] Nothing
   toTree (Condition (Predicate p) (Id t)) = Node p [toTree t] Nothing
 --  toTree (Condition (Predicate p) (Clause c)) = Node p [toTree c] Nothing
   toTree (Scoped s) = toTree s
-  toTree _ = error "toTree :: Condition not fully defined"
+  toTree _ = error "toTree :: Condition not fully defined"-}
 
 data Value a = BooleanValue Bool
            | NumValue Double
@@ -95,36 +94,36 @@ data Clause a = ActivateTitle Label Bool
                 deriving (Eq,Ord,Show)
 
 clause :: Maker (Clause a)
-clause = ActivateTitle <$ checkKey "activate_title" <*> fetchValue @@ "title" <*> fetchBool @@ "status"
+clause = ActivateTitle <$ checkKey "activate_title" <*> fetchString @@ "title" <*> fetchBool @@ "status"
          <|> (ScopedModifier <$ checkKeys ["add_character_modifier","add_province_modifier"]
-              <*> fetchValue @@ "name" <*> duration)
+              <*> fetchString @@ "name" <*> duration)
          <|> (BestFitCharacterForTitle <$ checkKey "best_fit_character_for_title"
               <*> scopeType @@ "title"
               <*> scopeType @@ "perspective"
               <*> number @@ "index"
               <*> scopeType @@ "grant_title")
-         <|> BuildHolding <$ checkKey "build_holding" <*> fetchValue @@ "title" <*> fetchValue @@ "type" <*> scopeType @@ "holder"
-         <|> ChangeText <$ checkKey "change_tech" <*> fetchValue @@ "technology" <*> number @@ "value"
+         <|> BuildHolding <$ checkKey "build_holding" <*> fetchString @@ "title" <*> fetchString @@ "type" <*> scopeType @@ "holder"
+         <|> ChangeText <$ checkKey "change_tech" <*> fetchString @@ "technology" <*> number @@ "value"
          <|> (CharacterEvent <$ checkKey "character_event"
               <*> fetchId @@ "id"
               <*> optional duration
-              <*> fetchValue @? "tooltip")
+              <*> fetchString @? "tooltip")
          <|> (CreateCharacter <$ checkKey "create_character"
               <*> number @@ "age"
-              <*> fetchValue @@ "name"
-              <*> fetchValue @? "has_nickname"
+              <*> fetchString @@ "name"
+              <*> fetchString @? "has_nickname"
               <*> mapSubForest (firstChild number) @@ "attributes"
-              <*> fetchValue @@@ "trait"
+              <*> fetchString @@@ "trait"
               <*> number @~ "health"
               <*> firstChild number @? "fertility"
               <*> fetchBool @? "random_traits"
               <*> fetchBool @@ "female"
-              <*> fetchValue @? "employer"
+              <*> fetchString @? "employer"
               <*> scopeType @@ "religion"
               <*> scopeType @@ "culture"
-              <*> fetchValue @@ "dynasty"
-              <*> fetchValue @? "dna"
-              <*> fetchValue @? "flag"
+              <*> fetchString @@ "dynasty"
+              <*> fetchString @? "dna"
+              <*> fetchString @? "flag"
               <*> scopeType @? "father"
               <*> scopeType @? "mother"
               <*> scopeType @? "race")
@@ -154,23 +153,24 @@ textify (EventTarget t) = "event_target:" <> t
 textify (CharacterScope l) = l
 textify (IdScope l) = l
 
-readScope :: T.Text → ScopeType
-readScope "ROOT" = Root
-readScope "THIS" = This
-readScope "PREV" = Prev
-readScope "PREVPREV" = PrevPrev
-readScope "PREVPREVPREV" = PrevPrevPrev
-readScope "PREVPREVPREVPREV" = PrevPrevPrevPrev
-readScope "FROM" = From
-readScope "FROMFROM" = FromFrom
-readScope "FROMFROMFROM" = FromFromFrom
-readScope "FROMFROMFROMPREV" = FromFromFromFrom
-readScope "trigger" = Trigger
-readScope "limit" = Limit
-readScope s
+readScope :: Atom → ScopeType
+readScope (Label "ROOT") = Root
+readScope (Label "THIS") = This
+readScope (Label "PREV") = Prev
+readScope (Label "PREVPREV") = PrevPrev
+readScope (Label "PREVPREVPREV") = PrevPrevPrev
+readScope (Label "PREVPREVPREVPREV") = PrevPrevPrevPrev
+readScope (Label "FROM") = From
+readScope (Label "FROMFROM") = FromFrom
+readScope (Label "FROMFROMFROM") = FromFromFrom
+readScope (Label "FROMFROMFROMPREV") = FromFromFromFrom
+readScope (Label "trigger") = Trigger
+readScope (Label "limit") = Limit
+readScope (Label s)
   | T.take 13 s == "event_target:" = EventTarget $ T.drop 13 s
   | s `elem` characterScope = CharacterScope s
   | otherwise = IdScope s
+readScope (Number n) = IdScope $ T.pack $ show n
 
 scopeType = readScope <$> fetchKey
 
@@ -181,9 +181,9 @@ data Scope a = Scope {
   content :: [a]
   } deriving (Eq,Ord,Show)
 
-instance TreeLike a ⇒ TreeLike (Scope a) where
+{-instance TreeLike a ⇒ TreeLike (Scope a) where
   toTree Scope {..} = Node (textify scopeType_) ((toTree <$> limit) <> (toTree <$> content)) Nothing
-
+-}
 scope :: Maker a → Maker (Scope a)
 scope maker = Scope <$> scopeType <*> limit <*> content
   where limit = condition @@@ "limit"
@@ -222,13 +222,13 @@ characterScope = [
   ]
 
 predicate = Predicate <$> checkKeys predicates
-isStringy (Predicate p) = p `elem` ["trait"]
+isStringy (Predicate p) = p `elem` [Label "trait"]
                  
 condition:: Maker Condition
 condition = simple <|> variableCheck <|> clausal <|> (Scoped <$> scope condition)
   where simple  = Condition <$> (singleChild *> predicate) <*> firstChild value
         variableCheck =
-          VariableCheck <$> fetchValue @@ "which" <*> (Left <$> fetchValue @@ "which"
+          VariableCheck <$> fetchString @@ "which" <*> (Left <$> fetchString @@ "which"
                                                        <|> Right <$> number @@ "value")
         clausal = Condition <$> predicate <*> (Clause <$> clause)
  

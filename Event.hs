@@ -4,11 +4,11 @@
 
 module Event where
 
-import Scoped(lookup,Namespace(),Label(),ws,parseValue,Error(),quickParse,getValue)
+import Scoped(EventId,Atom(..),lookup,Namespace(),Label(),parseValue,Error(),quickParse,getValue,sep)
 import Condition(Condition,condition)
 import TreeLike(TreeLike(..),Tree(..))
 import Maker(Maker,(@@),(@?),(@@@),(/@@),(/@#),(<?>)
-           ,position,runMaker,mapSubForest,fetchBool,fetchValue,fetchId,firstChild,number)
+           ,position,runMaker,mapSubForest,fetchBool,fetchValue,fetchId,firstChild,number,fetchString,key)
 import Command(Command,command)
 
 import Text.Parsec hiding (label,(<?>),option)
@@ -42,7 +42,7 @@ instance TreeLike Sfx where
 
 
 data Event = Event {
-  id :: (Namespace,Integer),
+  id :: EventId,
   title :: Maybe DisplayText,
   desc :: Maybe DisplayText,
   picture :: Maybe Gfx,
@@ -64,7 +64,7 @@ data Event = Event {
   source :: Maybe SourcePos
   }
            deriving (Eq,Ord,Show)
-
+{-
 instance TreeLike Event where
   toTree e = Node "character_event" (execWriter $ do
                                         tell [Node { rootLabel = "id"
@@ -98,7 +98,7 @@ instance TreeLike Event where
             Just [] -> []
             Just ts -> [Node "trigger" (toTree <$> ts) Nothing]
             Nothing → []
-  
+ -} 
 data Option = Option {
   name :: Maybe Label,
   optionTrigger :: [Condition],
@@ -107,19 +107,19 @@ data Option = Option {
   } deriving (Eq,Ord,Show)
 
 option :: Maker Option
-option = Option <$> fetchValue @? "name"
+option = Option <$> (getLabel <$> firstChild key) @? "name"
          <*> condition @@@ "trigger"
          <*> command /@# ["trigger","name","ai_chance"]
          <*> (((,) <$> firstChild number @@ "factor" <*> modifier @@@ "modifier") @? "ai_chance" <?> "ai_chance")
          <?> "Option"
   where modifier = (,) <$> firstChild number @@ "factor" <*> condition /@@ "factor"
   
-eventFile :: Parsec Text u1 ([Tree Text],[Tree Text])
+eventFile :: Parsec Text u1 ([Tree Atom],[Tree Atom])
 eventFile = do
-  ws
+  sep
   namespacesEvents ← many parseValue
-  let namespaces = L.filter ((=="namespace") . rootLabel) namespacesEvents
-  let events = L.filter ((/="namespace") . rootLabel) namespacesEvents
+  let namespaces = L.filter ((==Label "namespace") . rootLabel) namespacesEvents
+  let events = L.filter ((/=Label "namespace") . rootLabel) namespacesEvents
   return (namespaces,events)
 
 checkBool :: Text → Tree Text → Either Error (Maybe Bool)
@@ -131,12 +131,13 @@ checkBool key t = case lookup key t of
   Just v → Left (key <> " has the non-boolean value: " <> v, TreeLike.source t)
   Nothing → Right Nothing
 
+event :: Maker Event
 event = Event
         <$> fetchId @@ "id"
-        <*> fetchValue @? "title"
-        <*> fetchValue @? "desc"
-        <*> ((Gfx <$>) <$> fetchValue @? "picture")
-        <*> ((Gfx <$>) <$> fetchValue @? "border")
+        <*> (getLabel <$> firstChild key) @? "title"
+        <*> (getLabel <$> firstChild key) @? "desc"
+        <*> ((Gfx <$>) <$> fetchString @? "picture")
+        <*> ((Gfx <$>) <$> fetchString @? "border")
         <*> fetchBool @? "major"
         <*> fetchBool @? "is_triggered_only"
         <*> fetchBool @? "hide_from"
@@ -146,12 +147,14 @@ event = Event
         <*> fetchBool @? "show_from"
         <*> fetchBool @? "show_from_from"
         <*> fetchBool @? "show_from_from_from"
-        <*> ((Sfx <$>) <$> fetchValue @? "sound")
+        <*> ((Sfx <$>) <$> fetchString @? "sound")
         <*> fetchBool @? "notification"
         <*> mapSubForest condition @? "trigger"
         <*> mapSubForest command @? "immediate"
         <*> option @@@ "option"
         <*> position
+
+getLabel (Label l ) = l
         
 renderId (name,n) = name ++ show n
 stripBoM input = if BS.length input < 3

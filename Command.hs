@@ -61,14 +61,14 @@ data Command = Break
 
 command :: Maker Command
 command = (Break <$ checkKey "break")
-          <|> (setFlag <*> fetchValue)
-          <|> (clrFlag <*> fetchValue)
+          <|> (setFlag <*> fetchString)
+          <|> (clrFlag <*> fetchString)
           <|> (If <$ checkKey "if") <*> mapSubForest condition @@ "limit" <*> command /@@ "limit"
           <|> (Random <$ checkKey "random") <*> number @@ "chance" <*> modifier @@@ "modifier" <*> command /@# ["chance","modifier"]
           <|> (RandomList <$ checkKey "random_list") <*> mapSubForest rlElem
-          <|> VarOpLit <$> firstChild (checkKey "which" *> fetchValue) <*> op <*> number @@ "value"
-          <|> VarOpVar <$> firstChild (checkKey "which" *> fetchValue) <*> op <*> secondChild (checkKey "which" *> fetchValue) -- This doesn't distinguish between scopes and variables in the same scope
-          <|> Concrete <$> checkKeys commands <*> clause
+          <|> VarOpLit <$> firstChild (checkKey "which" *> fetchString) <*> op <*> number @@ "value"
+          <|> VarOpVar <$> firstChild (checkKey "which" *> fetchString) <*> op <*> secondChild (checkKey "which" *> fetchString) -- This doesn't distinguish between scopes and variables in the same scope
+          <|> Concrete <$> label (checkKeys commands) <*> clause
           <|> Scoped <$> scope command
 
   where rlElem = (,,) <$> number <*> modifier @@@ "modifier" <*> command /@@ "modifier"
