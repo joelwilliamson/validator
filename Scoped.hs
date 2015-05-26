@@ -60,7 +60,9 @@ identChar = satisfy (not . special) <?> "identifier character"
 stringLit = Label . T.pack <$> (char '"' *> many (noneOf "\"") <* char '"')
 isEndOfLine c = c == '\r' || c == '\n'
 comment :: Parsec T.Text u ()
-comment = char '#' *> manyTill anyChar (endOfLine *> pure () <|> eof) *> pure ()
+comment = char '#'
+          *> skipMany (satisfy (not . isEndOfLine))
+          *> (endOfLine *> pure () <|> eof) *> pure ()
 sep = many (comment <|> space *> spaces)
 equal = char '='
 fractionalPart accum factor= do
