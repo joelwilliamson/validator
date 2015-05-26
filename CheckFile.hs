@@ -54,9 +54,9 @@ import Control.Parallel.Strategies(parListChunk,rseq,using)
 
 import Prelude hiding (readFile)
 
-printErrors (Left (e,Nothing)) = TIO.putStrLn e
-printErrors (Left (e,Just source)) = TIO.putStrLn $ e <> "\n\tat: " <> T.pack (show source)
-printErrors (Right _) = return ()
+printErrors file (Left (e,Nothing)) = TIO.putStrLn (T.pack (fileName file) <> ": " <> e)
+printErrors _ (Left (e,Just source)) = TIO.putStrLn $ e <> "\n\tat: " <> T.pack (show source)
+printErrors _ (Right _) = return ()
 
 stripBoM input = if BS.length input < 3
                  then input
@@ -69,9 +69,9 @@ checkFile file = do
   fileContents ← decodeLatin1 . stripBoM . BS.toStrict <$> readFile file
   parseResult ← case parseOnly eventFile fileContents of
     Right x → return x
-    Left x → Prelude.putStrLn (show x) >> return ([],[])
+    Left x → Prelude.putStrLn (fileName file <> ": " <> show x) >> return ([],[])
   let events' = map (runMaker event) $ snd parseResult
-  mapM_ printErrors events'
+  mapM_ (printErrors file) events'
   return $ if isRight $ sequence events'
            then Just $ rights events'
            else Nothing

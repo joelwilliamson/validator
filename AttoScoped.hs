@@ -16,6 +16,7 @@ import Data.Char(isAlpha,isDigit,ord)
 import Control.Applicative((<|>))
 import Data.Attoparsec.Text
 import Data.Text(all)
+import Data.Monoid((<>))
 
 import Prelude hiding (all,takeWhile)
 
@@ -24,9 +25,11 @@ singleton x = [Node x [] Nothing]
 isNumeric c = isDigit c || c == '.'
 
 literal = do
-  raw ← takeTill special
+  raw ← takeWhile1 (not . special)
   if all isNumeric raw
-    then return $ Number $ case parseOnly double raw of Right n → n
+    then return $ Number $ case parseOnly double raw of
+                                Right n → n
+                                Left e → error $ show e <> " at AttoScoped.hs:31 with input " <> show raw
     else return $ Label raw
   where special c = ord c <= 32 || c == '#' || c == '=' || ord c >= 123
 

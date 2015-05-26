@@ -72,7 +72,7 @@ singleChild = Maker $ \t → if length (subForest t) == 1
 infixl 5 @@
 (@@) :: Maker a → Label → Maker a
 (Maker f) @@ k = Maker $ \t → case find ((==Label k) . rootLabel) $ subForest t of
-  Nothing → Left ("No child: " <> k, source t)
+  Nothing → Left ("No child: " <> k <> " in block: " <> T.pack (show t), source t)
   Just t' → f t'
 
 infixl 5 @~
