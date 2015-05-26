@@ -64,8 +64,9 @@ comment = char '#'
           *> skipMany (satisfy (not . isEndOfLine))
           *> (endOfLine *> pure () <|> eof) *> pure ()
 sep = many (comment <|> space *> spaces)
-equal = char '='
-fractionalPart accum factor= do
+equal :: Parsec T.Text u Char
+equal = satisfy (=='=')
+fractionalPart accum factor = do
   d ← optionMaybe digit
   case d of
     Nothing → return accum
@@ -88,19 +89,30 @@ value = do
   pos ← getPosition
   l ← lhs
   _ ← sep
-  try (equal *> sep *> rhs <* sep >>= \r →
-        return $ Node { rootLabel = l, subForest = r, source = Just pos })
-    <|> (number <* sep >>= \n →
-         return $ Node { rootLabel = l, subForest = singleton n pos, source = Just pos})
+  _ ← char '='
+  _ ← sep
+  r ← rhs
+  _ ← sep
+  return $ Node l r $ Just pos
 block :: Parsec T.Text u [Tree Atom]
-block = do
-  _ ← char '{'
-  _ ← sep
-  contents ← many value
-  _ ← sep
-  _ ← char '}'
-  return $ contents
-
+block = try (do
+                _ ← char '{'
+                _ ← sep
+                pos ← getPosition
+                l ← number
+                _ ← sep
+                r ← number
+                _ ← sep
+                _ ← char '}'
+                return [Node l (singleton r pos) $ Just pos]
+            ) <|> (do
+                      _ ← char '{'
+                      _ ← sep
+                      contents ← many value
+                      _ ← sep
+                      _ ← char '}'
+                      return $ contents
+                  )
 eventId = (,) <$> option "" (T.pack <$> many1 (letter <|> char '_') <* char '.') <*> number
 
 {-
