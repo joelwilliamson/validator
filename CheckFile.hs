@@ -5,7 +5,6 @@ module Main where
 
 
 import Event(Event,eventFile,event,source)
-import Scoped
 import Maker
 import GatherStrings (gatherStrings)
 import qualified  GatherLocalisations as GL (localisations)
@@ -36,6 +35,7 @@ import Data.Text.Encoding (decodeLatin1)
 import qualified Data.Text as T(pack,unlines,length)
 import Text.Parsec(parse,ParseError)
 import Text.Parsec.Pos(sourceName)
+import Data.Attoparsec.Text(parseOnly)
 import Data.Either
 import Data.Maybe
 import Data.Monoid((<>))
@@ -67,7 +67,7 @@ stripBoM input = if BS.length input < 3
 checkFile :: File f ⇒ f → IO (Maybe [Event])
 checkFile file = do
   fileContents ← decodeLatin1 . stripBoM . BS.toStrict <$> readFile file
-  parseResult ← case parse eventFile (fileName file) fileContents of
+  parseResult ← case parseOnly eventFile fileContents of
     Right x → return x
     Left x → Prelude.putStrLn (show x) >> return ([],[])
   let events' = map (runMaker event) $ snd parseResult

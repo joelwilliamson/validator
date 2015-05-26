@@ -4,13 +4,15 @@
 
 module Event where
 
-import Scoped(EventId,Atom(..),lookup,Namespace(),Label(),parseValue,Error(),quickParse,getValue,sep)
+import Scoped(EventId,Atom(..),lookup,Namespace(),Label(),Error(),getValue)
+import AttoScoped(sep,value)
 import Condition(Condition,condition)
 import TreeLike(TreeLike(..),Tree(..))
 import Maker(Maker,(@@),(@?),(@@@),(/@@),(/@#),(<?>)
            ,position,runMaker,mapSubForest,fetchBool,fetchValue,fetchId,firstChild,number,fetchString,key)
 import Command(Command,command)
 
+import Data.Attoparsec.Text(many',parseOnly)
 import Text.Parsec hiding (label,(<?>),option)
 import Data.Text
 import qualified Data.ByteString as BS
@@ -114,10 +116,10 @@ option = Option <$> (getLabel <$> firstChild key) @? "name"
          <?> "Option"
   where modifier = (,) <$> firstChild number @@ "factor" <*> condition /@@ "factor"
   
-eventFile :: Parsec Text u1 ([Tree Atom],[Tree Atom])
+--eventFile :: Parsec Text u1 ([Tree Atom],[Tree Atom])
 eventFile = do
-  sep
-  namespacesEvents ← many parseValue
+  _ ← sep
+  namespacesEvents ← many' value
   let namespaces = L.filter ((==Label "namespace") . rootLabel) namespacesEvents
   let events = L.filter ((/=Label "namespace") . rootLabel) namespacesEvents
   return (namespaces,events)
@@ -164,5 +166,5 @@ stripBoM input = if BS.length input < 3
                    _ → input
 eventMaker f = do
   contents ← BS.readFile f
-  let (namespace,events) = quickParse eventFile $ Enc.decodeUtf8 $ stripBoM contents
+  let Right (namespace,events) = parseOnly eventFile $ Enc.decodeUtf8 $ stripBoM contents
   return (getValue <$> namespace, runMaker event <$> events)

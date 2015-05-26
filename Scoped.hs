@@ -115,8 +115,8 @@ number = Number <$> do
     then return $ fromIntegral n + f
     else return (-(fromIntegral n + f))
 label = Label . T.pack <$> many1 identChar
-lhs = number <|> label
-rhs = singleton <$> (number <|> label <|> stringLit) <*> getPosition
+lhs = try number <|> label
+rhs = singleton <$> (try number <|> label <|> stringLit) <*> getPosition
       <|> block
 value = do
   pos ← getPosition
