@@ -4,8 +4,8 @@
 
 module Event where
 
-import Scoped(EventId,Atom(..),lookup,Namespace(),Label(),Error(),getValue)
-import AttoScoped(sep,value)
+import Scoped as P(EventId,Atom(..),lookup,Namespace(),Label(),Error(),getValue,value,sep)
+import AttoScoped as A(sep,value)
 import Condition(Condition,condition)
 import TreeLike(TreeLike(..),Tree(..))
 import Maker(Maker,(@@),(@?),(@@@),(/@@),(/@#),(<?>)
@@ -164,7 +164,8 @@ stripBoM input = if BS.length input < 3
                  else case BS.take 3 input of
                    "\xef\xbb\xbf" → BS.drop 3 input
                    _ → input
-eventMaker f = do
+{-eventMaker f = do
   contents ← BS.readFile f
   let Right (namespace,events) = parseOnly eventFile $ Enc.decodeUtf8 $ stripBoM contents
   return (getValue <$> namespace, runMaker event <$> events)
+-}
