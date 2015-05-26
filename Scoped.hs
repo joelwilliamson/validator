@@ -26,12 +26,10 @@ module Scoped {-(
   )-}
        where
 
---import Data.Tree
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import Data.List as L(find,filter,foldl')
 import TreeLike
---import Data.Attoparsec.Text(char,skipWhile,isEndOfLine,endOfLine,takeWhile1,double)
 import Data.Char(isSpace,ord)
 import Text.Parsec hiding ((<|>),label)
 import Data.String(IsString,fromString)
@@ -54,50 +52,16 @@ type Error = (T.Text, Maybe SourcePos)
 instance Data.String.IsString Atom where
   fromString = Label . fromString
              
-{-
-identChar c = (not $ isSpace c) && (c /= '{') && (c /= '}') && (c /= '=')
-
-comment = char '#' *> skipWhile (not . isEndOfLine) *> endOfLine
-identifier = takeWhile1 identChar
-lhs = Label <$> identifier <|> Number <$> double
-rhs = Label 
-             -}
-
 singleton a s = [Node a [] $ Just s]
-{-
-scopedLanguage = LanguageDef {
-  commentStart = "",
-  commentEnd = "",
-  commentLine = "#",
-  nestedComments = False,
-  identStart =  alphaNum <|> oneOf "_.:/+-![]'?",
-  identLetter = alphaNum <|> oneOf "_.:/+-![]'?",
-  opStart = char '=' <|> char '-',
-  opLetter = choice [],
-  reservedNames = [],
-  reservedOpNames = ["=","-"],
-  caseSensitive = True
-  }
-
-scopedParser :: GenTokenParser T.Text u Identity
-scopedParser = makeTokenParser scopedLanguage
-
---equal = reservedOp scopedParser "="
-neg = reservedOp scopedParser "-"
-nested = braces scopedParser
-label = pack <$> identifier scopedParser
-ws = whiteSpace scopedParser
-intLit = integer scopedParser
-stringLit = pack <$> stringLiteral scopedParser
-dot = Text.Parsec.Token.dot scopedParser-}
 
 identChar :: Parsec T.Text u Char
-identChar = alphaNum <|> oneOf "_.:/+-![]'?"
+identChar = satisfy (not . special)
+  where special c = ord c <= 32 || c == '#' || c == '=' || ord c >= 123
 stringLit = Label . T.pack <$> (char '"' *> many (noneOf "\"") <* char '"')
 isEndOfLine c = c == '\r' || c == '\n'
 comment :: Parsec T.Text u ()
 comment = char '#' *> manyTill anyChar (endOfLine *> pure () <|> eof) *> pure ()
-sep = spaces *> many (comment *> spaces)
+sep = many (comment <|> space *> spaces)
 equal = char '='
 fractionalPart accum factor= do
   d ← optionMaybe digit
@@ -137,9 +101,6 @@ block = do
 
 eventId = (,) <$> option "" (T.pack <$> many1 (letter <|> char '_') <* char '.') <*> number
 
-parseValue = value
-parseBlock = block
-      
 {-
 number = do
   n <- optionMaybe neg
