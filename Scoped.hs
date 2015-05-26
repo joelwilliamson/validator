@@ -55,8 +55,8 @@ instance Data.String.IsString Atom where
 singleton a s = [Node a [] $ Just s]
 
 identChar :: Parsec T.Text u Char
-identChar = satisfy (not . special)
-  where special c = ord c <= 32 || c == '#' || c == '=' || ord c >= 123
+identChar = satisfy (not . special) <?> "identifier character"
+  where special c = ord c <= 32 || c == '#' || c == '=' || c == '"' || ord c >= 123
 stringLit = Label . T.pack <$> (char '"' *> many (noneOf "\"") <* char '"')
 isEndOfLine c = c == '\r' || c == '\n'
 comment :: Parsec T.Text u ()
