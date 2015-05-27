@@ -4,19 +4,18 @@
 
 module Event where
 
-import Scoped as P(EventId,Atom(..),lookup,Namespace(),Label(),Error(),getValue,value,sep)
+import Scoped(EventId,Atom(..),Label,Error,lookup)
 import AttoScoped as A(sep,value)
 import Condition(Condition,condition)
 import TreeLike(TreeLike(..),Tree(..))
 import Maker(Maker,(@@),(@?),(@@@),(/@@),(/@#),(<?>)
-           ,position,runMaker,mapSubForest,fetchBool,fetchValue,fetchId,firstChild,number,fetchString,key)
+           ,position,mapSubForest,fetchBool,fetchId,firstChild,number,fetchString,key)
 import Command(Command,command)
 
-import Data.Attoparsec.Text(many',parseOnly)
+import Data.Attoparsec.Text(many')
 import Text.Parsec hiding (label,(<?>),option)
 import Data.Text
 import qualified Data.ByteString as BS
-import qualified Data.Text.Encoding as Enc
 import Control.Monad.Writer
 import qualified Data.List as L
 
@@ -66,41 +65,7 @@ data Event = Event {
   source :: Maybe SourcePos
   }
            deriving (Eq,Ord,Show)
-{-
-instance TreeLike Event where
-  toTree e = Node "character_event" (execWriter $ do
-                                        tell [Node { rootLabel = "id"
-                                                   , TreeLike.source = Nothing
-                                                   , subForest = [Node { rootLabel = fst (id e)
-                                                                                     <> "."
-                                                                                     <> pack (show $ snd $ id e)
-                                                                       , subForest = []
-                                                                       , TreeLike.source = Nothing}]
-                                                   }]
-                                        tell $ field title "title"
-                                        tell $ field desc "desc"
-                                        tell $ field picture "picture"
-                                        tell $ field border "border"
-                                        tell $ field major "major"
-                                        tell $ field isTriggeredOnly "is_triggered_only"
-                                        tell $ field hideFrom "hide_from"
-                                        tell $ field hideNew "hide_new"
-                                        tell $ field hideWindow "hide_window"
-                                        tell $ field showRoot "show_root"
-                                        tell $ field showFrom "show_from"
-                                        tell $ field showFromFrom "show_from_from"
-                                        tell $ field showFromFromFrom "show_from_from_from"
-                                        tell $ field sound "sound"
-                                        tell $ field notification "notification"
-                                        tell cond ) Nothing
-    where field acc name = case acc e of
-            Just v -> [Node name [toTree v] Nothing]
-            Nothing -> []
-          cond = case trigger e of
-            Just [] -> []
-            Just ts -> [Node "trigger" (toTree <$> ts) Nothing]
-            Nothing → []
- -} 
+
 data Option = Option {
   name :: Maybe Label,
   optionTrigger :: [Condition],
@@ -157,6 +122,7 @@ event = Event
         <*> position
 
 getLabel (Label l ) = l
+getLabel (Number _) = error "Tried to getLabel on a number"
         
 renderId (name,n) = name ++ show n
 stripBoM input = if BS.length input < 3

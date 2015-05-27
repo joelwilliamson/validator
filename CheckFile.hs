@@ -21,28 +21,25 @@ import Codec.Archive.FileCollection (
   fileName
   )
 
-import Debug.Trace
+import Debug.Trace(trace)
   
-import System.Console.GetOpt
-import System.Environment
-import System.Exit
+import System.Console.GetOpt(ArgDescr(..),ArgOrder(Permute),OptDescr(..),getOpt,usageInfo)
+import System.Environment(getArgs)
+import System.Exit(ExitCode(..),exitWith)
 
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BS(toStrict,fromStrict)
 import qualified Data.Text as T
 import Data.Text.IO as TIO hiding (readFile)
 import Data.Text.Encoding (decodeLatin1)
-import qualified Data.Text as T(pack,unlines,length)
-import Text.Parsec(parse,ParseError)
 import Text.Parsec.Pos(sourceName,initialPos)
 import Data.Attoparsec.Text(parseOnly)
-import Data.Either
-import Data.Maybe
+import Data.Either(isLeft,isRight,lefts,rights)
+import Data.Maybe(fromJust,isNothing)
 import Data.Monoid((<>))
 import Data.Foldable(foldl')
 import Data.List as L(nub,sort)
-import qualified  Data.Set as S(Set,fromList,difference,size,toList,map)
-import Control.Exception
+import qualified  Data.Set as S(Set,fromList,difference,toList,map)
 import Control.Monad(filterM)
 import Control.Applicative(liftA2)
 import Codec.Archive.Zip(toArchive)
@@ -101,7 +98,7 @@ locals :: S.Set Event → S.Set Entry → T.Text
 locals events keys =
   -- For each event, get all the localisation keys and pair them with the name of the file
   let usedKeys = S.fromList $ concat $ map (\e → map (flip emptyEntry (fileFromSource $ Event.source e)) $ GL.localisations e) $ S.toList events in
-  let unused = keys `S.difference` usedKeys in
+--  let unused = keys `S.difference` usedKeys in
   let notDefined = usedKeys `S.difference` keys in
   "Undefined keys:\n" <> (T.unlines $ S.toList
                           $ S.map (\l → Localisation.key l
@@ -206,14 +203,14 @@ startCheck :: Resources → IO (TChan Action, TChan T.Text)
 startCheck resources = do
   action ← atomically $ newTChan
   response ← atomically $ newTChan
-  forkIO $ dispatchFromChan resources action response
+  _ ← forkIO $ dispatchFromChan resources action response
   return (action,response)
 
 argDispatcher :: Args → TChan Action → TChan T.Text → IO ()
 argDispatcher a action result = do
-  if stringResources a
-    then atomically (writeTChan action Strings) >> atomically (readTChan result) >>= TIO.putStrLn
-    else return ()
+  _ ← if stringResources a
+      then atomically (writeTChan action Strings) >> atomically (readTChan result) >>= TIO.putStrLn
+      else return ()
   if localisationKeys a
     then atomically (writeTChan action Localisations) >> atomically (readTChan result)  >>= TIO.putStrLn
     else return ()

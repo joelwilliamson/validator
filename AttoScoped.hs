@@ -17,13 +17,13 @@ module AttoScoped(
   ) where
 
 import TreeLike(Tree(..))
-import Scoped (Label,Atom(..),Block,Namespace,EventId)
+import Scoped (Atom(..),Block)
 
-import Data.Char(isAlpha,isDigit,ord)
+import Data.Char(isDigit,ord)
 import Control.Applicative((<|>))
-import Data.Attoparsec.Text(Parser,char,double,isEndOfLine,many',notChar,parseOnly,satisfy,takeTill,takeWhile,takeWhile1)
+import Data.Attoparsec.Text(Parser,char,double,isEndOfLine,many',parseOnly,satisfy,takeTill,takeWhile,takeWhile1)
 import Text.Parsec.Pos(SourcePos,incSourceLine)
-import Data.Text(Text,all)
+import Data.Text(all)
 import Data.Monoid((<>))
 
 import Control.Monad.State
@@ -103,5 +103,3 @@ regularBlock = do
 
 block :: StatefulParser [Block]
 block = spawnBlock <|> regularBlock
-
-eventId = (,) <$> takeWhile (\c → isAlpha c || c == '_') <*> double

@@ -4,12 +4,12 @@ module Maker (
   (@@),(@?),(@@@),(@@#),(/@@),(/@#),(<?>),(@~),
   firstChild,secondChild,mapSubForest,filterSubForest,singleChild,
   fetchValue,fetchKey,checkKey,checkKeys,checkValue,checkValues,key,
-  fetchString,label,
+  fetchString,label,fetchLabel,
   Maker.number,leaf,fetchId, fetchBool,position
   ) where
 
 import TreeLike
-import Scoped (Error,Label,Atom(..),number,eventId,getPos)
+import Scoped (Error,Label,Atom(..),eventId,getPos)
 import qualified Data.Text as T(pack,Text)
 
 import Text.Parsec(parse)

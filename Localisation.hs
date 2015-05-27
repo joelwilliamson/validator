@@ -7,12 +7,10 @@
 module Localisation ( Entry(..), localisationFile) where
 
 import Data.Text as T
-import Text.Parsec
 import Data.List as L
 import Data.Either
 import Data.Maybe(catMaybes)
 import Data.Char(isSpace)
-import Control.Parallel.Strategies(using,rseq)
 
 
 data Entry = Entry {
@@ -39,14 +37,6 @@ entry' line = case T.splitOn ";" line of
   (key:english:french:german:polish:spanish:italian:hungarian:czech:_) → Right Entry {..}
   _ → Left line
   where source = ""
-
-
-optionEither :: Parsec Text u a → Parsec Text u b → Parsec Text u (Either a b)
-optionEither p1 p2 = do
-  r1 <- optionMaybe p1
-  case r1 of
-    Nothing → Right <$> p2
-    Just x1 → return $ Left x1
 
 line t = if T.head significant == '#'
          then Nothing

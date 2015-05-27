@@ -20,7 +20,6 @@ import Maker
 import Scoped(Label,Atom(..),EventId)
 
 import qualified Data.Text as T(Text,take,drop,pack)
-import Data.Monoid((<>))
 import Control.Applicative
 
 newtype Predicate = Predicate Atom
@@ -30,14 +29,6 @@ data Condition = Condition Predicate (Value ())
                  | Scoped (Scope Condition)
                  | VariableCheck Label (Either Label Double)
                  deriving (Eq,Ord,Show)
-{-
-instance TreeLike Condition where
-  toTree (Condition (Predicate p) (BooleanValue b)) = Node p [toTree b] Nothing
-  toTree (Condition (Predicate p) (NumValue n)) = Node p [toTree n] Nothing
-  toTree (Condition (Predicate p) (Id t)) = Node p [toTree t] Nothing
---  toTree (Condition (Predicate p) (Clause c)) = Node p [toTree c] Nothing
-  toTree (Scoped s) = toTree s
-  toTree _ = error "toTree :: Condition not fully defined"-}
 
 data Value a = BooleanValue Bool
            | NumValue Double
@@ -137,22 +128,6 @@ data ScopeType = Root | This
                | IdScope Label -- This is something like "e_..." or "%trait_name%"
                  deriving (Eq,Ord,Show)
 
-textify Root = "ROOT"
-textify This = "THIS"
-textify Prev = "PREV"
-textify PrevPrev = "PREVPREV"
-textify PrevPrevPrev = "PREVPREVPREV"
-textify PrevPrevPrevPrev = "PREVPREVPREVPREV"
-textify From = "FROM"
-textify FromFrom = "FROMFROM"
-textify FromFromFrom = "FROMFROMFROM"
-textify FromFromFromFrom = "FROMFROMFROMFROM"
-textify Trigger = "trigger"
-textify Limit = "limit"
-textify (EventTarget t) = "event_target:" <> t
-textify (CharacterScope l) = l
-textify (IdScope l) = l
-
 readScope :: Atom → ScopeType
 readScope (Label "ROOT") = Root
 readScope (Label "THIS") = This
@@ -181,9 +156,6 @@ data Scope a = Scope {
   content :: [a]
   } deriving (Eq,Ord,Show)
 
-{-instance TreeLike a ⇒ TreeLike (Scope a) where
-  toTree Scope {..} = Node (textify scopeType_) ((toTree <$> limit) <> (toTree <$> content)) Nothing
--}
 scope :: Maker a → Maker (Scope a)
 scope maker = Scope <$> scopeType <*> limit <*> content
   where limit = condition @@@ "limit"

@@ -29,14 +29,14 @@ module Scoped {-(
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import Data.List as L(find,filter,foldl')
-import TreeLike
-import Data.Char(isSpace,ord)
+import TreeLike(Tree(..),drawTree,rootLabel,source,subForest)
+import Data.Char(ord)
 import Text.Parsec hiding ((<|>),label)
 import Data.String(IsString,fromString)
 
 import Prelude hiding (lookup)
 
-import Data.Monoid
+import Data.Monoid((<>))
 import Control.Applicative((<|>))
 
 type Label = T.Text
@@ -72,6 +72,8 @@ fractionalPart accum factor = do
     Nothing → return accum
     Just n → fractionalPart (accum + factor* conv n) (factor/10)
     where conv n = fromIntegral $ ord n - 48
+
+decimal :: Parsec T.Text u Integer
 decimal = foldl' step 0 <$> many1 digit
   where step a c = a * 10 + fromIntegral (ord c - 48)
 number = Number <$> do
