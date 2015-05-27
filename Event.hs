@@ -164,8 +164,3 @@ stripBoM input = if BS.length input < 3
                  else case BS.take 3 input of
                    "\xef\xbb\xbf" → BS.drop 3 input
                    _ → input
-{-eventMaker f = do
-  contents ← BS.readFile f
-  let Right (namespace,events) = parseOnly eventFile $ Enc.decodeUtf8 $ stripBoM contents
-  return (getValue <$> namespace, runMaker event <$> events)
--}
