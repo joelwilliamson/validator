@@ -114,9 +114,9 @@ allLocalisations :: (FileCollection base, FileCollection mod) ⇒ base → Maybe
 allLocalisations game mod = do
     rawLocalisations ← getLocalisations game mod
     if any isLeft rawLocalisations
-    then Prelude.putStr (unlines . map unlines $ map (map show) $ lefts rawLocalisations) >> return []
+    then TIO.putStr (T.unlines $ lefts rawLocalisations) >> return []
     else return $ concat $ rights rawLocalisations
-getLocalisations :: (FileCollection base, FileCollection mod) ⇒ base → Maybe mod → IO [Either [T.Text] [Entry]]
+getLocalisations :: (FileCollection base, FileCollection mod) ⇒ base → Maybe mod → IO [Either T.Text [Entry]]
 getLocalisations gamePath modPath = do
   (baseFiles,modFiles) ← getFiles gamePath modPath "localisation"
   contents ← liftA2 (<>) (zip (map fileName baseFiles) <$> decodeFiles gamePath baseFiles)
@@ -212,16 +212,34 @@ argDispatcher a action result = do
   when (localisationKeys a)
     $ atomically (writeTChan action Localisations) >> atomically (readTChan result)  >>= TIO.putStrLn
 
+
+-- There will be three entry possibilities.
+-- Mode   | baseType  | modType
+-- server | directory | archive
+-- local  | directory | archivePath
+-- local  | directory | directoryPath
+-- In each mode, we want a function that returns a path to a directory containing
+-- the mod files.
+archiveMod :: Archive → IO FilePath
+archiveMod = extractArchiveToTemp
+localMod path = do
+  isDir ← doesDirectoryExist path
+  if isDir
+    then return path
+    else BS.readFile path >>= return . toArchive . BS.fromStrict >>= extractArchiveToTemp
+
 main = do
   (rawArgs,_,_) ← getOpt Permute options <$> getArgs
   let args = foldl' (flip ($)) defaultArgs rawArgs
   when (showHelp args)
     $ Prelude.putStrLn (usageInfo "validator:" options) >> exitSuccess
-  let (modPath,gamePath) = (modRootPath args,gameRootPath args)
-  modArch ← sequence $ (toArchive . BS.fromStrict <$>) <$> (BS.readFile <$> modPath)
-  (baseEvents,modEvents) ← getEvents gamePath modArch
-  -- WARNING: Partial
-  (Right locs) ← sequence <$> getLocalisations gamePath modArch
+  let (rawModPath,gamePath) = (modRootPath args,gameRootPath args)
+  modPath ← sequence $ localMod <$> rawModPath
+  (baseEvents,modEvents) ← getEvents gamePath modPath
+  uncheckedLocalisations ← sequence <$> getLocalisations gamePath modPath
+  let locs = (case uncheckedLocalisations of
+                 Right l → trace "got localisations" l
+                 Left e → error $ "localisation error: " <> T.unpack e)
   (action,result) ← startCheck Resources { baseEvents, modEvents, localisations = concat locs }
   argDispatcher args action result
   exitSuccess

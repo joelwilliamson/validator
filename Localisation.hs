@@ -6,11 +6,11 @@
 
 module Localisation ( Entry(..), localisationFile) where
 
-import Data.Text as T
-import Data.List as L
+import Data.Text as T(Text,pack)
 import Data.Either
-import Data.Maybe(mapMaybe)
-import Data.Char(isSpace)
+import Data.Monoid((<>))
+import Control.Applicative(many)
+import Data.Attoparsec.Text as A(char,eitherP,endOfLine,isEndOfLine,isHorizontalSpace,many1,many',option,parseOnly,satisfy,sepBy',space,takeTill,takeWhile,takeWhile1)
 
 
 data Entry = Entry {
@@ -32,13 +32,38 @@ instance Eq Entry where
 instance Ord Entry where
   Entry { key = k1 } `compare` Entry { key = k2 } = k1 `compare` k2
 
+text = A.takeWhile (\c → c/=';' && c/='#') <* char ';'
+comment = option "" (many' space
+                      *> char '#'
+                      *> A.takeTill isEndOfLine)
+entry = do
+  key ← A.takeWhile1 (\c → not (isHorizontalSpace c) && c /=';' && c /= '#') <* char ';'
+  english ← text
+  french ← text
+  german ← text
+  polish ← text
+  spanish ← text
+  italian ← text
+  hungarian ← text
+  czech ← text
+  _ ← many' (char ';') *> char 'x'
+  let source = ""
+  return Entry {..}
+
+line = eitherP (entry <* A.takeTill isEndOfLine) comment
+
+localisationFile ::FilePath → Text → Either Text [Entry]
+localisationFile file t = case parseOnly (sepBy' line (many1 endOfLine) <* (many $ satisfy isEndOfLine)) t of
+  Left e → Left $ "Error in localisation file " <> pack file <> ": " <> pack e
+  Right es → Right $ lefts es
+{-
 entry' :: Text → Either Text Entry
 entry' line = case T.splitOn ";" line of
   (key:english:french:german:polish:spanish:italian:hungarian:czech:_) → Right Entry {..}
   _ → Left line
   where source = ""
 
-line t = if T.head significant == '#'
+line t = if T.null signficant || T.head significant == '#'
          then Nothing
          else Just $ entry' significant
   where significant = T.dropWhile isSpace t
@@ -50,3 +75,4 @@ localisationFile file t = if anyFailed
   where raw = mapMaybe line $ T.lines t
         anyFailed = L.any isLeft raw
         
+-}
