@@ -118,8 +118,8 @@ option = Option <$> (getLabel <$> firstChild key) @? "name"
   
 --eventFile :: Parsec Text u1 ([Tree Atom],[Tree Atom])
 eventFile = do
-  _ ← sep
-  namespacesEvents ← many' value
+  _ ← A.sep
+  namespacesEvents ← many' A.value
   let namespaces = L.filter ((==Label "namespace") . rootLabel) namespacesEvents
   let events = L.filter ((/=Label "namespace") . rootLabel) namespacesEvents
   return (namespaces,events)

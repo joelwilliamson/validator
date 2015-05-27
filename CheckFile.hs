@@ -34,7 +34,7 @@ import Data.Text.IO as TIO hiding (readFile)
 import Data.Text.Encoding (decodeLatin1)
 import qualified Data.Text as T(pack,unlines,length)
 import Text.Parsec(parse,ParseError)
-import Text.Parsec.Pos(sourceName)
+import Text.Parsec.Pos(sourceName,initialPos)
 import Data.Attoparsec.Text(parseOnly)
 import Data.Either
 import Data.Maybe
@@ -52,6 +52,8 @@ import Control.Concurrent.STM.TChan
 import Control.Concurrent(forkIO)
 import Control.Parallel.Strategies(parListChunk,rseq,using)
 
+import Control.Monad.State(runStateT)
+
 import Prelude hiding (readFile)
 
 printErrors file (Left (e,Nothing)) = TIO.putStrLn (T.pack (fileName file) <> ": " <> e)
@@ -67,7 +69,7 @@ stripBoM input = if BS.length input < 3
 checkFile :: File f ⇒ f → IO (Maybe [Event])
 checkFile file = do
   fileContents ← decodeLatin1 . stripBoM . BS.toStrict <$> readFile file
-  parseResult ← case parseOnly eventFile fileContents of
+  parseResult ← case parseOnly (fst <$> runStateT eventFile (initialPos $ fileName file))  fileContents of
     Right x → return x
     Left x → Prelude.putStrLn (fileName file <> ": " <> show x) >> return ([],[])
   let events' = map (runMaker event) $ snd parseResult
