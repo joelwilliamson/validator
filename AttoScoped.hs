@@ -39,7 +39,7 @@ isNumeric c = isDigit c || c == '.'
 -- | Recognize any whitespace characters, and handle track line count
 space :: StatefulParser Char
 space = lift (satisfy sameLine) <|>
-        lift (satisfy newLine) <* modify (flip incSourceLine 1)
+        lift (satisfy newLine) <* modify (`incSourceLine` 1)
   where sameLine c = c == ' ' || c == '\t' || c == '\r'
         newLine c = c == '\n'
 
@@ -84,20 +84,13 @@ spawnBlock = do
   r ← literal
   _ ← sep
   _ ← lift $ char '}'
-  return $ [Node l (singleton r) Nothing]
+  return [Node l (singleton r) Nothing]
 
 regularBlock :: StatefulParser [Block]
 regularBlock = do
   _ ← lift $ char '{'
   _ ← sep
-  elems ← many' (do
-    l ← literal
-    _ ← sep
-    _ ← lift $ char '='
-    _ ← sep
-    r ← rhs
-    _ ← sep
-    return $ Node l r Nothing) :: StatefulParser [Block]
+  elems ← many' value
   _ ← lift $ char '}'
   return elems
 

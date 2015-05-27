@@ -40,9 +40,9 @@ instance Localised Command where
   localisations (Comm.Scoped s) = localisations s
   localisations (SetFlag _ _) = [] -- Flags never are localised
   localisations (ClrFlag _ _) = []
-  localisations (VarOpLit _ _ _) = []
-  localisations (VarOpVar _ _ _) = []
-  localisations (VarOpScope _ _ _) = []
+  localisations VarOpLit {} = []
+  localisations VarOpVar {} = []
+  localisations VarOpScope {} = []
   localisations (Concrete _ _) = []
 
 instance Localised Modifier where

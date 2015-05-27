@@ -25,7 +25,7 @@ import Debug.Trace(trace)
   
 import System.Console.GetOpt(ArgDescr(..),ArgOrder(Permute),OptDescr(..),getOpt,usageInfo)
 import System.Environment(getArgs)
-import System.Exit(ExitCode(..),exitWith)
+import System.Exit(ExitCode(..),exitWith,exitSuccess)
 
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BS(toStrict,fromStrict)
@@ -40,7 +40,7 @@ import Data.Monoid((<>))
 import Data.Foldable(foldl')
 import Data.List as L(nub,sort)
 import qualified  Data.Set as S(Set,fromList,difference,toList,map)
-import Control.Monad(filterM)
+import Control.Monad(filterM,when)
 import Control.Applicative(liftA2)
 import Codec.Archive.Zip(toArchive)
 
@@ -81,15 +81,12 @@ checkFile file = do
 -- the events parsed.
 checkFiles :: File file ⇒ [file] → IO [Event]
 checkFiles names = do
-  checked ← sequence $ (map checkFile names `using` parListChunk 4 rseq)
+  checked ← sequence (map checkFile names `using` parListChunk 4 rseq)
   let results = zip names checked
   let errors = filter (isNothing . snd) results
   if null errors
-    then return $ concat $ map fromJust checked
+    then return $ concatMap fromJust checked
     else exitWith $ ExitFailure 1
-
-thenDo :: Bool → IO () → IO ()
-cond `thenDo` action = if cond then action else return ()
 
 strings :: ([Event],[Event]) → T.Text
 strings (_,modEvents) = T.unlines . L.nub . L.sort $ gatherStrings modEvents
@@ -97,15 +94,14 @@ strings (_,modEvents) = T.unlines . L.nub . L.sort $ gatherStrings modEvents
 locals :: S.Set Event → S.Set Entry → T.Text
 locals events keys =
   -- For each event, get all the localisation keys and pair them with the name of the file
-  let usedKeys = S.fromList $ concat $ map (\e → map (flip emptyEntry (fileFromSource $ Event.source e)) $ GL.localisations e) $ S.toList events in
---  let unused = keys `S.difference` usedKeys in
+  let usedKeys = S.fromList $ concatMap (\e → map (`emptyEntry` (fileFromSource $ Event.source e)) $ GL.localisations e) $ S.toList events in
   let notDefined = usedKeys `S.difference` keys in
-  "Undefined keys:\n" <> (T.unlines $ S.toList
+  "Undefined keys:\n" <> T.unlines (S.toList
                           $ S.map (\l → Localisation.key l
                                       <> " in "
                                       <> T.pack (Localisation.source l))
-                          $ notDefined)
-  where emptyEntry k s = Entry k "" "" "" "" "" "" "" "" s
+                          notDefined)
+  where emptyEntry k = Entry k "" "" "" "" "" "" "" ""
 
         fileFromSource (Just s) = sourceName s
         fileFromSource Nothing = "unknown"
@@ -115,7 +111,7 @@ allLocalisations :: (FileCollection base, FileCollection mod) ⇒ base → Maybe
 allLocalisations game mod = do
     rawLocalisations ← getLocalisations game mod
     if any isLeft rawLocalisations
-    then (Prelude.putStr $ unlines . map unlines $ map (map show) $ lefts rawLocalisations) >> return []
+    then Prelude.putStr (unlines . map unlines $ map (map show) $ lefts rawLocalisations) >> return []
     else return $ concat $ rights rawLocalisations
 getLocalisations :: (FileCollection base, FileCollection mod) ⇒ base → Maybe mod → IO [Either [T.Text] [Entry]]
 getLocalisations gamePath modPath = do
@@ -146,13 +142,13 @@ defaultArgs = Args {
 
 options :: [OptDescr (Args → Args)]
 options =
-  [ Option ['s'] ["strings"] (NoArg $ \o → o { stringResources = True }) "find all string resources referenced by events"
-  , Option ['l'] ["localisations"] (NoArg $ \o → o { localisationKeys = True }) "find all localisation keys"
+  [ Option "s" ["strings"] (NoArg $ \o → o { stringResources = True }) "find all string resources referenced by events"
+  , Option "l" ["localisations"] (NoArg $ \o → o { localisationKeys = True }) "find all localisation keys"
   ]
-  <> [ Option ['G'] ["game-dir"] (ReqArg (\fp o → o { gameRootPath = fp }) "DIR") "folder containing the base game"
-     , Option ['M'] ["mod-dir"] (ReqArg (\fp o → o { modRootPath = Just fp}) "DIR") "folder containing the mod"
+  <> [ Option "G" ["game-dir"] (ReqArg (\fp o → o { gameRootPath = fp }) "DIR") "folder containing the base game"
+     , Option "M" ["mod-dir"] (ReqArg (\fp o → o { modRootPath = Just fp}) "DIR") "folder containing the mod"
      ]
-  <> [ Option ['h'] ["help"] (NoArg $ \o → o { showHelp = True }) "print this message"
+  <> [ Option "h" ["help"] (NoArg $ \o → o { showHelp = True }) "print this message"
      ]
 
 getDirectoryFiles :: FileCollection d ⇒ d → FilePath → IO [FilePath]
@@ -201,32 +197,28 @@ dispatchFromChan resources action response = do
 -- requests to the thread, while the second is used to send results back
 startCheck :: Resources → IO (TChan Action, TChan T.Text)
 startCheck resources = do
-  action ← atomically $ newTChan
-  response ← atomically $ newTChan
+  action ← atomically newTChan
+  response ← atomically newTChan
   _ ← forkIO $ dispatchFromChan resources action response
   return (action,response)
 
 argDispatcher :: Args → TChan Action → TChan T.Text → IO ()
 argDispatcher a action result = do
-  _ ← if stringResources a
-      then atomically (writeTChan action Strings) >> atomically (readTChan result) >>= TIO.putStrLn
-      else return ()
-  if localisationKeys a
-    then atomically (writeTChan action Localisations) >> atomically (readTChan result)  >>= TIO.putStrLn
-    else return ()
+  _ ← when (stringResources a)
+    $ atomically (writeTChan action Strings) >> atomically (readTChan result) >>= TIO.putStrLn
+  when (localisationKeys a)
+    $ atomically (writeTChan action Localisations) >> atomically (readTChan result)  >>= TIO.putStrLn
 
 main = do
   (rawArgs,_,_) ← getOpt Permute options <$> getArgs
   let args = foldl' (flip ($)) defaultArgs rawArgs
-  if showHelp args
-    then (Prelude.putStrLn $ usageInfo "validator:" options) >> exitWith ExitSuccess
-    else return ()
+  when (showHelp args)
+    $ Prelude.putStrLn (usageInfo "validator:" options) >> exitSuccess
   let (modPath,gamePath) = (modRootPath args,gameRootPath args)
   modArch ← sequence $ (toArchive . BS.fromStrict <$>) <$> (BS.readFile <$> modPath)
   (baseEvents,modEvents) ← getEvents gamePath modArch
   -- WARNING: Partial
   (Right locs) ← sequence <$> getLocalisations gamePath modArch
-  Prelude.putStrLn $ show gamePath
   (action,result) ← startCheck Resources { baseEvents, modEvents, localisations = concat locs }
   argDispatcher args action result
-  exitWith $ ExitSuccess
+  exitSuccess

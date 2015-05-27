@@ -101,7 +101,7 @@ checkKey k = Maker $ \t -> if k == rootLabel t
                              then Right $ show' $ rootLabel t
                              else Left ("Check for "<>show' k<>" failed. Found: "<>show' (rootLabel t),source t)
 checkValue = firstChild . checkKey
-checkKeys keys = Maker $ \t → if rootLabel t `elem` (map Label keys)
+checkKeys keys = Maker $ \t → if rootLabel t `elem` map Label keys
                               then Right $ rootLabel t
                               else Left ("Check for keys failed. Found: " <> show' (rootLabel t), source t)
 checkValues :: [Label] → Maker Atom

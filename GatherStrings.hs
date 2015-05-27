@@ -27,7 +27,7 @@ instance (GatherStrings a, GatherStrings b, GatherStrings c) => GatherStrings (a
   gatherStrings (a,b,c) = gatherStrings a <> gatherStrings b <> gatherStrings c
 
 instance GatherStrings a => GatherStrings [a] where
-  gatherStrings = concat . map gatherStrings
+  gatherStrings = concatMap gatherStrings
 
 instance GatherStrings Command where
   gatherStrings (If conds comms) = gatherStrings conds <> gatherStrings comms

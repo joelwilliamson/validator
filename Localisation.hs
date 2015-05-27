@@ -9,7 +9,7 @@ module Localisation ( Entry(..), localisationFile) where
 import Data.Text as T
 import Data.List as L
 import Data.Either
-import Data.Maybe(catMaybes)
+import Data.Maybe(mapMaybe)
 import Data.Char(isSpace)
 
 
@@ -47,6 +47,6 @@ localisationFile :: FilePath → Text → Either [Text] [Entry]
 localisationFile file t = if anyFailed
                      then Left $ lefts raw
                      else Right $ L.map (\e → e { source = file } ) $ rights raw
-  where raw = catMaybes $ L.map line $ T.lines t
+  where raw = mapMaybe line $ T.lines t
         anyFailed = L.any isLeft raw
         

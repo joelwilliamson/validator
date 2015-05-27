@@ -79,7 +79,7 @@ decimal = foldl' step 0 <$> many1 digit
 number = Number <$> do
   positive ← (False <$ char '-') <|> pure True
   n ← decimal
-  f ← option 0 (char '.' *> fractionalPart 0 (0.1))
+  f ← option 0 (char '.' *> fractionalPart 0 0.1)
   if positive
     then return $ fromIntegral n + f
     else return (-(fromIntegral n + f))
@@ -113,25 +113,10 @@ block = try (do
                       contents ← many value
                       _ ← sep
                       _ ← char '}'
-                      return $ contents
+                      return contents
                   )
 eventId = (,) <$> option "" (T.pack <$> many1 (letter <|> char '_') <* char '.') <*> number
 
-{-
-number = do
-  n <- optionMaybe neg
-  v <- naturalOrFloat scopedParser
-  return $ case (n,v) of
-    (Nothing,Left i) → fromIntegral i
-    (Just _,Left i) → negate $ fromIntegral i
-    (Nothing,Right f) → f
-    (Just _,Right f) → negate f
-
-eventId :: Parsec T.Text u EventId
-eventId = (,) <$> option "" ((T.pack <$> many1 (letter <|> char '_')) <* Scoped.dot) <*> intLit
-
-
--}
 quickParse p s = res
   where res = case parse p "quickParse" s of
           (Right x) -> x
@@ -139,40 +124,7 @@ quickParse p s = res
 
 quickDraw :: Show a => Tree a -> IO ()
 quickDraw t = TIO.putStr $ drawTree $ (T.pack . show) <$> t
-{-
-parseValue :: Parsec T.Text u (Tree Atom)
-parseValue =
-  try (do
-          -- These are used in spawn_unit/spawn_fleet
-          n1 <- number
-          s1 <- getPosition
-          n2 <- number
-          s2 <- getPosition
-          return $ Node n1 [Node n2 [] $ Just s2] $ Just s1
-      )
-  <|> (do
-          l <- label
-          equal
-          v <- parseBlock
-          s <- getPosition
-          return $ Node l v $ Just s
-      )
 
-parseBlock :: Parsec T.Text u [Tree Atom]
-parseBlock = parseLabel <|> parseStringLit <|> parseNumber <|> nested (many parseValue)
-  where parseLabel = do
-          l <- label
-          s <- getPosition
-          return [singleton l s]
-        parseStringLit = do
-          str <- stringLit
-          s <- getPosition
-          return [singleton str s]
-        parseNumber = do
-          num <- number
-          s <- getPosition
-          return [singleton num s]
--}
 getValue :: Tree a -> a
 getValue Node { subForest }  = rootLabel $ head subForest
 
