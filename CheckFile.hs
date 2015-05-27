@@ -9,6 +9,7 @@ import Maker
 import GatherStrings (gatherStrings)
 import qualified  GatherLocalisations as GL (localisations)
 import Localisation
+import Extract(extractArchiveToTemp)
 
 import Codec.Archive.FileCollection (
   FileCollection,
@@ -26,6 +27,7 @@ import Debug.Trace(trace)
 import System.Console.GetOpt(ArgDescr(..),ArgOrder(Permute),OptDescr(..),getOpt,usageInfo)
 import System.Environment(getArgs)
 import System.Exit(ExitCode(..),exitWith,exitSuccess)
+import System.Directory(doesDirectoryExist)
 
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BS(toStrict,fromStrict)
@@ -39,10 +41,10 @@ import Data.Maybe(fromJust,isNothing)
 import Data.Monoid((<>))
 import Data.Foldable(foldl')
 import Data.List as L(nub,sort)
-import qualified  Data.Set as S(Set,fromList,difference,toList,map)
+import qualified  Data.Set as S(Set,fromList,difference,toList,map,size)
 import Control.Monad(filterM,when)
 import Control.Applicative(liftA2)
-import Codec.Archive.Zip(toArchive)
+import Codec.Archive.Zip(Archive,toArchive)
 
 import Control.Monad.STM(atomically)
 import Control.Concurrent.STM.TChan
@@ -68,12 +70,12 @@ checkFile file = do
   fileContents ← decodeLatin1 . stripBoM . BS.toStrict <$> readFile file
   parseResult ← case parseOnly (fst <$> runStateT eventFile (initialPos $ fileName file))  fileContents of
     Right x → return x
-    Left x → Prelude.putStrLn (fileName file <> ": " <> show x) >> return ([],[])
+    Left x → trace ("Parse failed in " <> fileName file) $ Prelude.putStrLn (fileName file <> ": " <> show x) >> return ([],[])
   let events' = map (runMaker event) $ snd parseResult
   mapM_ (printErrors file) events'
   return $ if isRight $ sequence events'
-           then Just $ rights events'
-           else Nothing
+           then trace ("Found events: " <> show (Prelude.length $ rights events')) $ Just $ rights events'
+           else trace ("No events found " <> fileName file) Nothing
 
 -- checkFiles takes a list of file paths and checks the syntax in each of them.
 -- If any errors are found, a summary of the files with errors is printed and
@@ -96,7 +98,8 @@ locals events keys =
   -- For each event, get all the localisation keys and pair them with the name of the file
   let usedKeys = S.fromList $ concatMap (\e → map (`emptyEntry` (fileFromSource $ Event.source e)) $ GL.localisations e) $ S.toList events in
   let notDefined = usedKeys `S.difference` keys in
-  "Undefined keys:\n" <> T.unlines (S.toList
+  "Used keys: " <> (T.pack $ show $ S.size usedKeys)
+  <> "\nUndefined keys:\n" <> T.unlines (S.toList
                           $ S.map (\l → Localisation.key l
                                       <> " in "
                                       <> T.pack (Localisation.source l))
