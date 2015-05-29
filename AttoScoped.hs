@@ -34,7 +34,7 @@ type StatefulParser = StateT SourcePos Parser
 
 singleton x = [Node x [] Nothing]
 
-isNumeric c = isDigit c || c == '.'
+isNumeric c = isDigit c || c == '.' || c == '-'
 
 -- | Recognize any whitespace characters, and handle track line count
 space :: StatefulParser Char
