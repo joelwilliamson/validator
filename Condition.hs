@@ -27,6 +27,9 @@ newtype Predicate = Predicate Atom
 data Condition = Condition Predicate (Value ())
                  | Scoped (Scope Condition)
                  | VariableCheck Label (Either Label Double)
+                 | Or [Condition]
+                 | And [Condition]
+                 | Not Condition
                  deriving (Eq,Ord,Show)
 
 data Value a = BooleanValue Bool
@@ -196,12 +199,15 @@ predicate = Predicate <$> checkKeys predicates
 isStringy (Predicate p) = p `elem` [Label "trait"]
                  
 condition:: Maker Condition
-condition = simple <|> variableCheck <|> clausal <|> (Scoped <$> scope condition)
-  where simple  = Condition <$> (singleChild *> predicate) <*> firstChild value
+condition = simple <|> boolean <|> variableCheck <|> clausal <|> (Scoped <$> scope condition)
+  where simple  = Condition <$> (predicate) <*> firstChild value
         variableCheck =
           VariableCheck <$> fetchString @@ "which" <*> (Left <$> fetchString @@ "which"
                                                        <|> Right <$> number @@ "value")
         clausal = Condition <$> predicate <*> (Clause <$> clause)
+        boolean = And <$> (checkKey "AND" *> mapSubForest condition)
+                  <|> Or <$> (checkKey "OR" *> mapSubForest condition)
+                  <|> Not <$> (checkKey "NOT" *> firstChild condition)
  
 predicates :: [Label]
 predicates = ["random","AND","OR","NOT","calc_if_true"

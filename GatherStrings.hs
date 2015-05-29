@@ -1,4 +1,5 @@
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE UnicodeSyntax #-}
 -- Traverse the entire AST to find any arguments to string-like commands or conditions
 
 module GatherStrings where
@@ -8,6 +9,7 @@ import Command as Comm(Command(..),Modifier(..),stringyCommands)
 import Condition(Clause(..),Condition(..),Predicate(..),Scope(..),ScopeType(..),Value(..))
 import Event as E(Event(..),Option(..))
 
+import Data.Text(Text)
 import Data.Monoid((<>))
 import Data.Maybe(fromMaybe)
 
@@ -20,13 +22,19 @@ instance GatherStrings () where
 instance GatherStrings Double where
   gatherStrings _ = []
 
+instance GatherStrings Text where
+  gatherStrings x = [x]
+
 instance (GatherStrings a, GatherStrings b) => GatherStrings (a,b) where
   gatherStrings (a,b) = gatherStrings a <> gatherStrings b
 
 instance (GatherStrings a, GatherStrings b, GatherStrings c) => GatherStrings (a,b,c) where
   gatherStrings (a,b,c) = gatherStrings a <> gatherStrings b <> gatherStrings c
 
-instance GatherStrings a => GatherStrings [a] where
+instance GatherStrings a ⇒ GatherStrings [a] where
+  gatherStrings = concatMap gatherStrings
+
+instance GatherStrings a ⇒ GatherStrings (Maybe a) where
   gatherStrings = concatMap gatherStrings
 
 instance GatherStrings Command where
@@ -55,6 +63,9 @@ instance GatherStrings Condition where
   gatherStrings (Condition (Predicate _) v) = gatherStrings v
   gatherStrings (Condition.Scoped s) = gatherStrings s
   gatherStrings (VariableCheck _ _) = []
+  gatherStrings (Or cs) = gatherStrings cs
+  gatherStrings (And cs) = gatherStrings cs
+  gatherStrings (Not c) = gatherStrings c
 
 instance GatherStrings c => GatherStrings (Value c) where
   gatherStrings (BooleanValue _) = []
