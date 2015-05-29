@@ -46,7 +46,6 @@ entry = do
   italian ← text
   hungarian ← text
   czech ← text
-  _ ← many' (char ';') *> char 'x'
   let source = ""
   return Entry {..}
 
