@@ -52,13 +52,13 @@ stringLiteral = Label <$> lift (char '"' *> takeWhile (/='"') <* char '"')
 -- | Recognize an identifier, number or string literal
 literal :: StatefulParser Atom
 literal = stringLiteral <|> do
-  raw ← lift $ takeWhile1 (not . special)
-  if all isNumeric raw
-    then return $ Number $ case parseOnly double raw of
+  raw ← {-# SCC "literal-raw-parse" #-} lift $ takeWhile1 (not . special)
+  if {-# SCC "literal-is-numeric" #-} all isNumeric raw
+    then {-# SCC "literal-parse-numeric" #-} return $ Number $ case parseOnly double raw of
                                 Right n → n
                                 Left e → error $ show e <> " at AttoScoped.hs:31 with input " <> show raw
     else return $ Label raw
-  where special c = ord c <= 32 || c == '#' || c == '=' || ord c >= 123
+  where special c = {-# SCC "literal-special-p" #-} ord c <= 32 || c == '#' || c == '=' || ord c >= 123
 
 -- Parse everything following a '#' to the eol
 comment = takeTill isEndOfLine
