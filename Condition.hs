@@ -128,6 +128,7 @@ data ScopeType = Root | This
                | EventTarget Label
                | CharacterScope Label -- This is something like "any_..." or "top_liege"
                | IdScope Label -- This is something like "e_..." or "%trait_name%"
+               | NumScope Double -- This is a fake scope. A scope should never be a number
                  deriving (Eq,Ord,Show)
 
 readScope :: Atom → ScopeType
@@ -147,7 +148,7 @@ readScope (Label s)
   | T.take 13 s == "event_target:" = EventTarget $ T.drop 13 s
   | s `elem` characterScope = CharacterScope s
   | otherwise = IdScope s
-readScope (Number n) = IdScope $ T.pack $ show n
+readScope (Number n) = NumScope n
 
 scopeType = readScope <$> fetchKey
 

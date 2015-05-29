@@ -97,9 +97,11 @@ fetchString = Maker $ \t → case subForest t of
   _ → Left ("Expected a string for value of "<> show' (rootLabel t) <> ", got a block.", source t)
 mapSubForest (Maker f) = Maker $ \t -> mapM f $ subForest t
 filterSubForest p (Maker f) = Maker $ f . (\Node { subForest = s, rootLabel, source } -> Node { subForest = filter p s, rootLabel, source })
-checkKey k = Maker $ \t -> if k == rootLabel t
-                             then Right $ show' $ rootLabel t
-                             else Left ("Check for "<>show' k<>" failed. Found: "<>show' (rootLabel t),source t)
+checkKey k = Maker $ \t -> case rootLabel t of
+  Label l → if l == k
+            then Right $ l
+            else Left ("Check for "<>show' k<>" failed. Found: "<>show' (rootLabel t),source t)
+  Number _ → Left ("Check for key "<>show' k<>" failed. Found number",source t)
 checkValue = firstChild . checkKey
 checkKeys keys = Maker $ \t → if rootLabel t `elem` map Label keys
                               then Right $ rootLabel t
@@ -120,7 +122,7 @@ label :: Maker Atom → Maker Label
 label (Maker f) = Maker $ \t → case f t of
   Left l → Left l
   Right (Label l) → Right l
-  Right (Number n) → Right $ show' n
+  Right (Number n) → error $ "Encountered number " <> show n
 key :: Maker Atom
 key = Maker $ \ t → Right $ rootLabel t
 
