@@ -34,7 +34,6 @@ instance Localised a ⇒ Localised [a] where
 instance Localised Command where
   localisations (If conds comms) = localisations conds <> localisations comms
   localisations Break = []
---  localisations (Comm.Limit _) = []
   localisations (Random _ _ comms) = localisations comms
   localisations (RandomList os) = localisations os
   localisations (Comm.Scoped s) = localisations s
@@ -47,9 +46,6 @@ instance Localised Command where
 
 instance Localised Modifier where
   localisations (Modifier _ _) = []
-
---instance Localised Comm.Option where
---  localisations (Comm.Option _ _ comms) = localisations comms
 
 instance Localised Condition where
   localisations _ = []
