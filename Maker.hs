@@ -4,12 +4,12 @@ module Maker (
   (@@),(@?),(@@@),(@@#),(/@@),(/@#),(<?>),(@~),
   firstChild,secondChild,mapSubForest,filterSubForest,singleChild,
   fetchValue,fetchKey,checkKey,checkKeys,checkValue,checkValues,key,
-  fetchString,label,fetchLabel,
+  fetchString,label,fetchLabel,checkBool,
   Maker.number,leaf,fetchId, fetchBool,position
   ) where
 
 import TreeLike
-import Scoped (Error,Label,Atom(..),eventId,getPos)
+import Scoped (Error,Label,Atom(..),eventId,getPos,lookup)
 import qualified Data.Text as T(pack,Text)
 
 import Text.Parsec(parse)
@@ -18,7 +18,7 @@ import Control.Applicative
 import Data.Monoid((<>))
 import Data.Foldable(find)
 
-import Prelude hiding (concat)
+import Prelude hiding (concat,lookup)
 
 show' :: Show a ⇒ a → T.Text
 show' = T.pack . show
@@ -118,7 +118,7 @@ number = Maker $ \t → case rootLabel t of
   Scoped.Label l → Left ("Not a number: "<> show' l, source t)
   Scoped.Number n → Right n
 
-checkBool :: Text → Tree Text → Either Error (Maybe Bool)
+checkBool :: T.Text → Tree T.Text → Either Error (Maybe Bool)
 checkBool key t = case lookup key t of
   Just "true" → Right $ Just True
   Just "yes" → Right $ Just True
