@@ -36,10 +36,13 @@ singleton x = [Node x [] Nothing]
 
 isNumeric c = isDigit c || c == '.' || c == '-'
 
+nextLine :: StatefulParser ()
+nextLine = modify (`incSourceLine` 1)
+
 -- | Recognize any whitespace characters, and handle track line count
 space :: StatefulParser Char
 space = lift (satisfy sameLine) <|>
-        lift (satisfy newLine) <* modify (`incSourceLine` 1)
+        lift (satisfy newLine) <* nextLine
   where sameLine c = c == ' ' || c == '\t' || c == '\r'
         newLine c = c == '\n'
 
