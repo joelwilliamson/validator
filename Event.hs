@@ -2,7 +2,13 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE UnicodeSyntax #-}
 
-module Event where
+module Event
+       (
+         Event(..)
+       , Option(..)
+       , event
+       , eventFile
+       )where
 
 import Scoped(EventId,Atom(..),Label,Error,lookup)
 import AttoScoped as A(sep,value)
