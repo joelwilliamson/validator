@@ -45,6 +45,12 @@ instance Alternative Maker where
     Left _ → my t
     r → r
 
+instance Monad Maker where
+  return x = Maker $ \_ → Right x
+  (Maker f1) >>= f = Maker $ \t → case f1 t of
+    Left l → Left l
+    Right a → runMaker (f a) t
+
 infix 0 <?>
 (Maker f) <?> msg = Maker $ \t → case f t of
   r@(Right _) → r
