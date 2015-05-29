@@ -13,11 +13,12 @@ import Maker(Maker,(@@),(@?),(@@@),(/@@),(/@#),(<?>),(@@#)
 import Command(Command,command)
 
 import Data.Attoparsec.Text(many')
-import Text.Parsec hiding (label,(<?>),option)
+import Text.Parsec.Pos(SourcePos)
 import Data.Text
 import qualified Data.ByteString as BS
 import Control.Monad.Writer
 import qualified Data.List as L
+import Data.Maybe(maybeToList)
 
 import Prelude hiding (id,lines,lookup,putStrLn,unlines)
 
