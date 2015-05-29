@@ -118,6 +118,15 @@ number = Maker $ \t → case rootLabel t of
   Scoped.Label l → Left ("Not a number: "<> show' l, source t)
   Scoped.Number n → Right n
 
+checkBool :: Text → Tree Text → Either Error (Maybe Bool)
+checkBool key t = case lookup key t of
+  Just "true" → Right $ Just True
+  Just "yes" → Right $ Just True
+  Just "false" → Right $ Just False
+  Just "no" → Right $ Just False
+  Just v → Left (key <> " has the non-boolean value: " <> v, TreeLike.source t)
+  Nothing → Right Nothing
+
 leaf = Maker $ \t → if null $ subForest t
                     then case rootLabel t of
                       Number n → Right $ show' n

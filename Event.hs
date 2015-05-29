@@ -111,15 +111,6 @@ eventFile = do
   let events = L.filter ((/=Label "namespace") . rootLabel) namespacesEvents
   return (namespaces,events)
 
-checkBool :: Text → Tree Text → Either Error (Maybe Bool)
-checkBool key t = case lookup key t of
-  Just "true" → Right $ Just True
-  Just "yes" → Right $ Just True
-  Just "false" → Right $ Just False
-  Just "no" → Right $ Just False
-  Just v → Left (key <> " has the non-boolean value: " <> v, TreeLike.source t)
-  Nothing → Right Nothing
-
 event :: Maker Event
 event = Event
         <$> eventTyp
