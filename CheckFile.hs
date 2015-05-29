@@ -74,8 +74,8 @@ checkFile file = do
   let events' = map (runMaker event) $ snd parseResult
   mapM_ (printErrors file) events'
   return $ if isRight $ sequence events'
-           then trace ("Found events: " <> show (Prelude.length $ rights events')) $ Just $ rights events'
-           else trace ("No events found " <> fileName file) Nothing
+           then Just $ rights events'
+           else Nothing
 
 -- checkFiles takes a list of file paths and checks the syntax in each of them.
 -- If any errors are found, a summary of the files with errors is printed and
