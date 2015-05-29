@@ -33,7 +33,7 @@ setFlag =  SetFlag <$> (checkKey "set_character_flag" $> Character
                         <|> checkKey "set_dynasty_flag" $> Dynasty
                         <|> checkKey "set_global_flag" $> Dynasty)
 clrFlag :: Maker (Label → Command)
-clrFlag =  SetFlag <$> (checkKey "clr_character_flag" $> Character
+clrFlag =  ClrFlag <$> (checkKey "clr_character_flag" $> Character
                         <|> checkKey "clr_province_flag" $> Province
                         <|> checkKey "clr_title_flag" $> Title
                         <|> checkKey "clr_dynasty_flag" $> Dynasty
