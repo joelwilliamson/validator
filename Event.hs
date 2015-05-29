@@ -22,7 +22,6 @@ import Data.Maybe(maybeToList)
 
 import Prelude hiding (id,lines,lookup,putStrLn,unlines)
 
-
 render Node {rootLabel = l, subForest =  [Node { rootLabel = v, subForest = [] }]} = l <> " = " <> v
 render Node { rootLabel = l, subForest = v } = l <> " = {\n" <> unlines (indent <$> L.concat (lines <$> render <$> v)) <> "}"
     where indent = ("\t"<>)
@@ -82,7 +81,6 @@ option = Option <$> (getLabel <$> firstChild key) @? "name"
          <?> "Option"
   where modifier = (,) <$> firstChild number @@ "factor" <*> condition /@@ "factor"
   
---eventFile :: Parsec Text u1 ([Tree Atom],[Tree Atom])
 eventFile = do
   _ ← A.sep
   namespacesEvents ← many' A.value
