@@ -9,10 +9,12 @@ import AttoScoped as A(sep,value)
 import Condition(Condition,condition)
 import TreeLike(TreeLike(..),Tree(..))
 import Maker(Maker,(@@),(@?),(@@@),(/@@),(/@#),(<?>)
-           ,position,mapSubForest,fetchBool,fetchId,firstChild,number,fetchString,key)
+           ,checkKey,position,mapSubForest,fetchBool
+           ,fetchId,firstChild,number,fetchString,key)
 import Command(Command,command)
 
 import Data.Attoparsec.Text(many')
+import Control.Applicative((<|>))
 import Text.Parsec.Pos(SourcePos)
 import Data.Text
 import qualified Data.ByteString as BS
@@ -40,8 +42,24 @@ newtype Sfx = Sfx Text deriving (Eq,Ord,Show)
 instance TreeLike Sfx where
   toTree (Sfx s) = Node s [] Nothing
 
+data EventType = CharacterEvent
+               | DiploResponseEvent
+               | LetterEvent
+               | LongCharacterEvent
+               | NarrativeEvent
+               | ProvinceEvent
+               | UnitEvent
+               deriving (Eq,Ord,Show)
+eventTyp = CharacterEvent <$ checkKey "character_event"
+           <|> DiploResponseEvent <$ checkKey "diploresponse_event"
+           <|> LetterEvent <$ checkKey "letter_event"
+           <|> LongCharacterEvent <$ checkKey "long_character_event"
+           <|> NarrativeEvent <$ checkKey "narrative_event"
+           <|> ProvinceEvent <$ checkKey "province_event"
+           <|> UnitEvent <$ checkKey "unit_event"
 
 data Event = Event {
+  eventType :: EventType,
   id :: EventId,
   title :: Maybe DisplayText,
   desc :: Maybe DisplayText,
@@ -98,7 +116,8 @@ checkBool key t = case lookup key t of
 
 event :: Maker Event
 event = Event
-        <$> fetchId @@ "id"
+        <$> eventTyp
+        <*> fetchId @@ "id"
         <*> (getLabel <$> firstChild key) @? "title"
         <*> (getLabel <$> firstChild key) @? "desc"
         <*> ((Gfx <$>) <$> fetchString @? "picture")
