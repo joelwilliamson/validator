@@ -21,7 +21,7 @@ import Scoped (Atom(..),Block)
 
 import Data.Char(isDigit,ord)
 import Control.Applicative((<|>))
-import Data.Attoparsec.Text(Parser,char,double,isEndOfLine,many',parseOnly,peekChar',satisfy,skipWhile,takeTill,takeWhile,takeWhile1)
+import Data.Attoparsec.Text(Parser,char,double,isEndOfLine,many',parseOnly,peekChar',satisfy,takeTill,takeWhile,takeWhile1)
 import Text.Parsec.Pos(SourcePos,incSourceLine)
 import Data.Text(all)
 import Data.Monoid((<>))
@@ -67,14 +67,14 @@ comment = takeTill isEndOfLine
 sep = many' (space *> pure ()
              <|> lift (char '#' *> comment *> pure ()))
 
+eq = lift $ char '='
+regularBlockFinish = eq >> sep >> rhs <* sep
+
 value = do
   pos ← get
   l ← literal
   _ ← sep
-  _ ← lift $ char '='
-  _ ← sep
-  r ← rhs
-  _ ← sep
+  r ← regularBlockFinish
   return $ Node l r $ Just pos
   
 rhs = block <|> (singleton <$> literal)
@@ -87,7 +87,7 @@ block = do
   _ ← sep
   l ← literal
   _ ← sep
-  ch ← lift $ peekChar'
+  ch ← lift peekChar'
   if ch /= '='
     then (do
              r ← lift $ Number <$> double
@@ -96,9 +96,6 @@ block = do
              return [Node l (singleton r) $ Just pos]
          )
     else (do
-             _ ← lift $ char '='
-             _ ← sep
-             r ← rhs
-             _ ← sep
+             r ← regularBlockFinish
              (Node l r (Just pos) :) <$> many' value <* (sep *> lift (char '}'))
          )

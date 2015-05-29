@@ -10,7 +10,7 @@ import Data.Text as T(Text,pack)
 import Data.Either
 import Data.Monoid((<>))
 import Control.Applicative(many)
-import Data.Attoparsec.Text as A(char,eitherP,endOfLine,isEndOfLine,isHorizontalSpace,many1,many',option,parseOnly,satisfy,sepBy',space,takeTill,takeWhile,takeWhile1)
+import Data.Attoparsec.Text as A(char,eitherP,endOfLine,isEndOfLine,isHorizontalSpace,many1,parseOnly,satisfy,sepBy',takeTill,takeWhile,takeWhile1)
 
 
 data Entry = Entry {
@@ -51,6 +51,6 @@ entry = do
 line = eitherP (entry <* A.takeTill isEndOfLine) comment
 
 localisationFile ::FilePath → Text → Either Text [Entry]
-localisationFile file t = case parseOnly (sepBy' line (many1 endOfLine) <* (many $ satisfy isEndOfLine)) t of
+localisationFile file t = case parseOnly (sepBy' line (many1 endOfLine) <* many (satisfy isEndOfLine)) t of
   Left e → Left $ "Error in localisation file " <> pack file <> ": " <> pack e
   Right es → Right $ lefts es

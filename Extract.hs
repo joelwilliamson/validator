@@ -12,5 +12,5 @@ import System.IO.Temp(withSystemTempDirectory)
 -- | responsible for cleaning up the directory.
 extractArchiveToTemp :: Archive → IO FilePath
 extractArchiveToTemp arch = withSystemTempDirectory "validator-mod"
-                            $ (\dir → extractFilesFromArchive [OptDestination dir] arch >> return dir)
+                            (\dir → extractFilesFromArchive [OptDestination dir] arch >> return dir)
   

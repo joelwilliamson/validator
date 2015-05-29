@@ -99,7 +99,7 @@ mapSubForest (Maker f) = Maker $ \t -> mapM f $ subForest t
 filterSubForest p (Maker f) = Maker $ f . (\Node { subForest = s, rootLabel, source } -> Node { subForest = filter p s, rootLabel, source })
 checkKey k = Maker $ \t -> case rootLabel t of
   Label l → if l == k
-            then Right $ l
+            then Right l
             else Left ("Check for "<>show' k<>" failed. Found: "<>show' (rootLabel t),source t)
   Number _ → Left ("Check for key "<>show' k<>" failed. Found number",source t)
 checkValue = firstChild . checkKey

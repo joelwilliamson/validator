@@ -8,7 +8,7 @@ import Scoped(EventId,Atom(..),Label,Error,lookup)
 import AttoScoped as A(sep,value)
 import Condition(Condition,condition)
 import TreeLike(TreeLike(..),Tree(..))
-import Maker(Maker,(@@),(@?),(@@@),(/@@),(/@#),(<?>),(@@#)
+import Maker(Maker,(@@),(@?),(@@@),(/@@),(/@#),(<?>)
            ,position,mapSubForest,fetchBool,fetchId,firstChild,number,fetchString,key)
 import Command(Command,command)
 
@@ -18,7 +18,6 @@ import Data.Text
 import qualified Data.ByteString as BS
 import Control.Monad.Writer
 import qualified Data.List as L
-import Data.Maybe(maybeToList)
 
 import Prelude hiding (id,lines,lookup,putStrLn,unlines)
 

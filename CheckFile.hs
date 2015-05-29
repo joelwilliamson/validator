@@ -42,7 +42,7 @@ import Data.Monoid((<>))
 import Data.Foldable(foldl')
 import Data.List as L(nub,sort)
 import qualified  Data.Set as S(Set,fromList,difference,toList,map,size)
-import Control.Monad(filterM,when)
+import Control.Monad(filterM,liftM,when)
 import Control.Applicative(liftA2)
 import Codec.Archive.Zip(Archive,toArchive)
 
@@ -98,13 +98,13 @@ locals events keys =
   -- For each event, get all the localisation keys and pair them with the name of the file
   let usedKeys = S.fromList $ concatMap (\e → map (`emptyEntry` (fileFromSource $ Event.source e)) $ GL.localisations e) $ S.toList events in
   let notDefined = usedKeys `S.difference` keys in
-  "Used keys: " <> (T.pack $ show $ S.size usedKeys)
+  "Used keys: " <> T.pack (show $ S.size usedKeys)
   <> ("\nUndefined keys:\n" <> T.unlines (S.toList
                           $ S.map (\l → Localisation.key l
                                       <> " in "
                                       <> T.pack (Localisation.source l))
                           notDefined))
-  <> "Total undefined keys: " <> (T.pack $ show $ S.size notDefined)
+  <> "Total undefined keys: " <> T.pack (show $ S.size notDefined)
   where emptyEntry k = Entry k "" "" "" "" "" "" "" ""
 
         fileFromSource (Just s) = sourceName s
@@ -227,7 +227,7 @@ localMod path = do
   isDir ← doesDirectoryExist path
   if isDir
     then return path
-    else BS.readFile path >>= return . toArchive . BS.fromStrict >>= extractArchiveToTemp
+    else liftM ( toArchive . BS.fromStrict ) (BS.readFile path) >>= extractArchiveToTemp
 
 main = do
   (rawArgs,_,_) ← getOpt Permute options <$> getArgs
@@ -238,9 +238,9 @@ main = do
   modPath ← sequence $ localMod <$> rawModPath
   (baseEvents,modEvents) ← getEvents gamePath modPath
   uncheckedLocalisations ← sequence <$> getLocalisations gamePath modPath
-  let locs = (case uncheckedLocalisations of
-                 Right l → trace "got localisations" l
-                 Left e → error $ "localisation error: " <> T.unpack e)
+  let locs = case uncheckedLocalisations of
+        Right l → trace "got localisations" l
+        Left e → error $ "localisation error: " <> T.unpack e
   (action,result) ← startCheck Resources { baseEvents, modEvents, localisations = concat locs }
   argDispatcher args action result
   exitSuccess

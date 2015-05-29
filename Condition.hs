@@ -19,7 +19,7 @@ module Condition
 import Maker
 import Scoped(Label,Atom(..),EventId)
 
-import qualified Data.Text as T(Text,take,drop,pack)
+import qualified Data.Text as T(Text,take,drop)
 import Control.Applicative
 
 newtype Predicate = Predicate Atom
@@ -208,7 +208,7 @@ isStringy (Predicate p) = p `elem` [Label "trait"]
                  
 condition:: Maker Condition
 condition = simple <|> boolean <|> variableCheck <|> clausal <|> (Scoped <$> scope condition)
-  where simple  = Condition <$> (predicate) <*> firstChild value
+  where simple  = Condition <$> predicate <*> firstChild value
         variableCheck =
           VariableCheck <$> fetchString @@ "which" <*> (Left <$> fetchString @@ "which"
                                                        <|> Right <$> number @@ "value")
