@@ -32,10 +32,9 @@ instance Eq Entry where
 instance Ord Entry where
   Entry { key = k1 } `compare` Entry { key = k2 } = k1 `compare` k2
 
-text = A.takeWhile (\c → c/=';' && c/='#') <* char ';'
-comment = option "" (many' space
-                      *> char '#'
-                      *> A.takeTill isEndOfLine)
+text = A.takeWhile (/=';') <* char ';'
+comment = A.takeTill isEndOfLine
+
 entry = do
   key ← A.takeWhile1 (\c → not (isHorizontalSpace c) && c /=';' && c /= '#') <* char ';'
   english ← text
