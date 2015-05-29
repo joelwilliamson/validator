@@ -4,3 +4,9 @@
 dist
 CheckFile
 *~
+
+# Profiling
+*.prof
+*.aux
+*.ps
+*.hp
