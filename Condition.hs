@@ -9,6 +9,7 @@ module Condition
        ,clause
        ,value
        ,scopedValue
+       , scopeType
        ,isStringy
        ) where
 
@@ -83,6 +84,7 @@ data Clause a = ActivateTitle Label Bool
               | ChangeText Label Double
               | OpinionModifier Label Duration
               | TitleStatus Label Bool
+              | Troops Label Double Double
               | UnknownClause [(Label,Label)]
                 deriving (Eq,Ord,Show)
 
@@ -120,6 +122,11 @@ clause = ActivateTitle <$ checkKey "activate_title" <*> fetchString @@ "title" <
               <*> scopeType @? "father"
               <*> scopeType @? "mother"
               <*> scopeType @? "race")
+         <|> (Troops <$ checkKey "troops"
+              <*> fetchString
+              <*> firstChild (firstChild number)
+              <*> firstChild (firstChild (firstChild number))
+             )
 
 data ScopeType = Root | This
                | Prev | PrevPrev | PrevPrevPrev | PrevPrevPrevPrev

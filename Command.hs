@@ -4,7 +4,7 @@ module Command where
 
 import Maker
 import Scoped(Label)
-import Condition(Clause,Condition,Scope,clause,condition,scope)
+import Condition(Clause,Condition,Scope,ScopeType,clause,condition,scope,scopeType)
 
 import Control.Applicative(Alternative,(<|>))
 
@@ -53,6 +53,14 @@ data Command = Break
              | Random Double [Modifier] [Command]
              | RandomList [(Double,[Modifier],[Command])]
              | Scoped (Scope Command)
+             | SpawnUnit { province :: ScopeType
+                         , owner :: Maybe ScopeType
+                         , leader :: Maybe ScopeType
+                         , home :: Maybe ScopeType
+                         , earmark :: Maybe Label
+                         , attrition :: Maybe Double
+                         , troops :: Clause Command
+                         }
              | VarOpLit Label Op Double
              | VarOpVar Label Op Label
              | VarOpScope Label Op (Scope ())
@@ -68,6 +76,14 @@ command = (Break <$ checkKey "break")
           <|> (RandomList <$ checkKey "random_list") <*> mapSubForest rlElem
           <|> VarOpLit <$> firstChild (checkKey "which" *> fetchString) <*> op <*> number @@ "value"
           <|> VarOpVar <$> firstChild (checkKey "which" *> fetchString) <*> op <*> secondChild (checkKey "which" *> fetchString) -- This doesn't distinguish between scopes and variables in the same scope
+          <|> (SpawnUnit <$ checkKey "spawn_unit"
+               <*> firstChild scopeType @@ "province"
+               <*> firstChild scopeType @? "owner"
+               <*> firstChild scopeType @? "leader"
+               <*> firstChild scopeType @? "home"
+               <*> firstChild (label key) @? "earmark"
+               <*> firstChild number @? "attrition"
+               <*> clause @@ "troops" )
           <|> Concrete <$> label (checkKeys commands) <*> clause
           <|> Scoped <$> scope command
 

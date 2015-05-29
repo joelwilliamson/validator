@@ -39,6 +39,7 @@ instance Localised Command where
   localisations (Comm.Scoped s) = localisations s
   localisations (SetFlag _ _) = [] -- Flags never are localised
   localisations (ClrFlag _ _) = []
+  localisations SpawnUnit {} = []
   localisations VarOpLit {} = []
   localisations VarOpVar {} = []
   localisations VarOpScope {} = []

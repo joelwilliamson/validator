@@ -46,6 +46,7 @@ instance GatherStrings Command where
   gatherStrings (Comm.Scoped s) = gatherStrings s
   gatherStrings (SetFlag _ _) = [] -- Flags never are stringy
   gatherStrings (ClrFlag _ _) = []
+  gatherStrings SpawnUnit { earmark } = gatherStrings earmark
   gatherStrings (VarOpLit t _ _) = [t]
   gatherStrings (VarOpVar t _ t') = [t,t']
   gatherStrings (VarOpScope t _ s) = [t] <> gatherStrings s
