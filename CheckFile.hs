@@ -99,11 +99,12 @@ locals events keys =
   let usedKeys = S.fromList $ concatMap (\e → map (`emptyEntry` (fileFromSource $ Event.source e)) $ GL.localisations e) $ S.toList events in
   let notDefined = usedKeys `S.difference` keys in
   "Used keys: " <> (T.pack $ show $ S.size usedKeys)
-  <> "\nUndefined keys:\n" <> T.unlines (S.toList
+  <> ("\nUndefined keys:\n" <> T.unlines (S.toList
                           $ S.map (\l → Localisation.key l
                                       <> " in "
                                       <> T.pack (Localisation.source l))
-                          notDefined)
+                          notDefined))
+  <> "Total undefined keys: " <> (T.pack $ show $ S.size notDefined)
   where emptyEntry k = Entry k "" "" "" "" "" "" "" ""
 
         fileFromSource (Just s) = sourceName s
