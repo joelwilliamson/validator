@@ -8,7 +8,7 @@ import Scoped(EventId,Atom(..),Label,Error,lookup)
 import AttoScoped as A(sep,value)
 import Condition(Condition,condition)
 import TreeLike(TreeLike(..),Tree(..))
-import Maker(Maker,(@@),(@?),(@@@),(/@@),(/@#),(<?>)
+import Maker(Maker,(@@),(@?),(@@@),(/@@),(/@#),(<?>),(@@#)
            ,position,mapSubForest,fetchBool,fetchId,firstChild,number,fetchString,key)
 import Command(Command,command)
 
@@ -75,7 +75,7 @@ data Option = Option {
 
 option :: Maker Option
 option = Option <$> (getLabel <$> firstChild key) @? "name"
-         <*> condition @@@ "trigger"
+         <*> (Prelude.concat <$> mapSubForest condition @? "trigger" :: Maker [Condition])
          <*> command /@# ["trigger","name","ai_chance"]
          <*> (((,) <$> firstChild number @@ "factor" <*> modifier @@@ "modifier") @? "ai_chance" <?> "ai_chance")
          <?> "Option"
