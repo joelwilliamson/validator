@@ -54,23 +54,3 @@ localisationFile ::FilePath → Text → Either Text [Entry]
 localisationFile file t = case parseOnly (sepBy' line (many1 endOfLine) <* (many $ satisfy isEndOfLine)) t of
   Left e → Left $ "Error in localisation file " <> pack file <> ": " <> pack e
   Right es → Right $ lefts es
-{-
-entry' :: Text → Either Text Entry
-entry' line = case T.splitOn ";" line of
-  (key:english:french:german:polish:spanish:italian:hungarian:czech:_) → Right Entry {..}
-  _ → Left line
-  where source = ""
-
-line t = if T.null signficant || T.head significant == '#'
-         then Nothing
-         else Just $ entry' significant
-  where significant = T.dropWhile isSpace t
-
-localisationFile :: FilePath → Text → Either [Text] [Entry]
-localisationFile file t = if anyFailed
-                     then Left $ lefts raw
-                     else Right $ L.map (\e → e { source = file } ) $ rights raw
-  where raw = mapMaybe line $ T.lines t
-        anyFailed = L.any isLeft raw
-        
--}
