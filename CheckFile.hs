@@ -141,34 +141,6 @@ getLocalisations gamePath modPath = do
         -- The dummy fc parameter is needed to typecheck correctly
         decodeFiles _ = mapM (\f → decodeLatin1 <$> BS.toStrict <$> readFile f)
 
-
-data Args = Args {
-  showHelp :: Bool
-  , stringResources :: Bool
-  , localisationKeys :: Bool
-  , gameRootPath :: FilePath
-  , modRootPath :: Maybe FilePath
-  } deriving (Eq,Show)
-
-defaultArgs = Args {
-  showHelp = False
-  , stringResources = False
-  , localisationKeys = False
-  , gameRootPath = "/home/joel/.local/share/Steam/steamapps/common/Crusader Kings II/"
-  , modRootPath = Nothing
-  } 
-
-options :: [OptDescr (Args → Args)]
-options =
-  [ Option "s" ["strings"] (NoArg $ \o → o { stringResources = True }) "find all string resources referenced by events"
-  , Option "l" ["localisations"] (NoArg $ \o → o { localisationKeys = True }) "find all localisation keys"
-  ]
-  <> [ Option "G" ["game-dir"] (ReqArg (\fp o → o { gameRootPath = fp }) "DIR") "folder containing the base game"
-     , Option "M" ["mod-dir"] (ReqArg (\fp o → o { modRootPath = Just fp}) "DIR") "folder containing the mod"
-     ]
-  <> [ Option "h" ["help"] (NoArg $ \o → o { showHelp = True }) "print this message"
-     ]
-
 getDirectoryFiles :: FileCollection d ⇒ d → FilePath → IO [FilePath]
 getDirectoryFiles root dir = (map (dir<>) <$> getDirectoryContents root dir)
                              >>= filterM (doesFileExist root) -- Is is a regular file?
@@ -233,10 +205,9 @@ startCheck resources = do
 
 argDispatcher :: Args → TChan Action → TChan T.Text → IO ()
 argDispatcher a action result = do
-  _ ← when (stringResources a)
-    $ atomically (writeTChan action Strings) >> atomically (readTChan result) >>= TIO.putStrLn
-  when (localisationKeys a)
-    $ atomically (writeTChan action Localisations) >> atomically (readTChan result)  >>= TIO.putStrLn
+  _ ← when (stringResources a) $ onChan Strings
+  when (localisationKeys a) $ onChan Localisations
+    where onChan a = atomically (writeTChan action a) >> atomically (readTChan result) >>= TIO.putStrLn
 
 
 -- There will be three entry possibilities.
@@ -253,6 +224,33 @@ localMod path = do
   if isDir
     then return path
     else liftM ( toArchive . BS.fromStrict ) (BS.readFile path) >>= extractArchiveToTemp
+
+data Args = Args {
+  showHelp :: Bool
+  , stringResources :: Bool
+  , localisationKeys :: Bool
+  , gameRootPath :: FilePath
+  , modRootPath :: Maybe FilePath
+  } deriving (Eq,Show)
+
+defaultArgs = Args {
+  showHelp = False
+  , stringResources = False
+  , localisationKeys = False
+  , gameRootPath = "/home/joel/.local/share/Steam/steamapps/common/Crusader Kings II/"
+  , modRootPath = Nothing
+  }
+
+options :: [OptDescr (Args → Args)]
+options =
+  [ Option "s" ["strings"] (NoArg $ \o → o { stringResources = True }) "find all string resources"
+  , Option "l" ["localisations"] (NoArg $ \o → o { localisationKeys = True }) "find all localisation keys"
+  ]
+  <> [ Option "G" ["game-dir"] (ReqArg (\fp o → o { gameRootPath = fp }) "DIR") "folder containing the base game"
+     , Option "M" ["mod-dir"] (ReqArg (\fp o → o { modRootPath = Just fp}) "DIR") "folder containing the mod"
+     ]
+  <> [ Option "h" ["help"] (NoArg $ \o → o { showHelp = True }) "print this message"
+     ]
 
 main = do
   (rawArgs,_,_) ← getOpt Permute options <$> getArgs
