@@ -3,8 +3,8 @@
 {-# LANGUAGE UnicodeSyntax #-}
 module Main where
 
-
-import Event(Event,eventFile,event,source)
+import AttoScoped (sep,value)
+import Event(Event,eventOrNamespace,event,source)
 import Maker
 import GatherStrings (gatherStrings)
 import qualified  GatherLocalisations as GL (localisations)
@@ -35,7 +35,7 @@ import qualified Data.Text as T
 import Data.Text.IO as TIO hiding (readFile)
 import Data.Text.Encoding (decodeLatin1)
 import Text.Parsec.Pos(sourceName,initialPos)
-import Data.Attoparsec.Text(parseOnly)
+import Data.Attoparsec.Text(many',parseOnly)
 import Data.Either(isLeft,isRight,lefts,rights)
 import Data.Maybe(fromJust,isNothing)
 import Data.Monoid((<>))
@@ -65,28 +65,26 @@ stripBoM input = if BS.length input < 3
                    "\xef\xbb\xbf" → BS.drop 3 input
                    _ → input
 
-checkFile :: File f ⇒ f → IO (Maybe [Event])
-checkFile file = do
+readEventFile :: File f ⇒ f → IO (Maybe [Event])
+readEventFile file = do
   fileContents ← decodeLatin1 . stripBoM . BS.toStrict <$> readFile file
-  parseResult ← case parseOnly (fst <$> runStateT eventFile (initialPos $ fileName file))  fileContents of
+  parseResult ← case fst <$> parseOnly (runStateT (sep *> many' value) (initialPos $ fileName file))  fileContents of
     Right x → return x
-    Left x → trace ("Parse failed in " <> fileName file) $ Prelude.putStrLn (fileName file <> ": " <> show x) >> return ([],[])
-  let events' = map (runMaker event) $ snd parseResult
+    Left x → trace ("Parse failed in " <> fileName file) $ Prelude.putStrLn (fileName file <> ": " <> show x) >> return []
+  let events' = map (runMaker eventOrNamespace) parseResult
   mapM_ (printErrors file) events'
   return $ if isRight $ sequence events'
-           then Just $ rights events'
+           then Just $ lefts $ rights events'
            else Nothing
 
 -- checkFiles takes a list of file paths and checks the syntax in each of them.
 -- If any errors are found, a summary of the files with errors is printed and
 -- the program exits. If no errors are found, the function returns a list of all
 -- the events parsed.
-checkFiles :: File file ⇒ [file] → IO [Event]
-checkFiles names = do
-  checked ← sequence (map checkFile names `using` parListChunk 4 rseq)
-  let results = zip names checked
-  let errors = filter (isNothing . snd) results
-  if null errors
+readEventFiles :: File file ⇒ [file] → IO [Event]
+readEventFiles names = do
+  checked ← sequence $ map readEventFile names
+  if null $ filter (isNothing) checked
     then return $ concatMap fromJust checked
     else exitWith $ ExitFailure 1
 
@@ -173,9 +171,9 @@ getFiles base Nothing subPath = do
 -- Get the base game events and any mod events
 getEvents :: (FileCollection base, FileCollection mod) ⇒ base → Maybe mod → IO ([Event],[Event])
 getEvents base mod = do
-  (baseFiles,modFiles) ← trace "Got Files ..." $ getFiles base mod "events"
-  trace ("Found " <> show (length baseFiles + length modFiles) <> " files") $ return ()
-  (,) <$> checkFiles baseFiles <*> checkFiles modFiles
+  (baseFiles,modFiles) ← getFiles base mod "events"
+  trace ("Found " <> show (length baseFiles + length modFiles) <> " event files") $ return ()
+  (,) <$> readEventFiles baseFiles <*> readEventFiles modFiles
 
 data Action = Localisations | Strings deriving (Eq,Show)
 

@@ -7,11 +7,10 @@ module Event
          Event(..)
        , Option(..)
        , event
-       , eventFile
+       , eventOrNamespace
        )where
 
 import Scoped(EventId,Atom(..),Label,Error,lookup)
-import AttoScoped as A(sep,value)
 import Condition(Condition,condition)
 import TreeLike(TreeLike(..),Tree(..))
 import Maker(Maker,(@@),(@?),(@@@),(/@@),(/@#),(<?>)
@@ -19,7 +18,6 @@ import Maker(Maker,(@@),(@?),(@@@),(/@@),(/@#),(<?>)
            ,fetchId,firstChild,number,fetchString,key)
 import Command(Command,command)
 
-import Data.Attoparsec.Text(many')
 import Control.Applicative((<|>))
 import Text.Parsec.Pos(SourcePos)
 import Data.Text
@@ -104,13 +102,6 @@ option = Option <$> (getLabel <$> firstChild key) @? "name"
          <?> "Option"
   where modifier = (,) <$> firstChild number @@ "factor" <*> condition /@@ "factor"
   
-eventFile = do
-  _ ← A.sep
-  namespacesEvents ← many' A.value
-  let namespaces = L.filter ((==Label "namespace") . rootLabel) namespacesEvents
-  let events = L.filter ((/=Label "namespace") . rootLabel) namespacesEvents
-  return (namespaces,events)
-
 event :: Maker Event
 event = Event
         <$> eventTyp
@@ -134,6 +125,12 @@ event = Event
         <*> mapSubForest command @? "immediate"
         <*> option @@@ "option"
         <*> position
+
+namespace :: Maker Label
+namespace = checkKey "namespace" *> (getLabel <$> firstChild key)
+
+eventOrNamespace :: Maker (Either Event Label)
+eventOrNamespace =  Left <$> event <|> Right <$> namespace
 
 getLabel (Label l ) = l
 getLabel (Number _) = error "Tried to getLabel on a number"
