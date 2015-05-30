@@ -157,7 +157,7 @@ readScope (Label s)
   | otherwise = IdScope s
 readScope (Number n) = NumScope n
 
-scopeType = readScope <$> fetchKey
+scopeType = readScope <$> key
 
 
 data Scope a = Scope {

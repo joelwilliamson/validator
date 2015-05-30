@@ -3,8 +3,8 @@ module Maker (
   Maker(),runMaker,
   (@@),(@?),(@@@),(@@#),(/@@),(/@#),(<?>),(@~),
   firstChild,secondChild,mapSubForest,filterSubForest,singleChild,
-  fetchValue,fetchKey,checkKey,checkKeys,checkValue,checkValues,key,
-  fetchString,label,fetchLabel,checkBool,
+  fetchValue,checkKey,checkKeys,checkValue,checkValues,key,
+  fetchString,label,checkBool,
   Maker.number,leaf,fetchId, fetchBool,position
   ) where
 
@@ -91,11 +91,7 @@ infixl 5 @?
   Nothing → Right Nothing
   Just t' → Just <$> f t'
 
-fetchKey = Maker $ \t → Right $ rootLabel t
-fetchLabel = Maker $ \t → case rootLabel t of
-  Number n → Right $ show' n
-  Label l → Right l
-fetchValue = firstChild fetchKey
+fetchValue = firstChild key
 fetchString = Maker $ \t → case subForest t of
   [] → Left ("Can't take a value at " <> show' (rootLabel t),source t)
   [Node { rootLabel = Number n}] → Left ("Expected string for value of "<> show' (rootLabel t) <>", got: "<> show' n,source t)
@@ -163,7 +159,7 @@ f /@# keys = filterSubForest (not . (`elem` (Label <$> keys)) . rootLabel) $ map
 
 
 
-fetchId = Maker $ \t → case runMaker (firstChild fetchKey) t of
+fetchId = Maker $ \t → case runMaker (firstChild key) t of
   Left e → Left e
   Right (Label k) → case parse eventId "fetchID parse" k of
     Left _ → Left ("Not a valid eventId: "<>k,source t)
@@ -171,7 +167,7 @@ fetchId = Maker $ \t → case runMaker (firstChild fetchKey) t of
     Right (n,Label x) → Left ("Ill-formed eventId: "<>n<>"."<>x,source t)
   Right (Number n) → Right ("",n)
 
-fetchBool = Maker $ \t → case runMaker (firstChild fetchKey) t of
+fetchBool = Maker $ \t → case runMaker (firstChild key) t of
   Left e → Left e
   Right (Label k) → case k of
     "false" → Right False
