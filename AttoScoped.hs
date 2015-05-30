@@ -13,7 +13,8 @@ module AttoScoped(
   literal,
   sep,
   value,
-  block
+  block,
+  statefulParseOnly
   ) where
 
 import TreeLike(Tree(..))
@@ -23,7 +24,7 @@ import Data.Char(isDigit,ord)
 import Control.Applicative((<|>))
 import Data.Attoparsec.Text(Parser,char,double,isEndOfLine,many',parseOnly,peekChar',satisfy,takeTill,takeWhile,takeWhile1)
 import Text.Parsec.Pos(SourcePos,incSourceLine)
-import Data.Text(all)
+import Data.Text(Text,all)
 import Data.Monoid((<>))
 
 import Control.Monad.State
@@ -31,6 +32,9 @@ import Control.Monad.State
 import Prelude hiding (all,takeWhile)
 
 type StatefulParser = StateT SourcePos Parser
+
+statefulParseOnly :: StatefulParser a → SourcePos → Text → Either String a
+statefulParseOnly p s t = fst <$> parseOnly (runStateT p s) t
 
 singleton x = [Node x [] Nothing]
 
