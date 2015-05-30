@@ -81,13 +81,16 @@ readEventFile file = do
 -- If any errors are found, a summary of the files with errors is printed and
 -- the program exits. If no errors are found, the function returns a list of all
 -- the events parsed.
-readEventFiles :: File file ⇒ [file] → IO [Event]
-readEventFiles names = do
-  checked ← sequence $ map readEventFile names
-  if null $ filter (isNothing) checked
-    then return $ concatMap fromJust checked
-    else exitWith $ ExitFailure 1
+readEventFiles :: [FilePath] → IO [Event]
+readEventFiles = readFiles readEventFile
 
+readFiles :: (FilePath → IO (Maybe [a])) → [FilePath] → IO [a]
+readFiles handler files = do
+  checked ← sequence $ map handler files
+  case filter (isNothing) checked of
+    [] → return $ concatMap fromJust checked
+    _ → exitWith $ ExitFailure 1
+  
 strings :: ([Event],[Event]) → T.Text
 strings (_,modEvents) = T.unlines . L.nub . L.sort $ gatherStrings modEvents
 
@@ -169,7 +172,7 @@ getFiles base Nothing subPath = do
 
 
 -- Get the base game events and any mod events
-getEvents :: (FileCollection base, FileCollection mod) ⇒ base → Maybe mod → IO ([Event],[Event])
+getEvents :: FilePath → Maybe FilePath → IO ([Event],[Event])
 getEvents base mod = do
   (baseFiles,modFiles) ← getFiles base mod "events"
   trace ("Found " <> show (length baseFiles + length modFiles) <> " event files") $ return ()
