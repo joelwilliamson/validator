@@ -3,7 +3,7 @@
 {-# LANGUAGE UnicodeSyntax #-}
 module Main where
 
-import AttoScoped (sep,value)
+import AttoScoped (sep,value,statefulParseOnly)
 import Event(Event,eventOrNamespace,event,source)
 import Maker
 import GatherStrings (gatherStrings)
@@ -68,7 +68,7 @@ stripBoM input = if BS.length input < 3
 readEventFile :: File f ⇒ f → IO (Maybe [Event])
 readEventFile file = do
   fileContents ← decodeLatin1 . stripBoM . BS.toStrict <$> readFile file
-  parseResult ← case fst <$> parseOnly (runStateT (sep *> many' value) (initialPos $ fileName file))  fileContents of
+  parseResult ← case statefulParseOnly (sep *> many' value) (initialPos $ fileName file) fileContents of
     Right x → return x
     Left x → trace ("Parse failed in " <> fileName file) $ Prelude.putStrLn (fileName file <> ": " <> show x) >> return []
   let events' = map (runMaker eventOrNamespace) parseResult
