@@ -5,6 +5,7 @@ module Main where
 
 import AttoScoped (sep,value,statefulParseOnly)
 import Event(Event,eventOrNamespace,event,source)
+import Decision(Decision,decisionClass)
 import Maker
 import GatherStrings (gatherStrings)
 import qualified  GatherLocalisations as GL (localisations)
@@ -84,6 +85,18 @@ readEventFile file = do
 readEventFiles :: [FilePath] → IO [Event]
 readEventFiles = readFiles readEventFile
 
+readDecisionFile :: FilePath → IO (Maybe [Decision])
+readDecisionFile file = do
+  fileContents ← decodeLatin1 . stripBoM . BS.toStrict <$> readFile file
+  parseResult ← case statefulParseOnly (sep *> many' value) (initialPos file) fileContents of
+    Right x → return x
+    Left e → trace ("Parse failed in " <> file) $ return []
+  let decisions = map (runMaker decisionClass) parseResult
+  mapM_ (printErrors file) decisions
+  return $ if isRight $ sequence decisions
+           then Just $ concat $ rights decisions
+           else mempty
+
 readFiles :: (FilePath → IO (Maybe [a])) → [FilePath] → IO [a]
 readFiles handler files = do
   checked ← sequence $ map handler files
@@ -91,8 +104,8 @@ readFiles handler files = do
     [] → return $ concatMap fromJust checked
     _ → exitWith $ ExitFailure 1
   
-strings :: ([Event],[Event]) → T.Text
-strings (_,modEvents) = T.unlines . L.nub . L.sort $ gatherStrings modEvents
+strings :: ([Event],[Event]) → ([Decision],[Decision]) → T.Text
+strings (_,modEvents) (_,modDecisions) = T.unlines . L.nub . L.sort $ gatherStrings modEvents <> gatherStrings modDecisions
 
 locals :: S.Set Event → S.Set Entry → T.Text
 locals events keys =
@@ -178,17 +191,28 @@ getEvents base mod = do
   trace ("Found " <> show (length baseFiles + length modFiles) <> " event files") $ return ()
   (,) <$> readEventFiles baseFiles <*> readEventFiles modFiles
 
+-- | Given the base and mod directories, return lists of all decisions in the
+-- game.
+readDecisions :: FilePath → Maybe FilePath → IO ([Decision],[Decision])
+readDecisions base mod = do
+  (baseFiles,modFiles) ← getFiles base mod "decisions"
+  trace ("Found " <> show (length baseFiles + length modFiles) <> " decision files") $ return ()
+  (,) <$> readFiles readDecisionFile baseFiles <*> readFiles readDecisionFile modFiles
+
+
 data Action = Localisations | Strings deriving (Eq,Show)
 
 data Resources = Resources {
   baseEvents :: [Event],
   modEvents :: [Event],
+  baseDecisions :: [Decision],
+  modDecisions :: [Decision],
   localisations :: [Entry]
   } deriving (Eq,Show)
 
 dispatch :: Resources → Action → T.Text
 dispatch r Localisations = locals (S.fromList $ baseEvents r <> modEvents r) (S.fromList $ localisations r)
-dispatch r Strings = strings (baseEvents r, modEvents r)
+dispatch r Strings = strings (baseEvents r, modEvents r) (baseDecisions r, modDecisions r)
 
 dispatchFromChan :: Resources → TChan Action → TChan T.Text → IO ()
 dispatchFromChan resources action response = do
@@ -238,10 +262,11 @@ main = do
   let (rawModPath,gamePath) = (modRootPath args,gameRootPath args)
   modPath ← sequence $ localMod <$> rawModPath
   (baseEvents,modEvents) ← getEvents gamePath modPath
+  (baseDecisions,modDecisions) ← readDecisions gamePath modPath
   uncheckedLocalisations ← sequence <$> getLocalisations gamePath modPath
   let locs = case uncheckedLocalisations of
         Right l → trace "got localisations" l
         Left e → error $ "localisation error: " <> T.unpack e
-  (action,result) ← startCheck Resources { baseEvents, modEvents, localisations = concat locs }
+  (action,result) ← startCheck Resources { baseEvents, modEvents, baseDecisions, modDecisions, localisations = concat locs }
   argDispatcher args action result
   exitSuccess

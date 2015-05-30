@@ -1,4 +1,5 @@
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE UnicodeSyntax #-}
 -- Traverse the entire AST to find any arguments to string-like commands or conditions
 
@@ -8,6 +9,7 @@ import Scoped(Label)
 import Command as Comm(Command(..),Modifier(..),stringyCommands)
 import Condition(Clause(..),Condition(..),Predicate(..),Scope(..),ScopeType(..),Value(..))
 import Event as E(Event(..),Option(..))
+import Decision(Decision(..))
 
 import Data.Text(Text)
 import Data.Monoid((<>))
@@ -100,3 +102,8 @@ instance GatherStrings E.Option where
           actions' = gatherStrings action
           chance' = [] `fromMaybe` (gatherStrings <$> aiChance)
           
+instance GatherStrings Decision where
+  gatherStrings Decision {..} = gatherStrings potential
+                                <> gatherStrings allow
+                                <> gatherStrings effect
+                                <> gatherStrings aiWillDo

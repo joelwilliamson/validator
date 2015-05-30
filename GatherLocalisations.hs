@@ -1,4 +1,6 @@
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE UnicodeSyntax #-}
 -- Traverse the AST to find any localisation keys
 
@@ -8,6 +10,7 @@ import Scoped(Label)
 import Command as Comm(Command(..),Modifier(..))
 import Condition(Clause(..),Condition(..),Scope(..),ScopeType(..),Value(..))
 import Event as E(Event(..),Option(..))
+import Decision(Decision(..))
 
 import Data.Monoid((<>))
 import Data.Maybe(fromMaybe)
@@ -74,3 +77,6 @@ instance Localised E.Option where
   localisations E.Option { E.name, action } = actions' <> name'
     where actions' = localisations action
           name' = [] `fromMaybe` ((:[]) <$> name)
+
+instance Localised Decision where
+  localisations Decision {..} = [name,name<>"_desc"]
