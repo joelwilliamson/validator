@@ -55,6 +55,8 @@ instance GatherStrings Command where
   gatherStrings (Concrete t v) = if t `elem` stringyCommands
                                  then gatherStrings v
                                  else []
+  gatherStrings (AddTrait _) = []
+  gatherStrings (RemoveTrait _) = []
 
 instance GatherStrings Modifier where
   gatherStrings (Modifier _ conds) = gatherStrings conds

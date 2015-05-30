@@ -9,6 +9,7 @@ import Decision(Decision,decisionClass)
 import Maker
 import GatherStrings (gatherStrings)
 import qualified  GatherLocalisations as GL (localisations)
+import qualified GatherTraits as GT(traits)
 import Localisation
 import Extract(extractArchiveToTemp)
 
@@ -124,7 +125,8 @@ locals events keys =
         fileFromSource (Just s) = sourceName s
         fileFromSource Nothing = "unknown"
 
-  
+traits (_,modEvents) (_,modDecisions) = T.unlines . L.nub . L.sort $ GT.traits modEvents <> GT.traits modDecisions
+
 allLocalisations :: (FileCollection base, FileCollection mod) ⇒ base → Maybe mod → IO [Entry]
 allLocalisations game mod = do
     rawLocalisations ← getLocalisations game mod
@@ -172,7 +174,7 @@ readDecisions base mod = do
   (,) <$> readFiles readDecisionFile baseFiles <*> readFiles readDecisionFile modFiles
 
 
-data Action = Localisations | Strings deriving (Eq,Show)
+data Action = Localisations | Strings | Traits deriving (Eq,Show)
 
 data Resources = Resources {
   baseEvents :: [Event],
@@ -185,6 +187,7 @@ data Resources = Resources {
 dispatch :: Resources → Action → T.Text
 dispatch r Localisations = locals (S.fromList $ baseEvents r <> modEvents r) (S.fromList $ localisations r)
 dispatch r Strings = strings (baseEvents r, modEvents r) (baseDecisions r, modDecisions r)
+dispatch r Traits = traits (baseEvents r, modEvents r) (baseDecisions r, modDecisions r)
 
 dispatchFromChan :: Resources → TChan Action → TChan T.Text → IO ()
 dispatchFromChan resources action response = do
@@ -205,6 +208,7 @@ startCheck resources = do
 
 argDispatcher :: Args → TChan Action → TChan T.Text → IO ()
 argDispatcher a action result = do
+  _ ← when (_traits a) $ onChan Traits
   _ ← when (stringResources a) $ onChan Strings
   when (localisationKeys a) $ onChan Localisations
     where onChan a = atomically (writeTChan action a) >> atomically (readTChan result) >>= TIO.putStrLn
@@ -229,6 +233,7 @@ data Args = Args {
   showHelp :: Bool
   , stringResources :: Bool
   , localisationKeys :: Bool
+  , _traits :: Bool
   , gameRootPath :: FilePath
   , modRootPath :: Maybe FilePath
   } deriving (Eq,Show)
@@ -237,6 +242,7 @@ defaultArgs = Args {
   showHelp = False
   , stringResources = False
   , localisationKeys = False
+  , _traits = False
   , gameRootPath = "/home/joel/.local/share/Steam/steamapps/common/Crusader Kings II/"
   , modRootPath = Nothing
   }
@@ -245,6 +251,7 @@ options :: [OptDescr (Args → Args)]
 options =
   [ Option "s" ["strings"] (NoArg $ \o → o { stringResources = True }) "find all string resources"
   , Option "l" ["localisations"] (NoArg $ \o → o { localisationKeys = True }) "find all localisation keys"
+  , Option "t" ["traits"] (NoArg $ \o → o { _traits = True }) "find all referenced traits"
   ]
   <> [ Option "G" ["game-dir"] (ReqArg (\fp o → o { gameRootPath = fp }) "DIR") "folder containing the base game"
      , Option "M" ["mod-dir"] (ReqArg (\fp o → o { modRootPath = Just fp}) "DIR") "folder containing the mod"

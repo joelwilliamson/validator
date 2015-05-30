@@ -47,7 +47,8 @@ modifier = Modifier <$> number @@ "factor" <*> condition /@@ "factor"
 --data Option = OptionC
 --            deriving (Eq,Show)
   
-data Command = Break
+data Command = AddTrait Label | RemoveTrait Label
+             | Break
              | SetFlag FlagType Label | ClrFlag FlagType Label
              | If [Condition] [Command]
              | Random Double [Modifier] [Command]
@@ -68,7 +69,9 @@ data Command = Break
   deriving (Eq,Ord,Show)
 
 command :: Maker Command
-command = (Break <$ checkKey "break")
+command = (AddTrait <$ checkKey "add_trait" <*> fetchString)
+          <|> (RemoveTrait <$ checkKey "remove_trait" <*> fetchString)
+          <|> (Break <$ checkKey "break")
           <|> (setFlag <*> fetchString)
           <|> (clrFlag <*> fetchString)
           <|> (If <$ checkKey "if") <*> mapSubForest condition @@ "limit" <*> command /@@ "limit"

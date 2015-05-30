@@ -31,6 +31,7 @@ data Condition = Condition Predicate (Value ())
                  | Or [Condition]
                  | And [Condition]
                  | Not Condition
+                 | Trait Label
                  deriving (Eq,Ord,Show)
 
 data Value a = BooleanValue Bool
@@ -207,7 +208,7 @@ predicate = Predicate <$> checkKeys predicates
 isStringy (Predicate p) = p `elem` [Label "trait"]
                  
 condition:: Maker Condition
-condition = simple <|> boolean <|> variableCheck <|> clausal <|> (Scoped <$> scope condition)
+condition = trait <|> simple <|> boolean <|> variableCheck <|> clausal <|> (Scoped <$> scope condition)
   where simple  = Condition <$> predicate <*> firstChild value
         variableCheck =
           VariableCheck <$> fetchString @@ "which" <*> (Left <$> fetchString @@ "which"
@@ -216,6 +217,7 @@ condition = simple <|> boolean <|> variableCheck <|> clausal <|> (Scoped <$> sco
         boolean = And <$> (checkKey "AND" *> mapSubForest condition)
                   <|> Or <$> (checkKey "OR" *> mapSubForest condition)
                   <|> Not <$> (checkKey "NOT" *> firstChild condition)
+        trait = Trait <$ checkKey "trait" <*> fetchString
  
 predicates :: [Label]
 predicates = ["random","AND","OR","NOT","calc_if_true"
