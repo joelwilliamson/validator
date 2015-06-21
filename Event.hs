@@ -10,9 +10,8 @@ module Event
        , eventOrNamespace
        )where
 
-import Scoped(EventId,Atom(..),Label,Error,lookup)
+import Scoped(EventId,Atom(..),Label)
 import Condition(Condition,condition)
-import Tree(Tree(..))
 import Maker(Maker,(@@),(@?),(@@@),(/@@),(/@#),(<?>)
            ,checkKey,position,mapSubForest,fetchBool
            ,fetchId,firstChild,number,fetchString,key)
@@ -21,18 +20,9 @@ import Command(Command,command)
 import Control.Applicative((<|>))
 import Text.Parsec.Pos(SourcePos)
 import Data.Text
-import qualified Data.ByteString as BS
-import Control.Monad.Writer
-import qualified Data.List as L
 
 import Prelude hiding (id,lines,lookup,putStrLn,unlines)
 
-render Node {rootLabel = l, subForest =  [Node { rootLabel = v, subForest = [] }]} = l <> " = " <> v
-render Node { rootLabel = l, subForest = v } = l <> " = {\n" <> unlines (indent <$> L.concat (lines <$> render <$> v)) <> "}"
-    where indent = ("\t"<>)
-
-  
---data LocalisationKey =deriving (Eq,Show)
 data EventFlag = EventFlag deriving (Eq,Show)
 
 type DisplayText = Text
@@ -128,10 +118,3 @@ eventOrNamespace =  Left <$> event <|> Right <$> namespace
 
 getLabel (Label l ) = l
 getLabel (Number _) = error "Tried to getLabel on a number"
-        
-renderId (name,n) = name ++ show n
-stripBoM input = if BS.length input < 3
-                 then input
-                 else case BS.take 3 input of
-                   "\xef\xbb\xbf" → BS.drop 3 input
-                   _ → input
