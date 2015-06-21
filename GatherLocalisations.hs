@@ -2,9 +2,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE UnicodeSyntax #-}
--- Traverse the AST to find any localisation keys
-
-module GatherLocalisations where
+-- | Traverse the AST to find any localisation keys
+module GatherLocalisations(Localised(localisations)) where
 
 import Scoped(Label)
 import Command as Comm(Command(..),Modifier(..))
@@ -15,6 +14,7 @@ import Decision(Decision(..))
 import Data.Monoid((<>))
 import Data.Maybe(fromMaybe)
 
+-- | Any type that can have a localisation belongs to this class.
 class Localised t where
   localisations :: t → [Label]
 
