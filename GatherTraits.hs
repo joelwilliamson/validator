@@ -2,9 +2,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE UnicodeSyntax #-}
--- Traverse the AST to find any localisation keys
-
-module GatherTraits where
+-- | Traverse the AST to find any traits referenced
+module GatherTraits(GatherTraits(traits)) where
 
 import Scoped(Label)
 import Command as Comm(Command(..),Modifier(..))
@@ -13,8 +12,8 @@ import Event as E(Event(..),Option(..))
 import Decision(Decision(..))
 
 import Data.Monoid((<>))
-import Data.Maybe(fromMaybe)
 
+-- | Any type that can contain a reference to a trait should belong to this class.
 class GatherTraits t where
   traits :: t → [Label]
 
