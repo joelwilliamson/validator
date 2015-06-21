@@ -2,6 +2,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE UnicodeSyntax #-}
 
+-- | The core handling for decision files
 module Decision
        (
          Decision(..)
@@ -17,7 +18,7 @@ import Command(Command,command)
 
 import Control.Applicative((<|>))
 
-
+-- | What type of decision is this. Controls where it appears in the interface.
 data DecisionType = GenericDecision
                   | DeJureLaw
                   | GenderLaw
@@ -39,10 +40,11 @@ decisionTypeM = GenericDecision <$ checkKey "decisions"
                 <|> VassalDecision <$ checkKey "vassal_decisions"
                 <?> "decision type"
 
+-- | Any decision in the game
 data Decision = Decision {
   decisionType :: DecisionType,
   name :: Label,
-  isHighPrio :: Maybe Bool,
+  isHighPrio :: Maybe Bool, -- ^ Only relevant for GenericDecision
   potential :: [Condition],
   allow :: [Condition],
   effect :: [Command],
@@ -61,6 +63,7 @@ decision dt = Decision dt
   where modifier = (,) <$> firstChild number @@ "factor"
                    <*> condition /@@ "factor"
 
+-- | Make an entire block of decisions contained within a @decision_type = { .. }@ block
 decisionClass :: Maker [Decision]
 decisionClass = do
   dt ← decisionTypeM
