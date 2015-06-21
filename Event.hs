@@ -2,6 +2,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE UnicodeSyntax #-}
 
+-- | The core handling for event files.
 module Event
        (
          Event(..)
@@ -46,8 +47,9 @@ eventTyp = CharacterEvent <$ checkKey "character_event"
            <|> ProvinceEvent <$ checkKey "province_event"
            <|> UnitEvent <$ checkKey "unit_event"
 
+-- | An event
 data Event = Event {
-  eventType :: EventType,
+  eventType :: EventType, -- ^ One of CharacterEvent,ProvinceEvent, &c.
   id :: EventId,
   title :: Maybe DisplayText,
   desc :: Maybe DisplayText,
@@ -71,6 +73,7 @@ data Event = Event {
   }
            deriving (Eq,Ord,Show)
 
+-- | One of the options presented in an event
 data Option = Option {
   name :: Maybe Label,
   optionTrigger :: [Condition],
@@ -86,6 +89,7 @@ option = Option <$> (getLabel <$> firstChild key) @? "name"
          <?> "Option"
   where modifier = (,) <$> firstChild number @@ "factor" <*> condition /@@ "factor"
   
+-- | Make an Event from a Tree
 event :: Maker Event
 event = Event
         <$> eventTyp
@@ -113,6 +117,7 @@ event = Event
 namespace :: Maker Label
 namespace = checkKey "namespace" *> (getLabel <$> firstChild key)
 
+-- | An event file can contain namespace declarations. They are simply treated as labels here.
 eventOrNamespace :: Maker (Either Event Label)
 eventOrNamespace =  Left <$> event <|> Right <$> namespace
 
