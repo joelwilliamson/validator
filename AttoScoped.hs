@@ -17,7 +17,7 @@ module AttoScoped(
   statefulParseOnly
   ) where
 
-import TreeLike(Tree(..))
+import Tree(Tree(..))
 import Scoped (Atom(..),Block)
 
 import Data.Char(isDigit,ord)

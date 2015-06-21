@@ -12,7 +12,7 @@ module Event
 
 import Scoped(EventId,Atom(..),Label,Error,lookup)
 import Condition(Condition,condition)
-import TreeLike(TreeLike(..),Tree(..))
+import Tree(Tree(..))
 import Maker(Maker,(@@),(@?),(@@@),(/@@),(/@#),(<?>)
            ,checkKey,position,mapSubForest,fetchBool
            ,fetchId,firstChild,number,fetchString,key)
@@ -34,17 +34,11 @@ render Node { rootLabel = l, subForest = v } = l <> " = {\n" <> unlines (indent 
   
 --data LocalisationKey =deriving (Eq,Show)
 data EventFlag = EventFlag deriving (Eq,Show)
-instance TreeLike EventFlag where
-  toTree EventFlag = error "EventFlag not implemented"
 
 type DisplayText = Text
 -- Path to the gfx resource
 newtype Gfx = Gfx Text deriving (Eq,Ord,Show)
-instance TreeLike Gfx where
-  toTree (Gfx s) = Node s [] Nothing
 newtype Sfx = Sfx Text deriving (Eq,Ord,Show)
-instance TreeLike Sfx where
-  toTree (Sfx s) = Node s [] Nothing
 
 data EventType = CharacterEvent
                | DiploResponseEvent

@@ -8,7 +8,7 @@ module Maker (
   Maker.number,leaf,fetchId, fetchBool,position
   ) where
 
-import TreeLike
+import Tree(Tree(..))
 import Scoped (Error,Label,Atom(..),eventId,getPos,lookup)
 import qualified Data.Text as T(pack,Text)
 
@@ -120,7 +120,7 @@ checkBool key t = case lookup key t of
   Just "yes" → Right $ Just True
   Just "false" → Right $ Just False
   Just "no" → Right $ Just False
-  Just v → Left (key <> " has the non-boolean value: " <> v, TreeLike.source t)
+  Just v → Left (key <> " has the non-boolean value: " <> v, Tree.source t)
   Nothing → Right Nothing
 
 leaf = Maker $ \t → if null $ subForest t

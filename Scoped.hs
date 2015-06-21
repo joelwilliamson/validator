@@ -29,7 +29,7 @@ module Scoped {-(
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import Data.List as L(find,filter,foldl')
-import TreeLike(Tree(..),drawTree,rootLabel,source,subForest)
+import Tree(Tree(..),drawTree)
 import Data.Char(ord)
 import Text.Parsec hiding ((<|>),label)
 import Data.String(IsString,fromString)

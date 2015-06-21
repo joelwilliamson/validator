@@ -47,7 +47,7 @@ cabal-version:       >=1.10
 
 executable Server
   main-is:      Server.hs
-  other-modules: Command, Condition, Decision, Event, GatherLocalisations, GatherStrings, GatherTraits, Localisation, Maker, Scoped, TreeLike
+  other-modules: Command, Condition, Decision, Event, GatherLocalisations, GatherStrings, GatherTraits, Localisation, Maker, Scoped, Tree
   build-depends: yesod
                  , shakespeare
                  , attoparsec
@@ -71,7 +71,7 @@ executable Server
                         -caf-all
 executable CheckFile
   main-is:      CheckFile.hs
-  other-modules: Command, Condition, Decision, Event, Extract, GatherLocalisations, GatherStrings, GatherTraits, Localisation, Maker, Scoped, TreeLike
+  other-modules: Command, Condition, Decision, Event, Extract, GatherLocalisations, GatherStrings, GatherTraits, Localisation, Maker, Scoped, Tree
   build-depends:   attoparsec
                  , base
                  , bytestring
@@ -96,7 +96,7 @@ executable CheckFile
 
 library
   -- Modules exported by the library.
-  exposed-modules:     Command, Condition, Decision, Event, GatherLocalisations, GatherStrings, GatherTraits, Localisation, Maker, Scoped, TreeLike
+  exposed-modules:     Command, Condition, Decision, Event, GatherLocalisations, GatherStrings, GatherTraits, Localisation, Maker, Scoped, Tree
   
   -- Modules included in this library but not exported.
   -- other-modules:       

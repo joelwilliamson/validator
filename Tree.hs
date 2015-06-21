@@ -1,6 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module TreeLike where
+-- | This is basically the same as Data.Tree, except each node can carry
+-- information about where in the file it was created.
+module Tree
+       (
+         Tree(..)
+       , drawTree
+       ) where
 
 import Data.Text hiding (map,zipWith)
 import Text.Parsec(SourcePos)
@@ -8,38 +14,20 @@ import Data.Monoid((<>))
 
 import Prelude hiding (unlines)
 
+-- | A multi-way tree
 data Tree a = Node {
-  rootLabel :: a
-  , subForest :: [Tree a]
-  , source :: Maybe SourcePos
+  rootLabel :: a -- ^ The label of this node
+  , subForest :: [Tree a] -- ^ Zero or more children
+  , source :: Maybe SourcePos -- ^ A source location corresponding to this node
   } deriving (Eq,Show)
 
 instance Functor Tree where
   fmap f (Node a children source) = Node (f a) (map (fmap f) children) source
 
-type Forest a = [Tree a]
-
-class TreeLike t where
-  toTree :: t -> Tree Text
-
-instance TreeLike Bool where
-  toTree True = Node "yes" [] Nothing
-  toTree False = Node "no" [] Nothing
-
-instance TreeLike Double where
-  toTree n = Node (pack $ show n) [] Nothing
-
-instance TreeLike Text where
-  toTree t = Node t [] Nothing
-
 
 -- | Neat 2-dimensional drawing of a tree.
 drawTree :: Tree Text -> Text
 drawTree  = unlines . draw
-
--- | Neat 2-dimensional drawing of a forest.
-drawForest :: Forest Text -> Text
-drawForest  = unlines . map drawTree
 
 draw :: Tree Text -> [Text]
 draw (Node x ts0 _) = x : drawSubTrees ts0
