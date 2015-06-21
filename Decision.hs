@@ -10,7 +10,7 @@ module Decision
        , decisionClass
        ) where
 
-import Scoped(Atom(..),Label,Error,lookup)
+import Scoped(Label)
 import Condition(Condition,condition)
 import Maker(Maker,(@@),(@@@),(@?),(/@@),(<?>),
              checkKey,fetchBool,key,label,firstChild,mapSubForest,number)
