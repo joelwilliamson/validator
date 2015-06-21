@@ -10,3 +10,9 @@ CheckFile
 *.aux
 *.ps
 *.hp
+
+cabal.sandbox.config
+shakespeare/
+svn.zip
+test/
+server-validator.lucius
