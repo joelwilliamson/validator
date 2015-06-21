@@ -1,7 +1,7 @@
 {-# LANGUAGE NamedFieldPuns, OverloadedStrings, UnicodeSyntax #-}
 module Maker (
   Maker(),runMaker,
-  (@@),(@?),(@@@),(@@#),(/@@),(/@#),(<?>),(@~),
+  (@@),(@?),(@@@),(@@#),(/@@),(/@#),(<?>),
   firstChild,secondChild,mapSubForest,filterSubForest,singleChild,
   fetchValue,checkKey,checkKeys,checkValue,checkValues,key,
   fetchString,label,checkBool,
@@ -80,9 +80,6 @@ infixl 5 @@
 (Maker f) @@ k = Maker $ \t → case find ((==Label k) . rootLabel) $ subForest t of
   Nothing → Left ("No child: " <> k <> " in block: " <> T.pack (show t), source t)
   Just t' → f t'
-
-infixl 5 @~
-f @~ k = firstChild f @@ k
 
 -- m @? key: As @@, but if no child is found, return Nothing
 infixl 5 @?

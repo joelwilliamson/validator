@@ -110,7 +110,7 @@ clause = ActivateTitle <$ checkKey "activate_title" <*> fetchString @@ "title" <
               <*> fetchString @? "has_nickname"
               <*> mapSubForest (firstChild number) @@ "attributes"
               <*> fetchString @@@ "trait"
-              <*> number @~ "health"
+              <*> firstChild number @@ "health"
               <*> firstChild number @? "fertility"
               <*> fetchBool @? "random_traits"
               <*> fetchBool @@ "female"
