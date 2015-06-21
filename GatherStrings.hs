@@ -42,7 +42,6 @@ instance GatherStrings a ⇒ GatherStrings (Maybe a) where
 instance GatherStrings Command where
   gatherStrings (If conds comms) = gatherStrings conds <> gatherStrings comms
   gatherStrings Break = []
---  gatherStrings (Comm.Limit conds) = gatherStrings conds
   gatherStrings (Random _ mods comms) = gatherStrings mods <> gatherStrings comms
   gatherStrings (RandomList os) = gatherStrings os
   gatherStrings (Comm.Scoped s) = gatherStrings s
@@ -60,9 +59,6 @@ instance GatherStrings Command where
 
 instance GatherStrings Modifier where
   gatherStrings (Modifier _ conds) = gatherStrings conds
-
---instance GatherStrings Comm.Option where
---  gatherStrings (Comm.Option _ mods comms) = gatherStrings mods <> gatherStrings comms
 
 instance GatherStrings Condition where
   gatherStrings (Condition (Predicate _) v) = gatherStrings v
