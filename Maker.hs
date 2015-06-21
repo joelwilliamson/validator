@@ -3,7 +3,7 @@ module Maker (
   Maker(),runMaker,
   (@@),(@?),(@@@),(@@#),(/@@),(/@#),(<?>),
   firstChild,secondChild,mapSubForest,filterSubForest,singleChild,
-  fetchValue,checkKey,checkKeys,checkValue,checkValues,key,
+  checkKey,checkKeys,checkValue,checkValues,key,
   fetchString,label,checkBool,
   Maker.number,leaf,fetchId, fetchBool,position
   ) where
@@ -88,7 +88,6 @@ infixl 5 @?
   Nothing → Right Nothing
   Just t' → Just <$> f t'
 
-fetchValue = firstChild key
 fetchString = Maker $ \t → case subForest t of
   [] → Left ("Can't take a value at " <> show' (rootLabel t),source t)
   [Node { rootLabel = Number n}] → Left ("Expected string for value of "<> show' (rootLabel t) <>", got: "<> show' n,source t)
