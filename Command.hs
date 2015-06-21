@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE UnicodeSyntax #-}
+-- | Commands
 module Command
        (
          Command(..),
@@ -40,11 +41,14 @@ clrFlag =  ClrFlag <$> (checkKey "clr_character_flag" $> Character
                         <|> checkKey "clr_dynasty_flag" $> Dynasty
                         <|> checkKey "clr_global_flag" $> Dynasty)
 
+-- | A @Modifier@ is used to change the probability of something being chosen
+-- out of a random set.
 data Modifier = Modifier Double [Condition]
               deriving (Eq,Ord,Show)
 modifier :: Maker Modifier
 modifier = Modifier <$> number @@ "factor" <*> condition /@@ "factor"
 
+-- | A @Command@ is an instruction to the game engine to actually change something
 data Command = AddTrait Label | RemoveTrait Label
              | Break
              | SetFlag FlagType Label | ClrFlag FlagType Label
@@ -66,6 +70,7 @@ data Command = AddTrait Label | RemoveTrait Label
              | Concrete Label (Clause Command)
   deriving (Eq,Ord,Show)
 
+-- | Make a @Command@.
 command :: Maker Command
 command = (AddTrait <$ checkKey "add_trait" <*> fetchString)
           <|> (RemoveTrait <$ checkKey "remove_trait" <*> fetchString)
@@ -154,7 +159,9 @@ commands =
    "vassal_opinion","vassalize_or_take_under_title",
    "vassalize_or_take_under_title_destroy_duchies","war","wealth"]
            
-          
+-- | A list of all commands whose argument is a string-like key.
+--
+-- E.g. @activate_disease=smallpox@ or @gain_title=e_persia@
 stringyCommands :: [Label]
 stringyCommands =   [
    "activate_disease","add_ambition","add_law","add_law_w_cooldown","adjective",
