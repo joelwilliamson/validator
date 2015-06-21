@@ -45,7 +45,7 @@ data Value a = BooleanValue Bool
 value = BooleanValue True <$ checkKeys ["yes","true"]
         <|> BooleanValue False <$ checkKeys ["false","no"]
         <|> NumValue <$> number
-        <|> Id <$> leaf
+        <|> Id <$> label key
 
 -- scopedValue makes a value of scoped type
 scopedValue = ScopedValue <$> scopeType

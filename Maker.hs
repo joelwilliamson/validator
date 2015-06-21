@@ -4,12 +4,12 @@ module Maker (
   (@@),(@?),(@@@),(@@#),(/@@),(/@#),(<?>),
   firstChild,secondChild,mapSubForest,filterSubForest,singleChild,
   checkKey,checkKeys,checkValue,checkValues,key,
-  fetchString,label,checkBool,
-  Maker.number,leaf,fetchId, fetchBool,position
+  fetchString,label,
+  Maker.number,fetchId, fetchBool,position
   ) where
 
 import Tree(Tree(..))
-import Scoped (Error,Label,Atom(..),eventId,getPos,lookup)
+import Scoped (Error,Label,Atom(..),eventId,getPos)
 import qualified Data.Text as T(pack,Text)
 
 import Text.Parsec(parse)
@@ -110,20 +110,6 @@ number = Maker $ \t → case rootLabel t of
   Scoped.Label l → Left ("Not a number: "<> show' l, source t)
   Scoped.Number n → Right n
 
-checkBool :: T.Text → Tree T.Text → Either Error (Maybe Bool)
-checkBool key t = case lookup key t of
-  Just "true" → Right $ Just True
-  Just "yes" → Right $ Just True
-  Just "false" → Right $ Just False
-  Just "no" → Right $ Just False
-  Just v → Left (key <> " has the non-boolean value: " <> v, Tree.source t)
-  Nothing → Right Nothing
-
-leaf = Maker $ \t → if null $ subForest t
-                    then case rootLabel t of
-                      Number n → Right $ show' n
-                      Label l → Right l
-                    else Left ("Not a leaf: "<> show' (rootLabel t), source t)
 
 label :: Maker Atom → Maker Label
 label (Maker f) = Maker $ \t → case f t of
