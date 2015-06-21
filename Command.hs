@@ -1,19 +1,20 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE UnicodeSyntax #-}
-module Command where
+module Command
+       (
+         Command(..),
+         Modifier(..),
+         command,
+         stringyCommands
+       )where
 
 import Maker
 import Scoped(Label)
 import Condition(Clause,Condition,Scope,ScopeType,clause,condition,scope,scopeType)
 
-import Control.Applicative(Alternative,(<|>))
+import Control.Applicative((<|>))
 
 ($>) = flip (<$)
-
-firstOf :: Alternative f ⇒ [f a] → f a
-firstOf [] = error "Empty list in firstOf"
-firstOf [x] = x
-firstOf (x:xs) = x <|> firstOf xs
 
 data Op = Change | Check | Divide | Equal | Multiply | Subtract | Set deriving (Eq,Ord,Show)
 op :: Maker Op
@@ -44,9 +45,6 @@ data Modifier = Modifier Double [Condition]
 modifier :: Maker Modifier
 modifier = Modifier <$> number @@ "factor" <*> condition /@@ "factor"
 
---data Option = OptionC
---            deriving (Eq,Show)
-  
 data Command = AddTrait Label | RemoveTrait Label
              | Break
              | SetFlag FlagType Label | ClrFlag FlagType Label
