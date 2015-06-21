@@ -1,20 +1,19 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE UnicodeSyntax #-}
+
+-- | This module defines both conditions and scopes. Since there is a mutual
+-- dependency, they need to go in the same module
 module Condition
        (Scope(..),Condition(..),Value(..),Predicate(..),ScopeType(..)
-       ,Clause(..)
+       ,Clause(..),Duration(..)
        ,scope
        ,condition
        ,clause
        ,value
        ,scopedValue
-       , scopeType
-       ,isStringy
+       ,scopeType
        ) where
-
--- This module defines both conditions and scopes. Since there is a mutual
--- dependency, they need to go in the same module
 
 import Maker
 import Scoped(Label,Atom(..),EventId)
@@ -22,9 +21,11 @@ import Scoped(Label,Atom(..),EventId)
 import qualified Data.Text as T(Text,take,drop)
 import Control.Applicative
 
+-- | Wrapper for the concrete conditions
 newtype Predicate = Predicate Atom
                   deriving (Eq,Ord,Show)
 
+-- | A @Condition@ is a boolean predicate.
 data Condition = Condition Predicate (Value ())
                  | Scoped (Scope Condition)
                  | VariableCheck Label (Either Label Double)
@@ -34,6 +35,7 @@ data Condition = Condition Predicate (Value ())
                  | Trait Label
                  deriving (Eq,Ord,Show)
 
+-- | A @Value@ is used as the argument to a @Condition@ or @`Command`@
 data Value a = BooleanValue Bool
            | NumValue Double
            | ScopedValue ScopeType
@@ -41,21 +43,24 @@ data Value a = BooleanValue Bool
            | Id T.Text
            deriving (Eq,Ord,Show)
  
--- value  makes a value of any non-scope type
+-- | @value@  makes a value of any non-scope, non-clause type
 value = BooleanValue True <$ checkKeys ["yes","true"]
         <|> BooleanValue False <$ checkKeys ["false","no"]
         <|> NumValue <$> number
         <|> Id <$> label key
 
--- scopedValue makes a value of scoped type
+-- | @scopedValue@ makes a value of scoped type
 scopedValue = ScopedValue <$> scopeType
 
+-- | A @Duration@ is a period of time.
 data Duration = Days Double | Months Double | Years Double deriving (Eq,Ord,Show)
 duration = Days <$> number @@ "days"
            <|> Months <$> number @@ "months"
            <|> Years <$> number @@ "years"
            <|> Days <$> number @@ "duration"
 
+-- | A @Clause@ is typically used as the argument to a command. They appear in
+-- the source as blocks, and don't appear to have any commonality beyond that.
 data Clause a = ActivateTitle Label Bool
               | CharacterEvent EventId (Maybe Duration) (Maybe Label)
               | ScopedModifier Label Duration
@@ -89,6 +94,7 @@ data Clause a = ActivateTitle Label Bool
               | UnknownClause [(Label,Label)]
                 deriving (Eq,Ord,Show)
 
+-- | Make a clause.
 clause :: Maker (Clause a)
 clause = ActivateTitle <$ checkKey "activate_title" <*> fetchString @@ "title" <*> fetchBool @@ "status"
          <|> (ScopedModifier <$ checkKeys ["add_character_modifier","add_province_modifier"]
@@ -129,6 +135,8 @@ clause = ActivateTitle <$ checkKey "activate_title" <*> fetchString @@ "title" <
               <*> firstChild (firstChild (firstChild number))
              )
 
+-- | Identify the type of the element a scope references, or move around the
+-- scope stack.
 data ScopeType = Root | This
                | Prev | PrevPrev | PrevPrevPrev | PrevPrevPrevPrev
                | From | FromFrom | FromFromFrom | FromFromFromFrom
@@ -158,15 +166,18 @@ readScope (Label s)
   | otherwise = IdScope s
 readScope (Number n) = NumScope n
 
+-- | Make a @ScopeType@.
 scopeType = readScope <$> key
 
-
+-- | @Scope@s are used to refer to particular elements in-game, such as
+-- characters or titles. Each one creates a new entry on the scope stack.
 data Scope a = Scope {
   scopeType_ :: ScopeType,
   limit :: [Condition],
   content :: [a]
   } deriving (Eq,Ord,Show)
 
+-- | Make a scope
 scope :: Maker a → Maker (Scope a)
 scope maker = Scope <$> scopeType <*> limit <*> content
   where limit = condition @@@ "limit"
@@ -205,8 +216,8 @@ characterScope = [
   ]
 
 predicate = Predicate <$> checkKeys predicates
-isStringy (Predicate p) = p `elem` [Label "trait"]
-                 
+
+-- | Make a condition
 condition:: Maker Condition
 condition = trait <|> simple <|> boolean <|> variableCheck <|> clausal <|> (Scoped <$> scope condition)
   where simple  = Condition <$> predicate <*> firstChild value
