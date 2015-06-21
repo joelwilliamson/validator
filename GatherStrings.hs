@@ -68,6 +68,7 @@ instance GatherStrings Condition where
   gatherStrings (Condition (Predicate _) v) = gatherStrings v
   gatherStrings (Condition.Scoped s) = gatherStrings s
   gatherStrings (VariableCheck _ _) = []
+  gatherStrings (Trait _) = []
   gatherStrings (Or cs) = gatherStrings cs
   gatherStrings (And cs) = gatherStrings cs
   gatherStrings (Not c) = gatherStrings c
