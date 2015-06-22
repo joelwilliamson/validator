@@ -18,7 +18,7 @@ module AttoScoped(
   ) where
 
 import Tree(Tree(..))
-import Scoped (Atom(..),Block)
+import Scoped (Atom(..))
 
 import Data.Char(isDigit,ord)
 import Control.Applicative((<|>))
@@ -84,7 +84,7 @@ value = do
 rhs = block <|> (singleton <$> literal)
 
 -- This is a parser for blocks that never backtracks
-block :: StatefulParser [Block]
+block :: StatefulParser [Tree Atom]
 block = do
   _ ← lift $ char '{'
   pos ← get

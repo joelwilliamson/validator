@@ -4,27 +4,14 @@
 {-# LANGUAGE UnicodeSyntax #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Scoped {-(
+module Scoped (
   Label(),
-  Block(),
-  Namespace(),
-  EventId(),
   Error(),
-  SourcePos(),
-  ws,Scoped.dot,number,label,intLit,
-  parseValue,eventId,
-  quickParse,
-  quickDraw,
-  lookup,
-  lookupWithError,
-  getValue,
-  getTree,
+  Atom(Label,Number),
+  EventId(),
+  eventId,
   getPos,
-  lookupAll,
-  filterChildren,
-  makeCompound
-  )-}
-       where
+  ) where
 
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
@@ -43,7 +30,6 @@ type Label = T.Text
 data Atom = Label Label
           | Number Double
             deriving (Eq,Ord,Show)
-type Block = Tree Atom
 type Namespace = Label
 type EventId = (Namespace,Double)
 
