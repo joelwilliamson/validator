@@ -42,8 +42,8 @@ instance Localised Command where
   localisations VarOpLit {} = []
   localisations VarOpVar {} = []
   localisations VarOpScope {} = []
-  localisations (AddTrait t) = ["Proper handling for traits not yet installed: " <> t]
-  localisations (RemoveTrait t) = ["Proper handling for traits not yet installed: " <> t]
+  localisations (AddTrait t) = []
+  localisations (RemoveTrait t) = []
   localisations (Concrete _ _) = []
 
 instance Localised Modifier where
