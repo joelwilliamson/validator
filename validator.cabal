@@ -132,3 +132,20 @@ library
                         -auto-all
                         -caf-all
   
+Test-Suite tests
+  Type:                 exitcode-stdio-1.0
+  Main-Is:              Tests/Main.hs
+  Other-Modules:        Tests.Command
+  Build-Depends:        attoparsec
+                        , base >=4.8 && <4.9
+                        , Cabal >= 1.9.2
+                        , mtl >= 2.0 && <3.0
+                        , parsec >= 3.0 && <4.0
+                        , tasty >= 0.10 && <0.11
+                        , tasty-hunit >= 0.9 && < 0.10
+                        , text >= 1.2 && <2.0
+  Default-Language:     Haskell2010
+  Default-Extensions:   NamedFieldPuns
+                        , OverloadedStrings
+                        , RecordWildCards
+                        , UnicodeSyntax
