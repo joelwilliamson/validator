@@ -13,7 +13,6 @@ module Scoped (
   Atom(Label,Number),
   EventId(),
   eventId,
-  getPos,
   ) where
 
 import qualified Data.Text as T
@@ -153,5 +152,3 @@ filterChildren p Node { subForest } = L.filter (p . rootLabel) subForest
 makeCompound maker name t = case getTree name t of
   Just Node {..} → sequence $ maker <$> subForest
   Nothing → Right []
-
-getPos Node { source } = source

@@ -12,7 +12,7 @@ module Maker (
   ) where
 
 import Tree(Tree(..))
-import Scoped (Error,Label,Atom(..),eventId,getPos)
+import Scoped (Error,Label,Atom(..),eventId)
 import qualified Data.Text as T(pack,Text)
 
 import Text.Parsec(parse)
@@ -65,7 +65,7 @@ infix 0 <?>
   Left (eMsg, source) → Left (msg <> " => " <> eMsg, source)
 
 -- | Get the source position this tree was created from.
-position = Maker $ Right . getPos
+position = Maker $ Right . source
 
 -- | @firstChild m@ applies @m@ to the first child node.
 firstChild :: Maker a → Maker a
