@@ -1,4 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
+
+{-# OPTIONS_GHC -fno-warn-unused-binds #-} -- This is needed to silence all the
+-- warnings about Parsec parsers not being exported.
 -- | Define the base types for the raw trees output by the parsing phase. This
 -- module also contains a Parsec based parser, but this is not currently used,
 -- as the Attoparsec parser is marginally faster.
