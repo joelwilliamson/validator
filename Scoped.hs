@@ -4,6 +4,9 @@
 {-# LANGUAGE UnicodeSyntax #-}
 {-# LANGUAGE OverloadedStrings #-}
 
+-- | Define the base types for the raw trees output by the parsing phase. This
+-- module also contains a Parsec based parser, but this is not currently used,
+-- as the Attoparsec parser is marginally faster.
 module Scoped (
   Label(),
   Error(),
@@ -26,13 +29,23 @@ import Prelude hiding (lookup)
 import Data.Monoid((<>))
 import Control.Applicative((<|>))
 
+-- | A synonym for text
 type Label = T.Text
+
+-- | Every node in the raw Tree is labeled with an atom.
 data Atom = Label Label
           | Number Double
             deriving (Eq,Ord,Show)
+
+-- | Each namespace can contain several events. They are equivalent to unique
+-- numbers, but make it easier to avoid conflicting event ids.
 type Namespace = Label
+
+-- | A unique identifier for an event. If it is a non-namespace event, the
+-- namespace will be "".
 type EventId = (Namespace,Double)
 
+-- | Describe an error and where it occured
 type Error = (T.Text, Maybe SourcePos)
 
 instance Data.String.IsString Atom where
@@ -101,6 +114,8 @@ block = try (do
                       _ ← char '}'
                       return contents
                   )
+
+-- | Parse an event id with Parsec
 eventId = (,) <$> option "" (T.pack <$> many1 (letter <|> char '_') <* char '.') <*> number
 
 quickParse p s = res
