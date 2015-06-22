@@ -3,10 +3,6 @@
 -- | Since the error messages for Atto are typically inferior, the plan is to
 -- | run the Parsec parser over any file that fails to parse for better error
 -- | messages.
-
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE UnicodeSyntax #-}
-
 module AttoScoped(
   StatefulParser,
   space,

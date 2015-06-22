@@ -1,7 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE UnicodeSyntax #-}
-
 -- | This module defines both conditions and scopes. Since there is a mutual
 -- dependency, they need to go in the same module
 module Condition

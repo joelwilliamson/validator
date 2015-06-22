@@ -1,6 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE UnicodeSyntax #-}
 -- | Parse the csv files used for localisation. Each localisation entry consists
 -- of a key followed by several entries, separated by ';'. A 'x' marks eol. Due
 -- to Paradox's very relaxed parsing, the trailing 'x' is not actually needed.

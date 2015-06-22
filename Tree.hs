@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 -- | This is basically the same as Data.Tree, except each node can carry
 -- information about where in the file it was created.
 module Tree

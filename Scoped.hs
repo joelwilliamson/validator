@@ -1,9 +1,4 @@
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE UnicodeSyntax #-}
-{-# LANGUAGE OverloadedStrings #-}
-
 -- | Define the base types for the raw trees output by the parsing phase. This
 -- module also contains a Parsec based parser, but this is not currently used,
 -- as the Attoparsec parser is marginally faster.

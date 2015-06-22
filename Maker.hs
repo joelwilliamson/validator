@@ -1,5 +1,3 @@
-{-# LANGUAGE NamedFieldPuns, OverloadedStrings, UnicodeSyntax #-}
-
 -- | A @`Maker` a@ is wrapper around a function from @`Tree`@'s to @a@s. They are
 -- built up using various combinators, then invoked with @`runMaker`@.
 module Maker (

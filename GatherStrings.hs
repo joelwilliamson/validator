@@ -1,6 +1,3 @@
-{-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE UnicodeSyntax #-}
 -- | Traverse the entire AST to find any arguments to string-like commands or conditions
 module GatherStrings(GatherStrings(gatherStrings)) where
 

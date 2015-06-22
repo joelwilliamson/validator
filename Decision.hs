@@ -1,7 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE UnicodeSyntax #-}
-
 -- | The core handling for decision files
 module Decision
        (

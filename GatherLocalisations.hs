@@ -1,7 +1,3 @@
-{-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE UnicodeSyntax #-}
 -- | Traverse the AST to find any localisation keys
 module GatherLocalisations(Localised(localisations)) where
 
