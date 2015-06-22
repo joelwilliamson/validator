@@ -9,7 +9,7 @@ module Command
 
 import Maker
 import Scoped(Label)
-import Condition(Clause,Condition,Scope,ScopeType,clause,condition,scope,scopeType)
+import Condition(Clause,Condition,Scope,ScopeType,Value,clause,condition,scope,scopeType,value)
 
 import Control.Applicative((<|>))
 
@@ -65,7 +65,7 @@ data Command = AddTrait Label | RemoveTrait Label
              | VarOpLit Label Op Double
              | VarOpVar Label Op Label
              | VarOpScope Label Op (Scope ())
-             | Concrete Label (Clause Command)
+             | Concrete Label (Value Command)
   deriving (Eq,Ord,Show)
 
 -- | Make a @Command@.
@@ -88,7 +88,7 @@ command = (AddTrait <$ checkKey "add_trait" <*> fetchString)
                <*> firstChild (label key) @? "earmark"
                <*> firstChild number @? "attrition"
                <*> clause @@ "troops" )
-          <|> Concrete <$> label (checkKeys commands) <*> clause
+          <|> Concrete <$> label (checkKeys commands) <*> firstChild value
           <|> Scoped <$> scope command
 
   where rlElem = (,,) <$> number <*> modifier @@@ "modifier" <*> command /@@ "modifier"
