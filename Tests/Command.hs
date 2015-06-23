@@ -140,6 +140,18 @@ commandUnitTests = testGroup "Command Unit Tests"
                    , successTest "Change legalism"
                      "change_tech = { technology = TECH_LEGALISM value = 1 }"
                      $ ChangeTech "TECH_LEGALISM" 1
+                     , successTest "Best Fit Character"
+                       (unlines ["best_fit_character_for_title = {",
+                                 "title = PREV",
+                                 "perspective = ROOT",
+                                 "index = 1",
+                                 "grant_title = PREV",
+                                 "}"])
+                       $ BestFitCharacterForTitle {
+                         title = Prev
+                         , perspective = Root
+                         , index = 1
+                         , grantTitle = Prev }
                    ]
 
 makeCommand :: Text -> Either Error Command

@@ -54,6 +54,10 @@ modifier = Modifier <$> number ~@ "factor" <*> condition /@@ "factor"
 -- | A @Command@ is an instruction to the game engine to actually change something
 data Command = ActivateTitle Label Bool
              | AddTrait Label | RemoveTrait Label
+             | BestFitCharacterForTitle { title :: ScopeType
+                                        , perspective :: ScopeType
+                                        , index :: Double
+                                        , grantTitle :: ScopeType }
              | Break
              | BuildHolding Label Label ScopeType
              | ChangeTech Label Double
@@ -102,6 +106,11 @@ command = (ActivateTitle <$ checkKey "activate_title"
            <*> fetchBool @@ "status")
           <|> (AddTrait <$ checkKey "add_trait" <*> fetchString)
           <|> (RemoveTrait <$ checkKey "remove_trait" <*> fetchString)
+          <|> (BestFitCharacterForTitle <$ checkKey "best_fit_character_for_title"
+              <*> scopeType ~@ "title"
+              <*> scopeType ~@ "perspective"
+              <*> number ~@ "index"
+              <*> scopeType ~@ "grant_title")
           <|> (Break <$ checkKey "break")
           <|> (BuildHolding <$ checkKey "build_holding"
                <*> fetchString @@ "title"
