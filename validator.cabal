@@ -16,7 +16,7 @@ version:             0.1.0.0
 synopsis:            A validator for CK2 mods
 
 -- A longer description of the package.
--- description:         
+description:         A tool for verifying a lack of syntax errors, incorrect semantics, etc. in mods for Crusader Kings II.
 
 -- The license under which the package is released.
 license:             AGPL-3
@@ -44,6 +44,10 @@ build-type:          Simple
 
 -- Constraint on the version of Cabal needed to build this package.
 cabal-version:       >=1.10
+Source-Repository head
+                  type:         git
+                  location:     git://github.com/joelwilliamson/validator.git
+
 
 executable Server
   main-is:      Server.hs
