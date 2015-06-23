@@ -124,11 +124,6 @@ clause = ActivateTitle <$ checkKey "activate_title" <*> fetchString @@ "title" <
               <*> scopeType @? "father"
               <*> scopeType @? "mother"
               <*> scopeType @? "race")
-         <|> (Troops <$ checkKey "troops"
-              <*> fetchString
-              <*> firstChild (firstChild number)
-              <*> firstChild (firstChild (firstChild number))
-             )
 
 -- | Identify the type of the element a scope references, or move around the
 -- scope stack.
