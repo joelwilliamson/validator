@@ -8,10 +8,12 @@ import Scoped(Error())
 
 import Data.Attoparsec.ByteString
 import Text.Parsec.Pos(initialPos)
-import Data.Text(Text)
+import Data.Text(Text,unlines)
 
 import Test.Tasty
 import Test.Tasty.HUnit
+
+import Prelude hiding (unlines)
 
 commandUnitTests = testGroup "Command Unit Tests"
                    [ successTest "A simple concrete command"
@@ -70,6 +72,58 @@ commandUnitTests = testGroup "Command Unit Tests"
                      $ RandomList [(10,[],[Concrete "wealth" $ NumValue 10]),
                                    (20,[Modifier 2 [Trait "cynical"]],[Concrete "unsafe_religion" $ Id "catholic"]),
                                    (70,[],[Concrete "prestige" $ NumValue 30])]
+                   , successTest "Create Character"
+                     (unlines ["create_character = {"
+                              , "random_traits = no"
+                              , "name = \"Hassan\""
+                              , "dynasty = random"
+                              , "religion = ROOT"
+                              , "culture = persian"
+                              , "female = no"
+                              , "age = 40"
+                              , "has_nickname = the_testy"
+                              , "attributes = {"
+                              , "martial = 6"
+                              , "diplomacy = 8"
+                              , "stewardship = 9"
+                              , "intrigue = 12"
+                              , "learning = 12"
+                              , "}"
+                              , "health = 6"
+                              , "fertility = 0.8"
+                              , "mother = FROM"
+                              , "father = FROMFROM"
+                              , "race = testish"
+                              , "dna = DNA"
+                              , "flag = \"test_flag\""
+                              , "employer = THIS"
+                              , "trait = elusive_shadow"
+                              , "trait = patient"
+                              , "trait = zealous"
+                              , "trait = scholar"
+                              , "trait = chaste"
+                              , "trait = temperate }"])
+                     (CreateCharacter {
+                         age = 40
+                         , name = "Hassan"
+                         , hasNickName = Just "the_testy"
+                         , attributes = [6,8,9,12,12]
+                         , traits = ["elusive_shadow","patient","zealous",
+                                    "scholar","chaste","temperate"]
+                         , health = 6
+                         , fertility = Just 0.8
+                         , randomTraits = Just False
+                         , female = False
+                         , employer = Just This
+                         , religion = Root
+                         , culture = IdScope "persian"
+                         , dynasty = "random"
+                         , dna = Just "DNA"
+                         , flag = Just "test_flag"
+                         , mother = Just From
+                         , father = Just FromFrom
+                         , race = Just $ IdScope "testish"
+                         })
                    ]
 
 makeCommand :: Text -> Either Error Command

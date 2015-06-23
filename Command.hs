@@ -52,6 +52,24 @@ modifier = Modifier <$> firstChild number @@ "factor" <*> condition /@@ "factor"
 -- | A @Command@ is an instruction to the game engine to actually change something
 data Command = AddTrait Label | RemoveTrait Label
              | Break
+             | CreateCharacter { age :: Double
+                               , name :: Label
+                               , hasNickName :: Maybe Label
+                               , attributes :: [Double]
+                               , traits :: [Label]
+                               , health :: Double
+                               , fertility :: Maybe Double
+                               , randomTraits :: Maybe Bool
+                               , female :: Bool
+                               , employer :: Maybe ScopeType
+                               , religion :: ScopeType
+                               , culture :: ScopeType
+                               , dynasty :: Label
+                               , dna :: Maybe Label
+                               , flag :: Maybe Label
+                               , father :: Maybe ScopeType
+                               , mother :: Maybe ScopeType
+                               , race :: Maybe ScopeType }
              | SetFlag FlagType Label | ClrFlag FlagType Label
              | If [Condition] [Command]
              | Random Double [Modifier] [Command]
@@ -78,6 +96,7 @@ command = (AddTrait <$ checkKey "add_trait" <*> fetchString)
           <|> (Break <$ checkKey "break")
           <|> (setFlag <*> fetchString)
           <|> (clrFlag <*> fetchString)
+          <|> createCharacter
           <|> (If <$ checkKey "if") <*> mapSubForest condition @@ "limit" <*> command /@@ "limit"
           <|> (Random <$ checkKey "random") <*> firstChild number @@ "chance" <*> modifier @@@ "modifier" <*> command /@# ["chance","modifier"]
           <|> (RandomList <$ checkKey "random_list") <*> mapSubForest rlElem
@@ -96,6 +115,27 @@ command = (AddTrait <$ checkKey "add_trait" <*> fetchString)
 
   where rlElem = (,,) <$> number <*> modifier @@@ "modifier" <*> command /@@ "modifier"
         troopSpec = (,,) <$> label key <*> firstChild number <*> firstChild (firstChild number)
+
+
+createCharacter = CreateCharacter <$ checkKey "create_character"
+                  <*> firstChild number @@ "age"
+                  <*> fetchString @@ "name"
+                  <*> fetchString @? "has_nickname"
+                  <*> mapSubForest (firstChild number) @@ "attributes"
+                  <*> fetchString @@@ "trait"
+                  <*> firstChild number @@ "health"
+                  <*> firstChild number @? "fertility"
+                  <*> fetchBool @? "random_traits"
+                  <*> fetchBool @@ "female"
+                  <*> firstChild scopeType @? "employer"
+                  <*> firstChild scopeType @@ "religion"
+                  <*> firstChild scopeType @@ "culture"
+                  <*> fetchString @@ "dynasty"
+                  <*> fetchString @? "dna"
+                  <*> fetchString @? "flag"
+                  <*> firstChild scopeType @? "father"
+                  <*> firstChild scopeType @? "mother"
+                  <*> firstChild scopeType @? "race"
 
 commands =
   ["abandon_heresy","abdicate","abdicate_to","abdicate_to_most_liked_by",

@@ -65,24 +65,6 @@ data Clause a = ActivateTitle Label Bool
                                          , index :: Double
                                          , grantTitle :: ScopeType }
               | BuildHolding Label Label ScopeType
-              | CreateCharacter { age :: Double
-                                , name :: Label
-                                , hasNickName :: Maybe Label
-                                , attributes :: [Double]
-                                , traits :: [Label]
-                                , health :: Double
-                                , fertility :: Maybe Double
-                                , randomTraits :: Maybe Bool
-                                , female :: Bool
-                                , employer :: Maybe Label
-                                , religion :: ScopeType
-                                , culture :: ScopeType
-                                , dynasty :: Label
-                                , dna :: Maybe Label
-                                , flag :: Maybe Label
-                                , father :: Maybe ScopeType
-                                , mother :: Maybe ScopeType
-                                , race :: Maybe ScopeType }
               | ChangeText Label Double
               | OpinionModifier Label Duration
               | TitleStatus Label Bool
@@ -105,25 +87,7 @@ clause = ActivateTitle <$ checkKey "activate_title" <*> fetchString @@ "title" <
               <*> fetchId @@ "id"
               <*> optional duration
               <*> fetchString @? "tooltip")
-         <|> (CreateCharacter <$ checkKey "create_character"
-              <*> number @@ "age"
-              <*> fetchString @@ "name"
-              <*> fetchString @? "has_nickname"
-              <*> mapSubForest (firstChild number) @@ "attributes"
-              <*> fetchString @@@ "trait"
-              <*> firstChild number @@ "health"
-              <*> firstChild number @? "fertility"
-              <*> fetchBool @? "random_traits"
-              <*> fetchBool @@ "female"
-              <*> fetchString @? "employer"
-              <*> scopeType @@ "religion"
-              <*> scopeType @@ "culture"
-              <*> fetchString @@ "dynasty"
-              <*> fetchString @? "dna"
-              <*> fetchString @? "flag"
-              <*> scopeType @? "father"
-              <*> scopeType @? "mother"
-              <*> scopeType @? "race")
+
 
 -- | Identify the type of the element a scope references, or move around the
 -- scope stack.
