@@ -47,7 +47,7 @@ clrFlag =  ClrFlag <$> (checkKey "clr_character_flag" $> Character
 data Modifier = Modifier Double [Condition]
               deriving (Eq,Ord,Show)
 modifier :: Maker Modifier
-modifier = Modifier <$> number @@ "factor" <*> condition /@@ "factor"
+modifier = Modifier <$> firstChild number @@ "factor" <*> condition /@@ "factor"
 
 -- | A @Command@ is an instruction to the game engine to actually change something
 data Command = AddTrait Label | RemoveTrait Label
@@ -79,7 +79,7 @@ command = (AddTrait <$ checkKey "add_trait" <*> fetchString)
           <|> (setFlag <*> fetchString)
           <|> (clrFlag <*> fetchString)
           <|> (If <$ checkKey "if") <*> mapSubForest condition @@ "limit" <*> command /@@ "limit"
-          <|> (Random <$ checkKey "random") <*> number @@ "chance" <*> modifier @@@ "modifier" <*> command /@# ["chance","modifier"]
+          <|> (Random <$ checkKey "random") <*> firstChild number @@ "chance" <*> modifier @@@ "modifier" <*> command /@# ["chance","modifier"]
           <|> (RandomList <$ checkKey "random_list") <*> mapSubForest rlElem
           <|> VarOpLit <$> firstChild (checkKey "which" *> fetchString) <*> op <*> firstChild number @@ "value"
           <|> VarOpVar <$> firstChild (checkKey "which" *> fetchString) <*> op <*> secondChild (checkKey "which" *> fetchString) -- This doesn't distinguish between scopes and variables in the same scope
