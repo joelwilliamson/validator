@@ -4,6 +4,8 @@
 dist
 CheckFile
 *~
+.*
+\#*
 
 # Profiling
 *.prof
