@@ -1,7 +1,7 @@
 module Tests.Command where
 
 import AttoScoped(statefulParseOnly,value)
-import Condition(Clause(..),Value(..))
+import Condition(Clause(..),Value(..),ScopeType(..))
 import Command
 import Maker(runMaker)
 import Scoped(Error())
@@ -30,6 +30,9 @@ commandUnitTests = testGroup "Command Unit Tests"
                      makeCommand "change_variable = { which = a which = b }" @?= Right (VarOpVar "a" Change "b")
                    , testCase "Subtract constant from variable" $
                      makeCommand "subtract_variable = { which = a value = 4 }" @?= Right (VarOpLit "a" Subtract 4)
+                   , testCase "Spawn a unit" $
+                     makeCommand "spawn_unit = { province = 342 owner = THIS leader = FROM home = PREV attrition = 1 troops = { archers = { 100 100 } }}"
+                     @?= Right (SpawnUnit 342 (Just This) (Just From) (Just Prev)  Nothing (Just 1) (Troops "archers" 100 100))
                    ]
   where makeCommand :: Text -> Either Error Command
         makeCommand s = case statefulParseOnly value (initialPos "test_data") s of

@@ -57,7 +57,7 @@ data Command = AddTrait Label | RemoveTrait Label
              | Random Double [Modifier] [Command]
              | RandomList [(Double,[Modifier],[Command])]
              | Scoped (Scope Command)
-             | SpawnUnit { province :: ScopeType
+             | SpawnUnit { province :: Double
                          , owner :: Maybe ScopeType
                          , leader :: Maybe ScopeType
                          , home :: Maybe ScopeType
@@ -84,7 +84,7 @@ command = (AddTrait <$ checkKey "add_trait" <*> fetchString)
           <|> VarOpLit <$> firstChild (checkKey "which" *> fetchString) <*> op <*> firstChild number @@ "value"
           <|> VarOpVar <$> firstChild (checkKey "which" *> fetchString) <*> op <*> secondChild (checkKey "which" *> fetchString) -- This doesn't distinguish between scopes and variables in the same scope
           <|> (SpawnUnit <$ checkKey "spawn_unit"
-               <*> firstChild scopeType @@ "province"
+               <*> firstChild number @@ "province"
                <*> firstChild scopeType @? "owner"
                <*> firstChild scopeType @? "leader"
                <*> firstChild scopeType @? "home"
