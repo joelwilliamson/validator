@@ -49,7 +49,7 @@ clrFlag =  ClrFlag <$> (checkKey "clr_character_flag" $> Character
 data Modifier = Modifier Double [Condition]
               deriving (Eq,Ord,Show)
 modifier :: Maker Modifier
-modifier = Modifier <$> firstChild number @@ "factor" <*> condition /@@ "factor"
+modifier = Modifier <$> number ~@ "factor" <*> condition /@@ "factor"
 
 -- | A @Command@ is an instruction to the game engine to actually change something
 data Command = ActivateTitle Label Bool
@@ -105,23 +105,23 @@ command = (ActivateTitle <$ checkKey "activate_title"
           <|> (BuildHolding <$ checkKey "build_holding"
                <*> fetchString @@ "title"
                <*> fetchString @@ "type"
-               <*> firstChild scopeType @@ "holder")
+               <*> scopeType ~@ "holder")
           <|> (setFlag <*> fetchString)
           <|> (clrFlag <*> fetchString)
           <|> characterEvent
           <|> createCharacter
           <|> (If <$ checkKey "if") <*> mapSubForest condition @@ "limit" <*> command /@@ "limit"
-          <|> (Random <$ checkKey "random") <*> firstChild number @@ "chance" <*> modifier @@@ "modifier" <*> command /@# ["chance","modifier"]
+          <|> (Random <$ checkKey "random") <*> number ~@ "chance" <*> modifier @@@ "modifier" <*> command /@# ["chance","modifier"]
           <|> (RandomList <$ checkKey "random_list") <*> mapSubForest rlElem
-          <|> VarOpLit <$> firstChild (checkKey "which" *> fetchString) <*> op <*> firstChild number @@ "value"
+          <|> VarOpLit <$> firstChild (checkKey "which" *> fetchString) <*> op <*> number ~@ "value"
           <|> VarOpVar <$> firstChild (checkKey "which" *> fetchString) <*> op <*> secondChild (checkKey "which" *> fetchString) -- This doesn't distinguish between scopes and variables in the same scope
           <|> (SpawnUnit <$ checkKey "spawn_unit"
-               <*> firstChild number @@ "province"
-               <*> firstChild scopeType @? "owner"
-               <*> firstChild scopeType @? "leader"
-               <*> firstChild scopeType @? "home"
-               <*> firstChild (label key) @? "earmark"
-               <*> firstChild number @? "attrition"
+               <*> number ~@ "province"
+               <*> scopeType ~? "owner"
+               <*> scopeType ~? "leader"
+               <*> scopeType ~? "home"
+               <*> label key ~? "earmark"
+               <*> number ~? "attrition"
                <*> mapSubForest troopSpec @@ "troops" )
           <|> Concrete <$> label (checkKeys commands) <*> firstChild value
           <|> Scoped <$> scope command
@@ -135,24 +135,24 @@ characterEvent = CharacterEvent <$ checkKey "character_event"
                  <*> fetchString @? "tooltip"
 
 createCharacter = CreateCharacter <$ checkKey "create_character"
-                  <*> firstChild number @@ "age"
+                  <*> number ~@ "age"
                   <*> fetchString @@ "name"
                   <*> fetchString @? "has_nickname"
                   <*> mapSubForest (firstChild number) @@ "attributes"
                   <*> fetchString @@@ "trait"
-                  <*> firstChild number @@ "health"
-                  <*> firstChild number @? "fertility"
+                  <*> number ~@ "health"
+                  <*> number ~? "fertility"
                   <*> fetchBool @? "random_traits"
                   <*> fetchBool @@ "female"
-                  <*> firstChild scopeType @? "employer"
-                  <*> firstChild scopeType @@ "religion"
-                  <*> firstChild scopeType @@ "culture"
+                  <*> scopeType ~? "employer"
+                  <*> scopeType ~@ "religion"
+                  <*> scopeType ~@ "culture"
                   <*> fetchString @@ "dynasty"
                   <*> fetchString @? "dna"
                   <*> fetchString @? "flag"
-                  <*> firstChild scopeType @? "father"
-                  <*> firstChild scopeType @? "mother"
-                  <*> firstChild scopeType @? "race"
+                  <*> scopeType ~? "father"
+                  <*> scopeType ~? "mother"
+                  <*> scopeType ~? "race"
 
 commands =
   ["abandon_heresy","abdicate","abdicate_to","abdicate_to_most_liked_by",

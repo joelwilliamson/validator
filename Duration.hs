@@ -6,13 +6,13 @@ module Duration
          duration
        ) where
 
-import Maker((@@),number,firstChild)
+import Maker((~@),number,firstChild)
 import Control.Applicative((<|>))
 
 -- | A @Duration@ is a period of time.
 data Duration = Days Double | Months Double | Years Double deriving (Eq,Ord,Show)
 -- | Make a @`Duration`@
-duration = Days <$> firstChild number @@ "days"
-           <|> Months <$> firstChild number @@ "months"
-           <|> Years <$> firstChild number @@ "years"
-           <|> Days <$> firstChild number @@ "duration"
+duration = Days <$> number ~@ "days"
+           <|> Months <$> number ~@ "months"
+           <|> Years <$> number ~@ "years"
+           <|> Days <$> number ~@ "duration"
