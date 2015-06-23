@@ -2,7 +2,9 @@
 module Command
        (
          Command(..),
+         FlagType(..),
          Modifier(..),
+         Op(..),
          command,
          stringyCommands
        )where
@@ -25,6 +27,7 @@ op = checkKey "set_variable" $> Set
      <|> checkKey "multiply_variable" $> Multiply
      <|> checkKey "subtract_variable" $> Subtract
      
+-- | Specify the type of a flag being set/cleared by set_*_flag
 data FlagType = Character | Province | Title | Dynasty | Global deriving (Eq,Ord,Show)
 setFlag :: Maker (Label → Command)
 setFlag =  SetFlag <$> (checkKey "set_character_flag" $> Character
