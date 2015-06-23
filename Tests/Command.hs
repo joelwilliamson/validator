@@ -137,6 +137,9 @@ commandUnitTests = testGroup "Command Unit Tests"
                    , successTest "Build holding"
                      "build_holding = { title = b_masyaf type = castle holder = ROOT }"
                      $ BuildHolding "b_masyaf" "castle" Root
+                   , successTest "Change legalism"
+                     "change_tech = { technology = TECH_LEGALISM value = 1 }"
+                     $ ChangeTech "TECH_LEGALISM" 1
                    ]
 
 makeCommand :: Text -> Either Error Command

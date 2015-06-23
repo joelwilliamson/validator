@@ -56,6 +56,7 @@ data Command = ActivateTitle Label Bool
              | AddTrait Label | RemoveTrait Label
              | Break
              | BuildHolding Label Label ScopeType
+             | ChangeTech Label Double
              | CharacterEvent EventId (Maybe Duration) (Maybe Label)
              | CreateCharacter { age :: Double
                                , name :: Label
@@ -108,6 +109,7 @@ command = (ActivateTitle <$ checkKey "activate_title"
                <*> scopeType ~@ "holder")
           <|> (setFlag <*> fetchString)
           <|> (clrFlag <*> fetchString)
+          <|> ChangeTech <$ checkKey "change_tech" <*> fetchString @@ "technology" <*> number ~@ "value"
           <|> characterEvent
           <|> createCharacter
           <|> (If <$ checkKey "if") <*> mapSubForest condition @@ "limit" <*> command /@@ "limit"

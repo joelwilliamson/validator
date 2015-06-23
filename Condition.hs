@@ -56,7 +56,6 @@ data Clause a = ScopedModifier Label Duration
                                          , perspective :: ScopeType
                                          , index :: Double
                                          , grantTitle :: ScopeType }
-              | ChangeText Label Double
               | OpinionModifier Label Duration
               | TitleStatus Label Bool
               | UnknownClause [(Label,Label)]
@@ -71,7 +70,6 @@ clause = (ScopedModifier <$ checkKeys ["add_character_modifier","add_province_mo
               <*> scopeType @@ "perspective"
               <*> number @@ "index"
               <*> scopeType @@ "grant_title")
-         <|> ChangeText <$ checkKey "change_tech" <*> fetchString @@ "technology" <*> number @@ "value"
 
 
 -- | Identify the type of the element a scope references, or move around the
