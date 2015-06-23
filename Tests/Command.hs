@@ -28,6 +28,8 @@ commandUnitTests = testGroup "Command Unit Tests"
                      makeCommand "clr_province_flag = prov_flag" @?= Right (ClrFlag Province "prov_flag")
                    , testCase "Add two variables" $
                      makeCommand "change_variable = { which = a which = b }" @?= Right (VarOpVar "a" Change "b")
+                   , testCase "Subtract constant from variable" $
+                     makeCommand "subtract_variable = { which = a value = 4 }" @?= Right (VarOpLit "a" Subtract 4)
                    ]
   where makeCommand :: Text -> Either Error Command
         makeCommand s = case statefulParseOnly value (initialPos "test_data") s of

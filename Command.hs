@@ -81,7 +81,7 @@ command = (AddTrait <$ checkKey "add_trait" <*> fetchString)
           <|> (If <$ checkKey "if") <*> mapSubForest condition @@ "limit" <*> command /@@ "limit"
           <|> (Random <$ checkKey "random") <*> number @@ "chance" <*> modifier @@@ "modifier" <*> command /@# ["chance","modifier"]
           <|> (RandomList <$ checkKey "random_list") <*> mapSubForest rlElem
-          <|> VarOpLit <$> firstChild (checkKey "which" *> fetchString) <*> op <*> number @@ "value"
+          <|> VarOpLit <$> firstChild (checkKey "which" *> fetchString) <*> op <*> firstChild number @@ "value"
           <|> VarOpVar <$> firstChild (checkKey "which" *> fetchString) <*> op <*> secondChild (checkKey "which" *> fetchString) -- This doesn't distinguish between scopes and variables in the same scope
           <|> (SpawnUnit <$ checkKey "spawn_unit"
                <*> firstChild scopeType @@ "province"
