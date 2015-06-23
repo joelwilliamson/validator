@@ -12,6 +12,7 @@ CheckFile
 *.aux
 *.ps
 *.hp
+*.tix
 
 cabal.sandbox.config
 shakespeare/
