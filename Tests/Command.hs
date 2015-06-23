@@ -33,6 +33,8 @@ commandUnitTests = testGroup "Command Unit Tests"
                    , testCase "Spawn a unit" $
                      makeCommand "spawn_unit = { province = 342 owner = THIS leader = FROM home = PREV attrition = 1 troops = { archers = { 100 100 } }}"
                      @?= Right (SpawnUnit 342 (Just This) (Just From) (Just Prev)  Nothing (Just 1) (Troops "archers" 100 100))
+                   , testCase "Break" $
+                     makeCommand "break = yes" @?= Right Break
                    ]
   where makeCommand :: Text -> Either Error Command
         makeCommand s = case statefulParseOnly value (initialPos "test_data") s of
