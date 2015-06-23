@@ -15,6 +15,7 @@ import Condition(Clause,Condition,Scope,ScopeType,Value,
                  clause,condition,scope,scopeType,value)
 import Duration(Duration(..),duration)
 
+import Data.List((\\))
 import Control.Applicative((<|>),optional)
 
 ($>) = flip (<$)
@@ -134,7 +135,7 @@ command = (ActivateTitle <$ checkKey "activate_title"
                <*> label key ~? "earmark"
                <*> number ~? "attrition"
                <*> mapSubForest troopSpec @@ "troops" )
-          <|> Concrete <$> label (checkKeys commands) <*> firstChild value
+          <|> Concrete <$> label (checkKeys concreteCommands) <*> firstChild value
           <|> Scoped <$> scope command
 
   where rlElem = (,,) <$> number <*> modifier @@@ "modifier" <*> command /@@ "modifier"
@@ -228,7 +229,36 @@ commands =
    "usurp_title_plus_barony_if_unlanded","usurp_title_plus_barony_if_unlanded",
    "vassal_opinion","vassalize_or_take_under_title",
    "vassalize_or_take_under_title_destroy_duchies","war","wealth"]
-           
+
+-- | A list of all commands that should be accepted as arguments to @`Concrete`@
+concreteCommands = commands \\ ["activate_title",
+                                "add_trait",
+                                "remove_trait",
+                                "best_fit_character_for_title",
+                                "break",
+                                "build_holding",
+                                "change_tech",
+                                "character_event",
+                                "create_character",
+                                "create_random_diplomat",
+                                "create_random_intriguer",
+                                "create_random_priest",
+                                "create_random_soldier",
+                                "create_random_steward",
+                                "create_title",
+                                "clr_character_flag","set_character_flag",
+                                "clr_dynasty_flag","set_dynasty_flag",
+                                "clr_global_flag","set_global_flag",
+                                "clr_province_flag","set_province_flag",
+                                "clr_title_flag","set_title_flag",
+                                "if",
+                                "random","random_list",
+                                "spawn_unit",
+                                "change_variable","check_variable",
+                                "divide_variable","is_equal_variable",
+                                "multiply_variable","subtract_variable",
+                                "set_variable"]
+
 -- | A list of all commands whose argument is a string-like key.
 --
 -- E.g. @activate_disease=smallpox@ or @gain_title=e_persia@
