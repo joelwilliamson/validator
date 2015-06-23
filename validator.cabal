@@ -30,7 +30,6 @@ author:              Joel Williamson
 -- An email address to which users can send suggestions, bug reports, and 
 -- patches.
 maintainer:          validator@joelwilliamson.ca
-
 -- A copyright notice.
 -- copyright:           
 
@@ -68,9 +67,8 @@ executable Server
                  , zip-archive
   default-language:     Haskell2010
   default-extensions:    RecordWildCards, NamedFieldPuns, OverloadedStrings, RecordWildCards, UnicodeSyntax
-  ghc-options:          -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing -threaded
+  ghc-options:          -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing -threaded -fhpc
   ghc-prof-options:     -fprof-auto
-                        -prof
                         "-with-rtsopts=-N -p -s -i0.1"
                         -auto-all
                         -caf-all
@@ -92,12 +90,11 @@ executable CheckFile
                  , zip-archive
   default-language:     Haskell2010
   default-extensions:    RecordWildCards, NamedFieldPuns, OverloadedStrings, RecordWildCards, UnicodeSyntax
-  ghc-options:          -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing -threaded
-  ghc-prof-options:     -fprof-auto
-                        -prof
-                        "-with-rtsopts=-N -p -s -i0.1"
-                        -auto-all
-                        -caf-all
+  ghc-options:          -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing -threaded -fhpc
+--  ghc-prof-options:     -fprof-auto
+--                        "-with-rtsopts=-N -p -s -i0.1"
+--                        -auto-all
+--                        -caf-all
  
 
 library
@@ -131,15 +128,14 @@ library
   
   -- Base language which the package is written in.
   default-language:    Haskell2010
-  ghc-options:         -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing 
-  ghc-prof-options:     -fprof-auto
-                        -auto-all
-                        -caf-all
+  ghc-options:         -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing -fhpc
+--  ghc-prof-options:     -fprof-auto
+--                        -auto-all
+--                        -caf-all
   
 Test-Suite tests
   Type:                 exitcode-stdio-1.0
   Main-Is:              Tests/Main.hs
-  Other-Modules:        Tests.Command
   Build-Depends:        attoparsec
                         , base >=4.8 && <4.9
                         , Cabal >= 1.9.2
@@ -153,3 +149,6 @@ Test-Suite tests
                         , OverloadedStrings
                         , RecordWildCards
                         , UnicodeSyntax
+  GHC-Prof-Options:     -fprof-auto
+                        -auto-all
+                        -caf-all
