@@ -45,16 +45,17 @@ commandUnitTests = testGroup "Command Unit Tests"
                      "multiply_variable = { which = \"quoted_variable\" which = b }"
                      $ VarOpVar "quoted_variable" Multiply "b"
                    , successTest "Spawn a unit"
-                     "spawn_unit = { province = 342 owner = THIS leader = FROM home = PREV attrition = 1 troops = { archers = { 100 100 } pikemen = { 200 300 }}}"
+                     "spawn_unit = { province = 342 owner = THIS leader = FROM home = PREV attrition = 1 troops = { archers = { 100 100 } pikemen = { 200 300 }} earmark = test_troops }"
                      $ SpawnUnit {
                        province = 342
                        , owner = Just This
                        , leader = Just From
                        , home = Just Prev
-                       , earmark = Nothing
                        , attrition = Just 1
                        , troops = [("archers",100,100),
-                                   ("pikemen",200,300)]}
+                                   ("pikemen",200,300)]
+                       , earmark = Just "test_troops"
+                       }
                    , successTest "Break"
                      "break = yes"
                      Break
