@@ -65,6 +65,14 @@ commandUnitTests = testGroup "Command Unit Tests"
                    , successTest "If"
                      "if = { limit = { trait = humble prestige = 5 } change_diplomacy = 2 add_trait = monk}"
                      $ If [Trait "humble", Condition (Predicate "prestige") $ NumValue 5] [Concrete "change_diplomacy" $ NumValue 2, AddTrait "monk"]
+                   , successTest "Random List"
+                     "random_list = { \
+\10 = { wealth = 10 } \
+\20 = { unsafe_religion = catholic modifier = { factor = 2 trait = cynical }} \
+\70 = { prestige = 30 } }"
+                     $ RandomList [(10,[],[Concrete "wealth" $ NumValue 10]),
+                                   (20,[Modifier 2 [Trait "cynical"]],[Concrete "unsafe_religion" $ Id "catholic"]),
+                                   (70,[],[Concrete "prestige" $ NumValue 30])]
                    ]
 
 makeCommand :: Text -> Either Error Command
