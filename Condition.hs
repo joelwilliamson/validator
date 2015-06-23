@@ -86,7 +86,6 @@ data Clause a = ActivateTitle Label Bool
               | ChangeText Label Double
               | OpinionModifier Label Duration
               | TitleStatus Label Bool
-              | Troops Label Double Double
               | UnknownClause [(Label,Label)]
                 deriving (Eq,Ord,Show)
 

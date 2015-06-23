@@ -63,7 +63,7 @@ data Command = AddTrait Label | RemoveTrait Label
                          , home :: Maybe ScopeType
                          , earmark :: Maybe Label
                          , attrition :: Maybe Double
-                         , troops :: Clause Command
+                         , troops :: [(Label,Double,Double)]
                          }
              | VarOpLit Label Op Double
              | VarOpVar Label Op Label
@@ -90,11 +90,12 @@ command = (AddTrait <$ checkKey "add_trait" <*> fetchString)
                <*> firstChild scopeType @? "home"
                <*> firstChild (label key) @? "earmark"
                <*> firstChild number @? "attrition"
-               <*> clause @@ "troops" )
+               <*> mapSubForest troopSpec @@ "troops" )
           <|> Concrete <$> label (checkKeys commands) <*> firstChild value
           <|> Scoped <$> scope command
 
   where rlElem = (,,) <$> number <*> modifier @@@ "modifier" <*> command /@@ "modifier"
+        troopSpec = (,,) <$> label key <*> firstChild number <*> firstChild (firstChild number)
 
 commands =
   ["abandon_heresy","abdicate","abdicate_to","abdicate_to_most_liked_by",
