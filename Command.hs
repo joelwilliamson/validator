@@ -81,6 +81,16 @@ data Command = ActivateTitle Label Bool
                                , father :: Maybe ScopeType
                                , mother :: Maybe ScopeType
                                , race :: Maybe ScopeType }
+             | CreateTitle { tier :: Label
+                           , landless :: Maybe Bool
+                           , temporary :: Maybe Bool
+                           , rebel :: Maybe Bool
+                           , titleCulture :: Maybe ScopeType
+                           , name :: Label
+                           , holder :: ScopeType
+                           , customCreated :: Maybe Bool
+                           , baseTitle :: Maybe Label
+                           , copyTitleLaws :: Maybe Bool }
              | SetFlag FlagType Label | ClrFlag FlagType Label
              | If [Condition] [Command]
              | Random Double [Modifier] [Command]
@@ -122,6 +132,7 @@ command = (ActivateTitle <$ checkKey "activate_title"
           <|> ChangeTech <$ checkKey "change_tech" <*> fetchString @@ "technology" <*> number ~@ "value"
           <|> characterEvent
           <|> createCharacter
+          <|> createTitle
           <|> (If <$ checkKey "if") <*> mapSubForest condition @@ "limit" <*> command /@@ "limit"
           <|> (Random <$ checkKey "random") <*> number ~@ "chance" <*> modifier @@@ "modifier" <*> command /@# ["chance","modifier"]
           <|> (RandomList <$ checkKey "random_list") <*> mapSubForest rlElem
@@ -170,6 +181,18 @@ createCharacter = CreateCharacter <$ checkKeys ["create_character"
                   <*> scopeType ~? "father"
                   <*> scopeType ~? "mother"
                   <*> scopeType ~? "race"
+
+createTitle = CreateTitle <$ checkKey "create_title"
+              <*> fetchString @@ "tier"
+              <*> fetchBool @? "landless"
+              <*> fetchBool @? "temporary"
+              <*> fetchBool @? "rebel"
+              <*> scopeType ~? "culture"
+              <*> fetchString @@ "name"
+              <*> scopeType ~@ "holder"
+              <*> fetchBool @? "custom_created"
+              <*> fetchString @? "base_title"
+              <*> fetchBool ~? "copy_title_law"
 
 commands =
   ["abandon_heresy","abdicate","abdicate_to","abdicate_to_most_liked_by",

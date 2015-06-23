@@ -204,6 +204,17 @@ commandUnitTests = testGroup "Command Unit Tests"
                          , perspective = Root
                          , index = 1
                          , grantTitle = Prev }
+                     , successTest "Create title" "create_title = { tier = DUKE name = \"SHEPHERDS_CRUSADE\" holder = THIS }"
+                       $ CreateTitle { tier = "DUKE"
+                                     , landless = Nothing
+                                     , temporary = Nothing
+                                     , rebel = Nothing
+                                     , titleCulture = Nothing
+                                     , name = "SHEPHERDS_CRUSADE"
+                                     , holder = This
+                                     , customCreated = Nothing
+                                     , baseTitle = Nothing
+                                     , copyTitleLaws = Nothing }
                    ]
 
 makeCommand :: Text -> Either Error Command
