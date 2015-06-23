@@ -26,6 +26,8 @@ commandUnitTests = testGroup "Command Unit Tests"
                      makeCommand "set_character_flag = char_flag" @?= Right (SetFlag Character "char_flag")
                    , testCase "Clear Province Flag" $
                      makeCommand "clr_province_flag = prov_flag" @?= Right (ClrFlag Province "prov_flag")
+                   , testCase "Set a variable" $
+                     makeCommand "set_variable = { which = a which = b }" @?= Right (VarOpVar "a" Set "b")
                    , testCase "Add two variables" $
                      makeCommand "change_variable = { which = a which = b }" @?= Right (VarOpVar "a" Change "b")
                    , testCase "Subtract constant from variable" $
