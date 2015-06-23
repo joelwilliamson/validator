@@ -146,7 +146,12 @@ characterEvent = CharacterEvent <$ checkKey "character_event"
                  <*> optional duration
                  <*> fetchString @? "tooltip"
 
-createCharacter = CreateCharacter <$ checkKey "create_character"
+createCharacter = CreateCharacter <$ checkKeys ["create_character"
+                                               ,"create_random_diplomat"
+                                               ,"create_random_intriguer"
+                                               ,"create_random_priest"
+                                               ,"create_random_soldier"
+                                               ,"create_random_steward"]
                   <*> number ~@ "age"
                   <*> fetchString @@ "name"
                   <*> fetchString @? "has_nickname"

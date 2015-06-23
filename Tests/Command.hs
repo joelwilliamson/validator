@@ -125,6 +125,58 @@ commandUnitTests = testGroup "Command Unit Tests"
                          , father = Just FromFrom
                          , race = Just $ IdScope "testish"
                          })
+                   , successTest "Create Character"
+                     (unlines ["create_random_intriguer = {"
+                              , "random_traits = no"
+                              , "name = \"Hassan\""
+                              , "dynasty = random"
+                              , "religion = ROOT"
+                              , "culture = persian"
+                              , "female = no"
+                              , "age = 40"
+                              , "has_nickname = the_testy"
+                              , "attributes = {"
+                              , "martial = 6"
+                              , "diplomacy = 8"
+                              , "stewardship = 9"
+                              , "intrigue = 12"
+                              , "learning = 12"
+                              , "}"
+                              , "health = 6"
+                              , "fertility = 0.8"
+                              , "mother = FROM"
+                              , "father = FROMFROM"
+                              , "race = testish"
+                              , "dna = DNA"
+                              , "flag = \"test_flag\""
+                              , "employer = THIS"
+                              , "trait = elusive_shadow"
+                              , "trait = patient"
+                              , "trait = zealous"
+                              , "trait = scholar"
+                              , "trait = chaste"
+                              , "trait = temperate }"])
+                     (CreateCharacter {
+                         age = 40
+                         , name = "Hassan"
+                         , hasNickName = Just "the_testy"
+                         , attributes = [6,8,9,12,12]
+                         , traits = ["elusive_shadow","patient","zealous",
+                                    "scholar","chaste","temperate"]
+                         , health = 6
+                         , fertility = Just 0.8
+                         , randomTraits = Just False
+                         , female = False
+                         , employer = Just This
+                         , religion = Root
+                         , culture = IdScope "persian"
+                         , dynasty = "random"
+                         , dna = Just "DNA"
+                         , flag = Just "test_flag"
+                         , mother = Just From
+                         , father = Just FromFrom
+                         , race = Just $ IdScope "testish"
+                         })
                    , successTest "activate title"
                      "activate_title = { title = e_persia status = yes }"
                      $ ActivateTitle "e_persia" True
