@@ -57,8 +57,7 @@ duration = Days <$> number @@ "days"
 
 -- | A @Clause@ is typically used as the argument to a command. They appear in
 -- the source as blocks, and don't appear to have any commonality beyond that.
-data Clause a = ActivateTitle Label Bool
-              | CharacterEvent EventId (Maybe Duration) (Maybe Label)
+data Clause a = CharacterEvent EventId (Maybe Duration) (Maybe Label)
               | ScopedModifier Label Duration
               | BestFitCharacterForTitle { title :: ScopeType
                                          , perspective :: ScopeType
@@ -73,8 +72,7 @@ data Clause a = ActivateTitle Label Bool
 
 -- | Make a clause.
 clause :: Maker (Clause a)
-clause = ActivateTitle <$ checkKey "activate_title" <*> fetchString @@ "title" <*> fetchBool @@ "status"
-         <|> (ScopedModifier <$ checkKeys ["add_character_modifier","add_province_modifier"]
+clause = (ScopedModifier <$ checkKeys ["add_character_modifier","add_province_modifier"]
               <*> fetchString @@ "name" <*> duration)
          <|> (BestFitCharacterForTitle <$ checkKey "best_fit_character_for_title"
               <*> scopeType @@ "title"

@@ -124,6 +124,12 @@ commandUnitTests = testGroup "Command Unit Tests"
                          , father = Just FromFrom
                          , race = Just $ IdScope "testish"
                          })
+                   , successTest "activate title"
+                     "activate_title = { title = e_persia status = yes }"
+                     $ ActivateTitle "e_persia" True
+                   , successTest "deactivate title"
+                     "activate_title = { title = b_rome status = no }"
+                     $ ActivateTitle "b_rome" False
                    ]
 
 makeCommand :: Text -> Either Error Command

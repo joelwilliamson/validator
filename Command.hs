@@ -50,7 +50,8 @@ modifier :: Maker Modifier
 modifier = Modifier <$> firstChild number @@ "factor" <*> condition /@@ "factor"
 
 -- | A @Command@ is an instruction to the game engine to actually change something
-data Command = AddTrait Label | RemoveTrait Label
+data Command = ActivateTitle Label Bool
+             | AddTrait Label | RemoveTrait Label
              | Break
              | CreateCharacter { age :: Double
                                , name :: Label
@@ -91,7 +92,10 @@ data Command = AddTrait Label | RemoveTrait Label
 
 -- | Make a @Command@.
 command :: Maker Command
-command = (AddTrait <$ checkKey "add_trait" <*> fetchString)
+command = (ActivateTitle <$ checkKey "activate_title"
+           <*> fetchString @@ "title"
+           <*> fetchBool @@ "status")
+          <|> (AddTrait <$ checkKey "add_trait" <*> fetchString)
           <|> (RemoveTrait <$ checkKey "remove_trait" <*> fetchString)
           <|> (Break <$ checkKey "break")
           <|> (setFlag <*> fetchString)
