@@ -10,10 +10,12 @@ module Command
        )where
 
 import Maker
-import Scoped(Label)
-import Condition(Clause,Condition,Scope,ScopeType,Value,clause,condition,scope,scopeType,value)
+import Scoped(Label,EventId)
+import Condition(Clause,Condition,Scope,ScopeType,Value,
+                 clause,condition,scope,scopeType,value)
+import Duration(Duration(..),duration)
 
-import Control.Applicative((<|>))
+import Control.Applicative((<|>),optional)
 
 ($>) = flip (<$)
 
@@ -53,6 +55,7 @@ modifier = Modifier <$> firstChild number @@ "factor" <*> condition /@@ "factor"
 data Command = ActivateTitle Label Bool
              | AddTrait Label | RemoveTrait Label
              | Break
+             | CharacterEvent EventId (Maybe Duration) (Maybe Label)
              | CreateCharacter { age :: Double
                                , name :: Label
                                , hasNickName :: Maybe Label
@@ -100,6 +103,7 @@ command = (ActivateTitle <$ checkKey "activate_title"
           <|> (Break <$ checkKey "break")
           <|> (setFlag <*> fetchString)
           <|> (clrFlag <*> fetchString)
+          <|> characterEvent
           <|> createCharacter
           <|> (If <$ checkKey "if") <*> mapSubForest condition @@ "limit" <*> command /@@ "limit"
           <|> (Random <$ checkKey "random") <*> firstChild number @@ "chance" <*> modifier @@@ "modifier" <*> command /@# ["chance","modifier"]
@@ -120,6 +124,10 @@ command = (ActivateTitle <$ checkKey "activate_title"
   where rlElem = (,,) <$> number <*> modifier @@@ "modifier" <*> command /@@ "modifier"
         troopSpec = (,,) <$> label key <*> firstChild number <*> firstChild (firstChild number)
 
+characterEvent = CharacterEvent <$ checkKey "character_event"
+                 <*> fetchId @@ "id"
+                 <*> optional duration
+                 <*> fetchString @? "tooltip"
 
 createCharacter = CreateCharacter <$ checkKey "create_character"
                   <*> firstChild number @@ "age"

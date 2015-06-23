@@ -3,6 +3,7 @@ module Tests.Command where
 import AttoScoped(statefulParseOnly,value)
 import Condition(Clause(..),Value(..),ScopeType(..),Condition(..),Predicate(..))
 import Command
+import Duration(Duration(..),duration)
 import Maker(runMaker)
 import Scoped(Error())
 
@@ -130,6 +131,9 @@ commandUnitTests = testGroup "Command Unit Tests"
                    , successTest "deactivate title"
                      "activate_title = { title = b_rome status = no }"
                      $ ActivateTitle "b_rome" False
+                   , successTest "character event"
+                     "character_event = { id = test.12 days = 5 tooltip = \"An event\" }"
+                     $ CharacterEvent ("test",12) (Just $ Days 5) (Just "An event")
                    ]
 
 makeCommand :: Text -> Either Error Command

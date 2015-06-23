@@ -51,8 +51,7 @@ scopedValue = ScopedValue <$> scopeType
 
 -- | A @Clause@ is typically used as the argument to a command. They appear in
 -- the source as blocks, and don't appear to have any commonality beyond that.
-data Clause a = CharacterEvent EventId (Maybe Duration) (Maybe Label)
-              | ScopedModifier Label Duration
+data Clause a = ScopedModifier Label Duration
               | BestFitCharacterForTitle { title :: ScopeType
                                          , perspective :: ScopeType
                                          , index :: Double
@@ -75,10 +74,6 @@ clause = (ScopedModifier <$ checkKeys ["add_character_modifier","add_province_mo
               <*> scopeType @@ "grant_title")
          <|> BuildHolding <$ checkKey "build_holding" <*> fetchString @@ "title" <*> fetchString @@ "type" <*> scopeType @@ "holder"
          <|> ChangeText <$ checkKey "change_tech" <*> fetchString @@ "technology" <*> number @@ "value"
-         <|> (CharacterEvent <$ checkKey "character_event"
-              <*> fetchId @@ "id"
-              <*> optional duration
-              <*> fetchString @? "tooltip")
 
 
 -- | Identify the type of the element a scope references, or move around the
