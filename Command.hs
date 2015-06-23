@@ -55,6 +55,7 @@ modifier = Modifier <$> firstChild number @@ "factor" <*> condition /@@ "factor"
 data Command = ActivateTitle Label Bool
              | AddTrait Label | RemoveTrait Label
              | Break
+             | BuildHolding Label Label ScopeType
              | CharacterEvent EventId (Maybe Duration) (Maybe Label)
              | CreateCharacter { age :: Double
                                , name :: Label
@@ -101,6 +102,10 @@ command = (ActivateTitle <$ checkKey "activate_title"
           <|> (AddTrait <$ checkKey "add_trait" <*> fetchString)
           <|> (RemoveTrait <$ checkKey "remove_trait" <*> fetchString)
           <|> (Break <$ checkKey "break")
+          <|> (BuildHolding <$ checkKey "build_holding"
+               <*> fetchString @@ "title"
+               <*> fetchString @@ "type"
+               <*> firstChild scopeType @@ "holder")
           <|> (setFlag <*> fetchString)
           <|> (clrFlag <*> fetchString)
           <|> characterEvent

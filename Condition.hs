@@ -56,7 +56,6 @@ data Clause a = ScopedModifier Label Duration
                                          , perspective :: ScopeType
                                          , index :: Double
                                          , grantTitle :: ScopeType }
-              | BuildHolding Label Label ScopeType
               | ChangeText Label Double
               | OpinionModifier Label Duration
               | TitleStatus Label Bool
@@ -72,7 +71,6 @@ clause = (ScopedModifier <$ checkKeys ["add_character_modifier","add_province_mo
               <*> scopeType @@ "perspective"
               <*> number @@ "index"
               <*> scopeType @@ "grant_title")
-         <|> BuildHolding <$ checkKey "build_holding" <*> fetchString @@ "title" <*> fetchString @@ "type" <*> scopeType @@ "holder"
          <|> ChangeText <$ checkKey "change_tech" <*> fetchString @@ "technology" <*> number @@ "value"
 
 

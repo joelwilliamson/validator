@@ -134,6 +134,9 @@ commandUnitTests = testGroup "Command Unit Tests"
                    , successTest "character event"
                      "character_event = { id = test.12 days = 5 tooltip = \"An event\" }"
                      $ CharacterEvent ("test",12) (Just $ Days 5) (Just "An event")
+                   , successTest "Build holding"
+                     "build_holding = { title = b_masyaf type = castle holder = ROOT }"
+                     $ BuildHolding "b_masyaf" "castle" Root
                    ]
 
 makeCommand :: Text -> Either Error Command
