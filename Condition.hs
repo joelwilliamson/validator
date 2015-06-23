@@ -2,7 +2,7 @@
 -- dependency, they need to go in the same module
 module Condition
        (Scope(..),Condition(..),Value(..),Predicate(..),ScopeType(..)
-       ,Clause(..),Duration(..)
+       ,Clause(..)
        ,scope
        ,condition
        ,clause
@@ -12,6 +12,7 @@ module Condition
        ) where
 
 import Maker
+import Duration(Duration(),duration)
 import Scoped(Label,Atom(..),EventId)
 
 import qualified Data.Text as T(Text,take,drop)
@@ -47,13 +48,6 @@ value = BooleanValue True <$ checkKeys ["yes","true"]
 
 -- | @scopedValue@ makes a value of scoped type
 scopedValue = ScopedValue <$> scopeType
-
--- | A @Duration@ is a period of time.
-data Duration = Days Double | Months Double | Years Double deriving (Eq,Ord,Show)
-duration = Days <$> number @@ "days"
-           <|> Months <$> number @@ "months"
-           <|> Years <$> number @@ "years"
-           <|> Days <$> number @@ "duration"
 
 -- | A @Clause@ is typically used as the argument to a command. They appear in
 -- the source as blocks, and don't appear to have any commonality beyond that.

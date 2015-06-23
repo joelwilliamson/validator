@@ -99,7 +99,7 @@ executable CheckFile
 
 library
   -- Modules exported by the library.
-  exposed-modules:     AttoScoped, Command, Condition, Decision, Event, GatherLocalisations, GatherStrings, GatherTraits, Localisation, Maker, Scoped, Tree
+  exposed-modules:     AttoScoped, Command, Condition, Decision, Duration, Event, GatherLocalisations, GatherStrings, GatherTraits, Localisation, Maker, Scoped, Tree
   
   -- Modules included in this library but not exported.
   -- other-modules:       
