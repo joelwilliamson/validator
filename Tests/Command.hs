@@ -218,6 +218,9 @@ commandUnitTests = testGroup "Command Unit Tests"
                      , successTest "Death" "death = { death_reason = death_disease killer = FROMFROMFROM }"
                        $ Death { deathReason = "death_disease"
                                , killer = FromFromFrom }
+                     , successTest "Gain Settlements"
+                       "gain_settlements_under_title = { title = PREV enemy = ROOT }"
+                       GainSettlementsUnderTitle { title = Prev, enemy = Root }
                    ]
 
 makeCommand :: Text -> Either Error Command

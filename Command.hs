@@ -93,6 +93,8 @@ data Command = ActivateTitle Label Bool
                            , copyTitleLaws :: Maybe Bool }
              | Death { deathReason :: Label
                      , killer :: ScopeType }
+             | GainSettlementsUnderTitle { title :: ScopeType
+                                         , enemy :: ScopeType }
              | SetFlag FlagType Label | ClrFlag FlagType Label
              | If [Condition] [Command]
              | Random Double [Modifier] [Command]
@@ -136,6 +138,9 @@ command = (ActivateTitle <$ checkKey "activate_title"
           <|> createCharacter
           <|> createTitle
           <|> (Death <$ checkKey "death") <*> fetchString @@ "death_reason" <*> scopeType ~@ "killer"
+          <|> ((GainSettlementsUnderTitle <$ checkKey "gain_settlements_under_title")
+               <*> scopeType ~@ "title"
+               <*> scopeType ~@ "enemy")
           <|> (If <$ checkKey "if") <*> mapSubForest condition @@ "limit" <*> command /@@ "limit"
           <|> (Random <$ checkKey "random") <*> number ~@ "chance" <*> modifier @@@ "modifier" <*> command /@# ["chance","modifier"]
           <|> (RandomList <$ checkKey "random_list") <*> mapSubForest rlElem
@@ -283,6 +288,7 @@ concreteCommands = commands \\ ["activate_title",
                                 "clr_province_flag","set_province_flag",
                                 "clr_title_flag","set_title_flag",
                                 "death",
+                                "gain_settlements_under_title",
                                 "if",
                                 "random","random_list",
                                 "spawn_unit",
