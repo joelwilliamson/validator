@@ -41,6 +41,9 @@ commandUnitTests = testGroup "Command Unit Tests"
                      $ VarOpVar "a" Equal "b"
                    , successTest "Subtract constant from variable"
                      "subtract_variable = { which = a value = 4 }" $ VarOpLit "a" Subtract 4
+                   , successTest "Multiply two variables"
+                     "multiply_variable = { which = \"quoted_variable\" which = b }"
+                     $ VarOpVar "quoted_variable" Multiply "b"
                    , successTest "Spawn a unit"
                      "spawn_unit = { province = 342 owner = THIS leader = FROM home = PREV attrition = 1 troops = { archers = { 100 100 } }}"
                      $ SpawnUnit 342 (Just This) (Just From) (Just Prev)  Nothing (Just 1) (Troops "archers" 100 100)
