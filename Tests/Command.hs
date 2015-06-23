@@ -46,7 +46,14 @@ commandUnitTests = testGroup "Command Unit Tests"
                      $ VarOpVar "quoted_variable" Multiply "b"
                    , successTest "Spawn a unit"
                      "spawn_unit = { province = 342 owner = THIS leader = FROM home = PREV attrition = 1 troops = { archers = { 100 100 } }}"
-                     $ SpawnUnit 342 (Just This) (Just From) (Just Prev)  Nothing (Just 1) (Troops "archers" 100 100)
+                     $ SpawnUnit {
+                       province = 342
+                       , owner = Just This
+                       , leader = Just From
+                       , home = Just Prev
+                       , earmark = Nothing
+                       , attrition = Just 1
+                       , troops = Troops "archers" 100 100 }
                    , successTest "Break"
                      "break = yes"
                      Break
