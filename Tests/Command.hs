@@ -215,6 +215,9 @@ commandUnitTests = testGroup "Command Unit Tests"
                                      , customCreated = Nothing
                                      , baseTitle = Nothing
                                      , copyTitleLaws = Nothing }
+                     , successTest "Death" "death = { death_reason = death_disease killer = FROMFROMFROM }"
+                       $ Death { deathReason = "death_disease"
+                               , killer = FromFromFrom }
                    ]
 
 makeCommand :: Text -> Either Error Command
