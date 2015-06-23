@@ -3,6 +3,7 @@
 module Maker (
   Maker(),runMaker,
   (@@),(@?),(@@@),(@@#),(/@@),(/@#),(<?>),
+  (~@),(~?),
   firstChild,secondChild,mapSubForest,filterSubForest,singleChild,
   checkKey,checkKeys,checkValue,checkValues,key,
   fetchString,label,
@@ -108,6 +109,18 @@ infixl 5 @?
 (Maker f) @? k = Maker $ \t → case find ((==Label k) . rootLabel) $ subForest t of
   Nothing → Right Nothing
   Just t' → Just <$> f t'
+
+-- | @m \~\@ key@ makes @m@ by using only the first child of the subtree with
+-- rootLabel @key@. If no such subtree exists (or if @m@ fails) the entire
+-- @`Maker`@ fails.
+infixl 5 ~@
+(~@) :: Maker a → Label → Maker a
+m ~@ k = firstChild m @@ k
+
+-- | @m \~? key@: As @\~\@@, but if no child is found, return @Nothing@.
+infixl 5 ~?
+(~?) :: Maker a → Label → Maker (Maybe a)
+m ~? k = firstChild m @? k
 
 -- | @checkKey key@ succeeds if the root label is key
 checkKey k = Maker $ \t -> case rootLabel t of
