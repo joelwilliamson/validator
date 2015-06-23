@@ -42,9 +42,11 @@ instance Localised Command where
   localisations VarOpLit {} = []
   localisations VarOpVar {} = []
   localisations VarOpScope {} = []
-  localisations (AddTrait t) = []
-  localisations (RemoveTrait t) = []
+  localisations (AddTrait _) = []
+  localisations (RemoveTrait _) = []
   localisations (Concrete _ _) = []
+  localisations CreateCharacter { culture, religion } = localisations culture <> localisations religion
+  localisations (ActivateTitle t _) = [t]
 
 instance Localised Modifier where
   localisations (Modifier _ _) = []

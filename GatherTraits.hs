@@ -2,7 +2,17 @@
 module GatherTraits(GatherTraits(traits)) where
 
 import Scoped(Label)
-import Command as Comm(Command(..),Modifier(..))
+import Command as Comm(Command(ActivateTitle,
+                               AddTrait,RemoveTrait,
+                               Random,RandomList,
+                               SetFlag,ClrFlag,
+                               SpawnUnit,
+                               VarOpLit,VarOpVar,VarOpScope,
+                               Concrete,
+                               Scoped,
+                               Break,If),
+                       Modifier(..))
+import qualified Command (Command(CreateCharacter),traits)
 import qualified Condition as Cond(Clause(..),Condition(..),Scope(..),ScopeType(..),Value(..))
 import Event as E(Event(..),Option(..))
 import Decision(Decision(..))
@@ -47,6 +57,8 @@ instance GatherTraits Command where
   traits VarOpVar {} = []
   traits VarOpScope {} = []
   traits (Concrete _ _) = []
+  traits (Command.CreateCharacter { traits = t }) = t
+  traits (ActivateTitle t _) = [t]
 
 instance GatherTraits Modifier where
   traits (Modifier _ _) = []
@@ -62,7 +74,6 @@ instance GatherTraits Cond.ScopeType where
   traits _ = []
 
 instance GatherTraits c => GatherTraits (Cond.Clause c) where
-  traits Cond.CreateCharacter { traits = t } = t
   traits _ = []
   
 instance GatherTraits c => GatherTraits (Cond.Scope c) where
