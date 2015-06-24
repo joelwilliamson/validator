@@ -53,6 +53,34 @@ instance GatherStrings Command where
                                  else []
   gatherStrings (AddTrait _) = []
   gatherStrings (RemoveTrait _) = []
+  gatherStrings (ActivateTitle title _) = [title]
+  gatherStrings (BestFitCharacterForTitle title perspective _ title') =
+    gatherStrings title
+    <> gatherStrings perspective
+    <> gatherStrings title'
+  gatherStrings (BuildHolding prov holding holder) = prov : holding : gatherStrings holder
+  gatherStrings (ChangeTech tech _) = [tech]
+  gatherStrings (CharacterEvent _ _ _) = []
+  gatherStrings (CreateCharacter { name, hasNickName, employer, religion, culture, dynasty, flag, father, mother, race }) =
+    gatherStrings name
+    <> gatherStrings hasNickName
+    <> gatherStrings employer
+    <> gatherStrings religion
+    <> gatherStrings culture
+    <> gatherStrings dynasty
+    <> gatherStrings flag
+    <> gatherStrings father
+    <> gatherStrings mother
+    <> gatherStrings race
+  gatherStrings (CreateTitle tier _ _ _ titleCulture name holder _ base _) =
+    [tier]
+    <> gatherStrings titleCulture
+    <> gatherStrings name
+    <> gatherStrings holder
+    <> gatherStrings base
+  gatherStrings (Death reason killer) = gatherStrings reason <> gatherStrings killer
+  gatherStrings (GainSettlementsUnderTitle title enemy) = gatherStrings title <> gatherStrings enemy
+  gatherStrings (LetterEvent _ _ _) = []
 
 instance GatherStrings Modifier where
   gatherStrings (Modifier _ conds) = gatherStrings conds

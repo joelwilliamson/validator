@@ -10,7 +10,15 @@ import Command as Comm(Command(ActivateTitle,
                                VarOpLit,VarOpVar,VarOpScope,
                                Concrete,
                                Scoped,
-                               Break,If),
+                               Break,If,
+                               BestFitCharacterForTitle,
+                               BuildHolding,
+                               ChangeTech,
+                               CharacterEvent,
+                               CreateTitle,
+                               Death,
+                               GainSettlementsUnderTitle,
+                               LetterEvent),
                        Modifier(..))
 import qualified Command (Command(CreateCharacter),traits)
 import qualified Condition as Cond(Clause(..),Condition(..),Scope(..),ScopeType(..),Value(..))
@@ -59,6 +67,19 @@ instance GatherTraits Command where
   traits (Concrete _ _) = []
   traits (Command.CreateCharacter { traits = t }) = t
   traits (ActivateTitle t _) = [t]
+  traits (BestFitCharacterForTitle title perspective _ title') =
+    traits title
+    <> traits perspective
+    <> traits title'
+  traits (BuildHolding _ _ _) = mempty
+  traits (ChangeTech _ _) = mempty
+  traits (CharacterEvent _ _ _) = mempty
+  traits (CreateTitle _ _ _ _ titleCulture _ holder _ _ _) =
+    traits titleCulture
+    <> traits holder
+  traits (Death _ _) = mempty
+  traits (GainSettlementsUnderTitle title enemy) = traits title <> traits enemy
+  traits (LetterEvent _ _ _) = mempty
 
 instance GatherTraits Modifier where
   traits (Modifier _ _) = []
