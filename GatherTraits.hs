@@ -73,9 +73,9 @@ instance GatherTraits Command where
     traits title
     <> traits perspective
     <> traits title'
-  traits (BuildHolding _ _ _) = mempty
+  traits BuildHolding {} = mempty
   traits (ChangeTech _ _) = mempty
-  traits (TriggerEvent _ _ _) = mempty
+  traits TriggerEvent {} = mempty
   traits (CreateTitle _ _ _ _ titleCulture _ holder _ _ _) =
     traits titleCulture
     <> traits holder

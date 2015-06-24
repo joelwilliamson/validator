@@ -59,7 +59,7 @@ instance Localised Command where
     localisations title
     <> localisations perspective
     <> localisations title'
-  localisations (BuildHolding _ _ _) = mempty
+  localisations BuildHolding {}  = mempty
   localisations (ChangeTech tech _) = [tech]
   localisations (CreateTitle _ _ _ _ titleCulture name holder _ base _) =
     localisations titleCulture
