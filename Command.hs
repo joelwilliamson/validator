@@ -100,6 +100,7 @@ data Command = ActivateTitle Label Bool
              | OpinionModifier Label ScopeType Duration
              | Random Double [Modifier] [Command]
              | RandomList [(Double,[Modifier],[Command])]
+             | ReligionAuthority (Either Double Label)
              | Scoped (Scope Command)
              | SpawnUnit { province :: Double
                          , owner :: Maybe ScopeType
@@ -146,6 +147,7 @@ command = (ActivateTitle <$ checkKey "activate_title"
           <|> (OpinionModifier <$ checkKey "opinion") <*> fetchString @@ "modifier" <*> scopeType ~@ "who" <*> duration
           <|> (Random <$ checkKey "random") <*> number ~@ "chance" <*> modifier @@@ "modifier" <*> command /@# ["chance","modifier"]
           <|> (RandomList <$ checkKey "random_list") <*> mapSubForest rlElem
+          <|> religionAuthority
           <|> VarOpLit <$> firstChild (checkKey "which" *> fetchString) <*> op <*> number ~@ "value"
           <|> VarOpVar <$> firstChild (checkKey "which" *> fetchString) <*> op <*> secondChild (checkKey "which" *> fetchString) -- This doesn't distinguish between scopes and variables in the same scope
           <|> (SpawnUnit <$ checkKey "spawn_unit"
@@ -203,6 +205,10 @@ createTitle = CreateTitle <$ checkKey "create_title"
               <*> fetchBool @? "custom_created"
               <*> fetchString @? "base_title"
               <*> fetchBool ~? "copy_title_law"
+
+religionAuthority = (ReligionAuthority <$ checkKey "religion_authority")
+                    <*> (Left <$> firstChild number
+                         <|> Right <$> fetchString @@ "modifier")
 
 commands =
   ["abandon_heresy","abdicate","abdicate_to","abdicate_to_most_liked_by",
@@ -296,6 +302,7 @@ concreteCommands = commands \\ ["activate_title",
                                 "opinion",
                                 "province_event",
                                 "random","random_list",
+                                "religion_authority",
                                 "spawn_unit",
                                 "change_variable","check_variable",
                                 "divide_variable","is_equal_variable",

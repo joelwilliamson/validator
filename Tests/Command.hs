@@ -233,6 +233,12 @@ commandUnitTests = testGroup "Command Unit Tests"
                      , successTest "Province event"
                        "province_event = { id = 2254 }"
                        $ TriggerEvent ("",2254) Nothing Nothing
+                     , successTest "Religion authority - Numeric"
+                       "religion_authority = 10"
+                       $ ReligionAuthority $ Left 10
+                     , successTest "Religion authority - Modifier"
+                       "religion_authority = { modifier = test_mod }"
+                       $ ReligionAuthority $ Right "test_mod"
                    ]
 
 makeCommand :: Text -> Either Error Command
