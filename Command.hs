@@ -162,7 +162,7 @@ command = (ActivateTitle <$ checkKey "activate_title"
   where rlElem = (,,) <$> number <*> modifier @@@ "modifier" <*> command /@@ "modifier"
         troopSpec = (,,) <$> label key <*> firstChild number <*> firstChild (firstChild number)
 
-triggerEvent = TriggerEvent <$ checkKeys ["character_event","letter_event","narrative_event"]
+triggerEvent = TriggerEvent <$ checkKeys ["character_event","letter_event","narrative_event","province_event"]
                  <*> fetchId @@ "id"
                  <*> optional duration
                  <*> fetchString @? "tooltip"
@@ -292,6 +292,7 @@ concreteCommands = commands \\ ["activate_title",
                                 "death",
                                 "gain_settlements_under_title",
                                 "if",
+                                "province_event",
                                 "random","random_list",
                                 "spawn_unit",
                                 "change_variable","check_variable",

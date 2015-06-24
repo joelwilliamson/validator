@@ -230,6 +230,9 @@ commandUnitTests = testGroup "Command Unit Tests"
                      , successTest "Opinion modifier"
                        "opinion = { modifier = test_modifier years = 5 who = PREVPREV }"
                        $ OpinionModifier "test_modifier" PrevPrev (Years 5)
+                     , successTest "Province event"
+                       "province_event = { id = 2254 }"
+                       $ TriggerEvent ("",2254) Nothing Nothing
                    ]
 
 makeCommand :: Text -> Either Error Command
