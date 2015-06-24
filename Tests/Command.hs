@@ -229,7 +229,10 @@ commandUnitTests = testGroup "Command Unit Tests"
                        $ TriggerEvent ("test",3) Nothing Nothing
                      , successTest "Opinion modifier"
                        "opinion = { modifier = test_modifier years = 5 who = PREVPREV }"
-                       $ OpinionModifier "test_modifier" PrevPrev (Years 5)
+                       $ OpinionModifier { opinionModifier = "test_modifier"
+                                         , who = PrevPrev
+                                         , me = This
+                                         , dur = Years 5 }
                      , successTest "Province event"
                        "province_event = { id = 2254 }"
                        $ TriggerEvent ("",2254) Nothing Nothing
@@ -241,10 +244,17 @@ commandUnitTests = testGroup "Command Unit Tests"
                        $ ReligionAuthority $ Right "test_mod"
                      , successTest "Remove opinion"
                        "remove_opinion = { who = FROM modifier = opinion_friend }"
-                       $ RemoveOpinion "opinion_friend" From
+                       $ RemoveOpinion  { opinionModifier = "opinion_friend"
+                                        , who = From, me = This }
                      , successTest "Repeat event"
                        "repeat_event = { id = WoL.5502 days = 30 }"
                        $ TriggerEvent ("WoL",5502) (Just $ Days 30) Nothing
+                     , successTest "Reverse opinion"
+                       "reverse_opinion = { modifier = test_modifier years = 5 who = PREVPREV }"
+                       $ OpinionModifier { opinionModifier = "test_modifier"
+                                         , who = This
+                                         , me = PrevPrev
+                                         , dur = Years 5 }
                    ]
 
 makeCommand :: Text -> Either Error Command

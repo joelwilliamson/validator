@@ -11,7 +11,7 @@ module Command
 
 import Maker
 import Scoped(Label,EventId)
-import Condition(Condition,Scope,ScopeType,Value,
+import Condition(Condition,Scope,ScopeType(This),Value,
                  condition,scope,scopeType,value)
 import Duration(Duration(..),duration)
 
@@ -97,11 +97,16 @@ data Command = ActivateTitle Label Bool
                                          , enemy :: ScopeType }
              | SetFlag FlagType Label | ClrFlag FlagType Label
              | If [Condition] [Command]
-             | OpinionModifier Label ScopeType Duration
+             | OpinionModifier { opinionModifier :: Label
+                               , who :: ScopeType
+                               , me :: ScopeType
+                               , dur :: Duration }
              | Random Double [Modifier] [Command]
              | RandomList [(Double,[Modifier],[Command])]
              | ReligionAuthority (Either Double Label)
-             | RemoveOpinion Label ScopeType
+             | RemoveOpinion { opinionModifier :: Label
+                             , who :: ScopeType
+                             , me :: ScopeType }
              | Scoped (Scope Command)
              | SpawnUnit { province :: Double
                          , owner :: Maybe ScopeType
@@ -145,11 +150,13 @@ command = (ActivateTitle <$ checkKey "activate_title"
                <*> scopeType ~@ "title"
                <*> scopeType ~@ "enemy")
           <|> (If <$ checkKey "if") <*> mapSubForest condition @@ "limit" <*> command /@@ "limit"
-          <|> (OpinionModifier <$ checkKey "opinion") <*> fetchString @@ "modifier" <*> scopeType ~@ "who" <*> duration
+          <|> (OpinionModifier <$ checkKey "opinion") <*> fetchString @@ "modifier" <*> scopeType ~@ "who" <*> pure This <*> duration
           <|> (Random <$ checkKey "random") <*> number ~@ "chance" <*> modifier @@@ "modifier" <*> command /@# ["chance","modifier"]
           <|> (RandomList <$ checkKey "random_list") <*> mapSubForest rlElem
           <|> religionAuthority
-          <|> (RemoveOpinion <$ checkKey "remove_opinion") <*> fetchString @@ "modifier" <*> scopeType ~@ "who"
+          <|> (RemoveOpinion <$ checkKey "remove_opinion") <*> fetchString @@ "modifier" <*> scopeType ~@ "who" <*> pure This
+          <|> (OpinionModifier <$ checkKey "reverse_opinion") <*> fetchString @@ "modifier" <*> pure This <*> scopeType ~@ "who" <*> duration
+          <|> (RemoveOpinion <$ checkKey "reverse_remove_opinion") <*> fetchString @@ "modifier" <*> pure This  <*> scopeType ~@ "who"
           <|> VarOpLit <$> firstChild (checkKey "which" *> fetchString) <*> op <*> number ~@ "value"
           <|> VarOpVar <$> firstChild (checkKey "which" *> fetchString) <*> op <*> secondChild (checkKey "which" *> fetchString) -- This doesn't distinguish between scopes and variables in the same scope
           <|> (SpawnUnit <$ checkKey "spawn_unit"
@@ -307,6 +314,7 @@ concreteCommands = commands \\ ["activate_title",
                                 "religion_authority",
                                 "remove_opinion",
                                 "repeat_event",
+                                "reverse_opinion", "reverse_remove_opinion",
                                 "spawn_unit",
                                 "change_variable","check_variable",
                                 "divide_variable","is_equal_variable",

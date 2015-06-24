@@ -79,10 +79,10 @@ instance GatherStrings Command where
     <> gatherStrings base
   gatherStrings (Death reason killer) = gatherStrings reason <> gatherStrings killer
   gatherStrings (GainSettlementsUnderTitle title enemy) = gatherStrings title <> gatherStrings enemy
-  gatherStrings (OpinionModifier mod who _) = gatherStrings mod <> gatherStrings who
+  gatherStrings (OpinionModifier mod who _ _) = gatherStrings mod <> gatherStrings who
   gatherStrings (ReligionAuthority (Left _)) = mempty
   gatherStrings (ReligionAuthority (Right mod)) = gatherStrings mod
-  gatherStrings (RemoveOpinion mod who) = gatherStrings mod <> gatherStrings who
+  gatherStrings (RemoveOpinion mod who _) = gatherStrings mod <> gatherStrings who
   gatherStrings (TriggerEvent _ _ _) = []
 
 instance GatherStrings Modifier where
