@@ -221,6 +221,12 @@ commandUnitTests = testGroup "Command Unit Tests"
                      , successTest "Gain Settlements"
                        "gain_settlements_under_title = { title = PREV enemy = ROOT }"
                        GainSettlementsUnderTitle { title = Prev, enemy = Root }
+                     , successTest "Letter Event with tooltip"
+                       "letter_event = { id = 40 months = 3 tooltip = EVTTESTTOOLTIP }"
+                       $ LetterEvent ("",40) (Just $ Months 3) $ Just "EVTTESTTOOLTIP"
+                     , successTest "Minimal letter event"
+                       "letter_event = { id = test.3 }"
+                       $ LetterEvent ("test",3) Nothing Nothing
                    ]
 
 makeCommand :: Text -> Either Error Command

@@ -95,6 +95,7 @@ data Command = ActivateTitle Label Bool
                      , killer :: ScopeType }
              | GainSettlementsUnderTitle { title :: ScopeType
                                          , enemy :: ScopeType }
+             | LetterEvent EventId (Maybe Duration) (Maybe Label)
              | SetFlag FlagType Label | ClrFlag FlagType Label
              | If [Condition] [Command]
              | Random Double [Modifier] [Command]
@@ -142,6 +143,10 @@ command = (ActivateTitle <$ checkKey "activate_title"
                <*> scopeType ~@ "title"
                <*> scopeType ~@ "enemy")
           <|> (If <$ checkKey "if") <*> mapSubForest condition @@ "limit" <*> command /@@ "limit"
+          <|> ((LetterEvent <$ checkKey "letter_event")
+               <*> fetchId @@ "id"
+               <*> optional duration
+               <*> fetchString @? "tooltip")
           <|> (Random <$ checkKey "random") <*> number ~@ "chance" <*> modifier @@@ "modifier" <*> command /@# ["chance","modifier"]
           <|> (RandomList <$ checkKey "random_list") <*> mapSubForest rlElem
           <|> VarOpLit <$> firstChild (checkKey "which" *> fetchString) <*> op <*> number ~@ "value"
