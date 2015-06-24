@@ -11,8 +11,8 @@ module Command
 
 import Maker
 import Scoped(Label,EventId)
-import Condition(Clause,Condition,Scope,ScopeType,Value,
-                 clause,condition,scope,scopeType,value)
+import Condition(Condition,Scope,ScopeType,Value,
+                 condition,scope,scopeType,value)
 import Duration(Duration(..),duration)
 
 import Data.List((\\))

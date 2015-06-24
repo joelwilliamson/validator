@@ -6,7 +6,7 @@ module Duration
          duration
        ) where
 
-import Maker((~@),number,firstChild)
+import Maker((~@),number)
 import Control.Applicative((<|>))
 
 -- | A @Duration@ is a period of time.

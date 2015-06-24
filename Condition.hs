@@ -13,7 +13,7 @@ module Condition
 
 import Maker
 import Duration(Duration(),duration)
-import Scoped(Label,Atom(..),EventId)
+import Scoped(Label,Atom(..))
 
 import qualified Data.Text as T(Text,take,drop)
 import Control.Applicative
