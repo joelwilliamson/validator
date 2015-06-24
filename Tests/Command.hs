@@ -242,6 +242,9 @@ commandUnitTests = testGroup "Command Unit Tests"
                      , successTest "Remove opinion"
                        "remove_opinion = { who = FROM modifier = opinion_friend }"
                        $ RemoveOpinion "opinion_friend" From
+                     , successTest "Repeat event"
+                       "repeat_event = { id = WoL.5502 days = 30 }"
+                       $ TriggerEvent ("WoL",5502) (Just $ Days 30) Nothing
                    ]
 
 makeCommand :: Text -> Either Error Command
