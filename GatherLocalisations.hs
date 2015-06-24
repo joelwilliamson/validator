@@ -71,6 +71,7 @@ instance Localised Command where
   localisations (OpinionModifier mod who _) = localisations mod <> localisations who
   localisations (ReligionAuthority (Left _)) = mempty
   localisations (ReligionAuthority (Right mod)) = localisations mod
+  localisations (RemoveOpinion mod who) = localisations mod <> localisations who
   localisations (TriggerEvent _ _ tt) = localisations tt
 
 instance Localised Modifier where

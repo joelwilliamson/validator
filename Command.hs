@@ -101,6 +101,7 @@ data Command = ActivateTitle Label Bool
              | Random Double [Modifier] [Command]
              | RandomList [(Double,[Modifier],[Command])]
              | ReligionAuthority (Either Double Label)
+             | RemoveOpinion Label ScopeType
              | Scoped (Scope Command)
              | SpawnUnit { province :: Double
                          , owner :: Maybe ScopeType
@@ -148,6 +149,7 @@ command = (ActivateTitle <$ checkKey "activate_title"
           <|> (Random <$ checkKey "random") <*> number ~@ "chance" <*> modifier @@@ "modifier" <*> command /@# ["chance","modifier"]
           <|> (RandomList <$ checkKey "random_list") <*> mapSubForest rlElem
           <|> religionAuthority
+          <|> (RemoveOpinion <$ checkKey "remove_opinion") <*> fetchString @@ "modifier" <*> scopeType ~@ "who"
           <|> VarOpLit <$> firstChild (checkKey "which" *> fetchString) <*> op <*> number ~@ "value"
           <|> VarOpVar <$> firstChild (checkKey "which" *> fetchString) <*> op <*> secondChild (checkKey "which" *> fetchString) -- This doesn't distinguish between scopes and variables in the same scope
           <|> (SpawnUnit <$ checkKey "spawn_unit"
@@ -303,6 +305,7 @@ concreteCommands = commands \\ ["activate_title",
                                 "province_event",
                                 "random","random_list",
                                 "religion_authority",
+                                "remove_opinion",
                                 "spawn_unit",
                                 "change_variable","check_variable",
                                 "divide_variable","is_equal_variable",

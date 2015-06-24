@@ -239,6 +239,9 @@ commandUnitTests = testGroup "Command Unit Tests"
                      , successTest "Religion authority - Modifier"
                        "religion_authority = { modifier = test_mod }"
                        $ ReligionAuthority $ Right "test_mod"
+                     , successTest "Remove opinion"
+                       "remove_opinion = { who = FROM modifier = opinion_friend }"
+                       $ RemoveOpinion "opinion_friend" From
                    ]
 
 makeCommand :: Text -> Either Error Command

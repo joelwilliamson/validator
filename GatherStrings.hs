@@ -82,6 +82,7 @@ instance GatherStrings Command where
   gatherStrings (OpinionModifier mod who _) = gatherStrings mod <> gatherStrings who
   gatherStrings (ReligionAuthority (Left _)) = mempty
   gatherStrings (ReligionAuthority (Right mod)) = gatherStrings mod
+  gatherStrings (RemoveOpinion mod who) = gatherStrings mod <> gatherStrings who
   gatherStrings (TriggerEvent _ _ _) = []
 
 instance GatherStrings Modifier where
