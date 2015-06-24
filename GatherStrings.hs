@@ -79,6 +79,7 @@ instance GatherStrings Command where
     <> gatherStrings base
   gatherStrings (Death reason killer) = gatherStrings reason <> gatherStrings killer
   gatherStrings (GainSettlementsUnderTitle title enemy) = gatherStrings title <> gatherStrings enemy
+  gatherStrings (OpinionModifier mod who _) = gatherStrings mod <> gatherStrings who
   gatherStrings (TriggerEvent _ _ _) = []
 
 instance GatherStrings Modifier where
@@ -105,7 +106,6 @@ instance GatherStrings Condition.ScopeType where
   gatherStrings _ = []
 
 instance GatherStrings c => GatherStrings (Clause c) where
-  gatherStrings (OpinionModifier modifier _) = [modifier]
   gatherStrings _ = []
   
 instance GatherStrings c => GatherStrings (Scope c) where

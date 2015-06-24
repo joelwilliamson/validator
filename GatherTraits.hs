@@ -17,6 +17,7 @@ import Command as Comm(Command(ActivateTitle,
                                CreateTitle,
                                Death,
                                GainSettlementsUnderTitle,
+                               OpinionModifier,
                                TriggerEvent),
                        Modifier(..))
 import qualified Command (Command(CreateCharacter),traits)
@@ -78,6 +79,7 @@ instance GatherTraits Command where
     <> traits holder
   traits (Death _ _) = mempty
   traits (GainSettlementsUnderTitle title enemy) = traits title <> traits enemy
+  traits (OpinionModifier _ who _) = traits who
 
 instance GatherTraits Modifier where
   traits (Modifier _ _) = []

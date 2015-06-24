@@ -97,6 +97,7 @@ data Command = ActivateTitle Label Bool
                                          , enemy :: ScopeType }
              | SetFlag FlagType Label | ClrFlag FlagType Label
              | If [Condition] [Command]
+             | OpinionModifier Label ScopeType Duration
              | Random Double [Modifier] [Command]
              | RandomList [(Double,[Modifier],[Command])]
              | Scoped (Scope Command)
@@ -142,6 +143,7 @@ command = (ActivateTitle <$ checkKey "activate_title"
                <*> scopeType ~@ "title"
                <*> scopeType ~@ "enemy")
           <|> (If <$ checkKey "if") <*> mapSubForest condition @@ "limit" <*> command /@@ "limit"
+          <|> (OpinionModifier <$ checkKey "opinion") <*> fetchString @@ "modifier" <*> scopeType ~@ "who" <*> duration
           <|> (Random <$ checkKey "random") <*> number ~@ "chance" <*> modifier @@@ "modifier" <*> command /@# ["chance","modifier"]
           <|> (RandomList <$ checkKey "random_list") <*> mapSubForest rlElem
           <|> VarOpLit <$> firstChild (checkKey "which" *> fetchString) <*> op <*> number ~@ "value"

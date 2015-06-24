@@ -227,6 +227,9 @@ commandUnitTests = testGroup "Command Unit Tests"
                      , successTest "Minimal letter event"
                        "letter_event = { id = test.3 }"
                        $ TriggerEvent ("test",3) Nothing Nothing
+                     , successTest "Opinion modifier"
+                       "opinion = { modifier = test_modifier years = 5 who = PREVPREV }"
+                       $ OpinionModifier "test_modifier" PrevPrev (Years 5)
                    ]
 
 makeCommand :: Text -> Either Error Command

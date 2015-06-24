@@ -52,7 +52,6 @@ scopedValue = ScopedValue <$> scopeType
 -- | A @Clause@ is typically used as the argument to a command. They appear in
 -- the source as blocks, and don't appear to have any commonality beyond that.
 data Clause a = ScopedModifier Label Duration
-              | OpinionModifier Label Duration
               | TitleStatus Label Bool
               | UnknownClause [(Label,Label)]
                 deriving (Eq,Ord,Show)

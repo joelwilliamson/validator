@@ -68,6 +68,7 @@ instance Localised Command where
     <> localisations base
   localisations (Death _ _) = mempty
   localisations (GainSettlementsUnderTitle title enemy) = localisations title <> localisations enemy
+  localisations (OpinionModifier mod who _) = localisations mod <> localisations who
   localisations (TriggerEvent _ _ tt) = localisations tt
 
 instance Localised Modifier where
