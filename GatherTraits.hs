@@ -14,11 +14,10 @@ import Command as Comm(Command(ActivateTitle,
                                BestFitCharacterForTitle,
                                BuildHolding,
                                ChangeTech,
-                               CharacterEvent,
                                CreateTitle,
                                Death,
                                GainSettlementsUnderTitle,
-                               LetterEvent),
+                               TriggerEvent),
                        Modifier(..))
 import qualified Command (Command(CreateCharacter),traits)
 import qualified Condition as Cond(Clause(..),Condition(..),Scope(..),ScopeType(..),Value(..))
@@ -73,13 +72,12 @@ instance GatherTraits Command where
     <> traits title'
   traits (BuildHolding _ _ _) = mempty
   traits (ChangeTech _ _) = mempty
-  traits (CharacterEvent _ _ _) = mempty
+  traits (TriggerEvent _ _ _) = mempty
   traits (CreateTitle _ _ _ _ titleCulture _ holder _ _ _) =
     traits titleCulture
     <> traits holder
   traits (Death _ _) = mempty
   traits (GainSettlementsUnderTitle title enemy) = traits title <> traits enemy
-  traits (LetterEvent _ _ _) = mempty
 
 instance GatherTraits Modifier where
   traits (Modifier _ _) = []

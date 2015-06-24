@@ -61,7 +61,6 @@ instance Localised Command where
     <> localisations title'
   localisations (BuildHolding _ _ _) = mempty
   localisations (ChangeTech tech _) = [tech]
-  localisations (CharacterEvent _ _ tt) = localisations tt
   localisations (CreateTitle _ _ _ _ titleCulture name holder _ base _) =
     localisations titleCulture
     <> localisations name
@@ -69,7 +68,7 @@ instance Localised Command where
     <> localisations base
   localisations (Death _ _) = mempty
   localisations (GainSettlementsUnderTitle title enemy) = localisations title <> localisations enemy
-  localisations (LetterEvent _ _ tt) = localisations tt
+  localisations (TriggerEvent _ _ tt) = localisations tt
 
 instance Localised Modifier where
   localisations (Modifier _ _) = mempty

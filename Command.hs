@@ -62,7 +62,7 @@ data Command = ActivateTitle Label Bool
              | Break
              | BuildHolding Label Label ScopeType
              | ChangeTech Label Double
-             | CharacterEvent EventId (Maybe Duration) (Maybe Label)
+             | TriggerEvent EventId (Maybe Duration) (Maybe Label)
              | CreateCharacter { age :: Double
                                , name :: Label
                                , hasNickName :: Maybe Label
@@ -95,7 +95,6 @@ data Command = ActivateTitle Label Bool
                      , killer :: ScopeType }
              | GainSettlementsUnderTitle { title :: ScopeType
                                          , enemy :: ScopeType }
-             | LetterEvent EventId (Maybe Duration) (Maybe Label)
              | SetFlag FlagType Label | ClrFlag FlagType Label
              | If [Condition] [Command]
              | Random Double [Modifier] [Command]
@@ -135,7 +134,7 @@ command = (ActivateTitle <$ checkKey "activate_title"
           <|> (setFlag <*> fetchString)
           <|> (clrFlag <*> fetchString)
           <|> ChangeTech <$ checkKey "change_tech" <*> fetchString @@ "technology" <*> number ~@ "value"
-          <|> characterEvent
+          <|> triggerEvent
           <|> createCharacter
           <|> createTitle
           <|> (Death <$ checkKey "death") <*> fetchString @@ "death_reason" <*> scopeType ~@ "killer"
@@ -143,10 +142,6 @@ command = (ActivateTitle <$ checkKey "activate_title"
                <*> scopeType ~@ "title"
                <*> scopeType ~@ "enemy")
           <|> (If <$ checkKey "if") <*> mapSubForest condition @@ "limit" <*> command /@@ "limit"
-          <|> ((LetterEvent <$ checkKey "letter_event")
-               <*> fetchId @@ "id"
-               <*> optional duration
-               <*> fetchString @? "tooltip")
           <|> (Random <$ checkKey "random") <*> number ~@ "chance" <*> modifier @@@ "modifier" <*> command /@# ["chance","modifier"]
           <|> (RandomList <$ checkKey "random_list") <*> mapSubForest rlElem
           <|> VarOpLit <$> firstChild (checkKey "which" *> fetchString) <*> op <*> number ~@ "value"
@@ -165,7 +160,7 @@ command = (ActivateTitle <$ checkKey "activate_title"
   where rlElem = (,,) <$> number <*> modifier @@@ "modifier" <*> command /@@ "modifier"
         troopSpec = (,,) <$> label key <*> firstChild number <*> firstChild (firstChild number)
 
-characterEvent = CharacterEvent <$ checkKey "character_event"
+triggerEvent = TriggerEvent <$ checkKeys ["character_event","letter_event","narrative_event"]
                  <*> fetchId @@ "id"
                  <*> optional duration
                  <*> fetchString @? "tooltip"

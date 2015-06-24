@@ -185,7 +185,7 @@ commandUnitTests = testGroup "Command Unit Tests"
                      $ ActivateTitle "b_rome" False
                    , successTest "character event"
                      "character_event = { id = test.12 days = 5 tooltip = \"An event\" }"
-                     $ CharacterEvent ("test",12) (Just $ Days 5) (Just "An event")
+                     $ TriggerEvent ("test",12) (Just $ Days 5) (Just "An event")
                    , successTest "Build holding"
                      "build_holding = { title = b_masyaf type = castle holder = ROOT }"
                      $ BuildHolding "b_masyaf" "castle" Root
@@ -223,10 +223,10 @@ commandUnitTests = testGroup "Command Unit Tests"
                        GainSettlementsUnderTitle { title = Prev, enemy = Root }
                      , successTest "Letter Event with tooltip"
                        "letter_event = { id = 40 months = 3 tooltip = EVTTESTTOOLTIP }"
-                       $ LetterEvent ("",40) (Just $ Months 3) $ Just "EVTTESTTOOLTIP"
+                       $ TriggerEvent ("",40) (Just $ Months 3) $ Just "EVTTESTTOOLTIP"
                      , successTest "Minimal letter event"
                        "letter_event = { id = test.3 }"
-                       $ LetterEvent ("test",3) Nothing Nothing
+                       $ TriggerEvent ("test",3) Nothing Nothing
                    ]
 
 makeCommand :: Text -> Either Error Command
