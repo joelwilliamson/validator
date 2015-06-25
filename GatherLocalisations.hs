@@ -3,7 +3,7 @@ module GatherLocalisations(Localised(localisations)) where
 
 import Scoped(Label)
 import Command as Comm(Command(..),Modifier(..))
-import Condition(Clause(..),Condition(..),Scope(..),ScopeType(..),Value(..))
+import Condition(Condition(..),Scope(..),ScopeType(..),Value(..))
 import Event as E(Event(..),Option(..))
 import Decision(Decision(..))
 
@@ -72,6 +72,7 @@ instance Localised Command where
   localisations (ReligionAuthority (Left _)) = mempty
   localisations (ReligionAuthority (Right mod)) = localisations mod
   localisations (RemoveOpinion mod who _) = localisations mod <> localisations who
+  localisations (ScopedModifier name _) = [name]
   localisations (TriggerEvent _ _ tt) = localisations tt
 
 instance Localised Modifier where
@@ -86,9 +87,6 @@ instance Localised c => Localised (Value c) where
 instance Localised Condition.ScopeType where
   localisations _ = mempty
 
-instance Localised c => Localised (Clause c) where
-  localisations _ = mempty
-  
 instance Localised c => Localised (Scope c) where
   localisations (Scope _ _ cont) = localisations cont
 

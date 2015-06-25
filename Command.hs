@@ -108,6 +108,7 @@ data Command = ActivateTitle Label Bool
                              , who :: ScopeType
                              , me :: ScopeType }
              | Scoped (Scope Command)
+             | ScopedModifier Label Duration
              | SpawnUnit { province :: Double
                          , owner :: Maybe ScopeType
                          , leader :: Maybe ScopeType
@@ -127,6 +128,9 @@ command :: Maker Command
 command = (ActivateTitle <$ checkKey "activate_title"
            <*> fetchString @@ "title"
            <*> fetchBool @@ "status")
+          <|> (ScopedModifier <$ checkKeys ["add_character_modifier","add_province_modifier"]
+               <*> fetchString @@ "name" <*> duration)
+
           <|> (AddTrait <$ checkKey "add_trait" <*> fetchString)
           <|> (RemoveTrait <$ checkKey "remove_trait" <*> fetchString)
           <|> (BestFitCharacterForTitle <$ checkKey "best_fit_character_for_title"
@@ -285,6 +289,7 @@ commands =
 
 -- | A list of all commands that should be accepted as arguments to @`Concrete`@
 concreteCommands = commands \\ ["activate_title",
+                                "add_character_modifier", "add_province_modifier",
                                 "add_trait",
                                 "remove_trait",
                                 "best_fit_character_for_title",

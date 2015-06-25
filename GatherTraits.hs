@@ -20,10 +20,11 @@ import Command as Comm(Command(ActivateTitle,
                                OpinionModifier,
                                ReligionAuthority,
                                RemoveOpinion,
+                               ScopedModifier,
                                TriggerEvent),
                        Modifier(..))
 import qualified Command (Command(CreateCharacter),traits)
-import qualified Condition as Cond(Clause(..),Condition(..),Scope(..),ScopeType(..),Value(..))
+import qualified Condition as Cond(Condition(..),Scope(..),ScopeType(..),Value(..))
 import Event as E(Event(..),Option(..))
 import Decision(Decision(..))
 
@@ -84,6 +85,7 @@ instance GatherTraits Command where
   traits (OpinionModifier _ who _ _) = traits who
   traits (ReligionAuthority _) = mempty
   traits (RemoveOpinion _ scope _) = traits scope
+  traits (ScopedModifier _ _) = mempty
 
 instance GatherTraits Modifier where
   traits (Modifier _ _) = []
@@ -98,9 +100,6 @@ instance GatherTraits c => GatherTraits (Cond.Value c) where
 instance GatherTraits Cond.ScopeType where
   traits _ = []
 
-instance GatherTraits c => GatherTraits (Cond.Clause c) where
-  traits _ = []
-  
 instance GatherTraits c => GatherTraits (Cond.Scope c) where
   traits (Cond.Scope _ limit cont) = traits cont <> traits limit
 

@@ -1,7 +1,7 @@
 module Tests.Command where
 
 import AttoScoped(statefulParseOnly,value)
-import Condition(Clause(..),Value(..),ScopeType(..),Condition(..),Predicate(..))
+import Condition(Value(..),ScopeType(..),Condition(..),Predicate(..))
 import Command
 import Duration(Duration(..),duration)
 import Maker(runMaker)
@@ -180,6 +180,12 @@ commandUnitTests = testGroup "Command Unit Tests"
                    , successTest "activate title"
                      "activate_title = { title = e_persia status = yes }"
                      $ ActivateTitle "e_persia" True
+                   , successTest "Add Character Modifier"
+                     "add_character_modifier = { name = test_mod duration = 180 }"
+                     $ ScopedModifier "test_mod" $ Days 180
+                   , successTest "Add province modifier"
+                     "add_province_modifier = { name = test_mod years = 3 }"
+                     $ ScopedModifier "test_mod" $ Years 3
                    , successTest "deactivate title"
                      "activate_title = { title = b_rome status = no }"
                      $ ActivateTitle "b_rome" False
@@ -255,6 +261,10 @@ commandUnitTests = testGroup "Command Unit Tests"
                                          , who = This
                                          , me = PrevPrev
                                          , dur = Years 5 }
+                     , successTest "Reverse remove opinion"
+                       "reverse_remove_opinion = { modifier = opinion_friend who = FROM }"
+                       $ RemoveOpinion { opinionModifier = "opinion_friend"
+                                       , who = This, me = From }
                    ]
 
 makeCommand :: Text -> Either Error Command

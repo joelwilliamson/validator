@@ -3,7 +3,7 @@ module GatherStrings(GatherStrings(gatherStrings)) where
 
 import Scoped(Label)
 import Command as Comm(Command(..),Modifier(..),stringyCommands)
-import Condition(Clause(..),Condition(..),Predicate(..),Scope(..),ScopeType(..),Value(..))
+import Condition(Condition(..),Predicate(..),Scope(..),ScopeType(..),Value(..))
 import Event as E(Event(..),Option(..))
 import Decision(Decision(..))
 
@@ -83,6 +83,7 @@ instance GatherStrings Command where
   gatherStrings (ReligionAuthority (Left _)) = mempty
   gatherStrings (ReligionAuthority (Right mod)) = gatherStrings mod
   gatherStrings (RemoveOpinion mod who _) = gatherStrings mod <> gatherStrings who
+  gatherStrings (ScopedModifier name _) = gatherStrings name
   gatherStrings TriggerEvent {} = []
 
 instance GatherStrings Modifier where
@@ -101,16 +102,12 @@ instance GatherStrings c => GatherStrings (Value c) where
   gatherStrings (BooleanValue _) = []
   gatherStrings (NumValue _) = []
   gatherStrings (ScopedValue s) = gatherStrings s
-  gatherStrings (Clause c) = gatherStrings c
   gatherStrings (Id t) = [t]
 
 instance GatherStrings Condition.ScopeType where
   gatherStrings (IdScope i) = [i]
   gatherStrings _ = []
 
-instance GatherStrings c => GatherStrings (Clause c) where
-  gatherStrings _ = []
-  
 instance GatherStrings c => GatherStrings (Scope c) where
   gatherStrings (Scope ty limit cont) = gatherStrings ty
                                         <> gatherStrings limit

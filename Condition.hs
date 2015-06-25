@@ -2,17 +2,14 @@
 -- dependency, they need to go in the same module
 module Condition
        (Scope(..),Condition(..),Value(..),Predicate(..),ScopeType(..)
-       ,Clause(..)
        ,scope
        ,condition
-       ,clause
        ,value
        ,scopedValue
        ,scopeType
        ) where
 
 import Maker
-import Duration(Duration(),duration)
 import Scoped(Label,Atom(..))
 
 import qualified Data.Text as T(Text,take,drop)
@@ -36,7 +33,6 @@ data Condition = Condition Predicate (Value ())
 data Value a = BooleanValue Bool
            | NumValue Double
            | ScopedValue ScopeType
-           | Clause (Clause a)
            | Id T.Text
            deriving (Eq,Ord,Show)
  
@@ -48,18 +44,6 @@ value = BooleanValue True <$ checkKeys ["yes","true"]
 
 -- | @scopedValue@ makes a value of scoped type
 scopedValue = ScopedValue <$> scopeType
-
--- | A @Clause@ is typically used as the argument to a command. They appear in
--- the source as blocks, and don't appear to have any commonality beyond that.
-data Clause a = ScopedModifier Label Duration
-              | TitleStatus Label Bool
-              | UnknownClause [(Label,Label)]
-                deriving (Eq,Ord,Show)
-
--- | Make a clause.
-clause :: Maker (Clause a)
-clause = (ScopedModifier <$ checkKeys ["add_character_modifier","add_province_modifier"]
-              <*> fetchString @@ "name" <*> duration)
 
 -- | Identify the type of the element a scope references, or move around the
 -- scope stack.
@@ -145,12 +129,11 @@ predicate = Predicate <$> checkKeys predicates
 
 -- | Make a condition
 condition:: Maker Condition
-condition = trait <|> simple <|> boolean <|> variableCheck <|> clausal <|> (Scoped <$> scope condition)
+condition = trait <|> simple <|> boolean <|> variableCheck <|> (Scoped <$> scope condition)
   where simple  = Condition <$> predicate <*> firstChild value
         variableCheck =
           VariableCheck <$> fetchString @@ "which" <*> (Left <$> fetchString @@ "which"
                                                        <|> Right <$> number @@ "value")
-        clausal = Condition <$> predicate <*> (Clause <$> clause)
         boolean = And <$> (checkKey "AND" *> mapSubForest condition)
                   <|> Or <$> (checkKey "OR" *> mapSubForest condition)
                   <|> Not <$> (checkKey "NOT" *> firstChild condition)
