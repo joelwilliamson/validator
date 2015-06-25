@@ -114,8 +114,17 @@ data Command = ActivateTitle Label Bool
                          , leader :: Maybe ScopeType
                          , home :: Maybe ScopeType
                          , earmark :: Maybe Label
-                         , attrition :: Maybe Double
                          , troops :: [(Label,Double,Double)]
+                         , matchCharacter :: Maybe ScopeType
+                         , matchMult :: Maybe Double
+                         , matchMax :: Maybe Double
+                         , matchMin :: Maybe Double
+                         , disbandOnPeace :: Maybe Bool
+                         , cannotInherit :: Maybe Bool
+                         , attrition :: Maybe Double
+                         , maintenanceMultiplier :: Maybe Double
+                         , scaledByBiggestGarrison :: Maybe Double
+                         , merge :: Maybe Bool
                          }
              | VarOpLit Label Op Double
              | VarOpVar Label Op Label
@@ -169,8 +178,18 @@ command = (ActivateTitle <$ checkKey "activate_title"
                <*> scopeType ~? "leader"
                <*> scopeType ~? "home"
                <*> label key ~? "earmark"
+               <*> mapSubForest troopSpec @@ "troops"
+               <*> scopeType ~? "match_character"
+               <*> number ~? "match_mult"
+               <*> number ~? "match_max"
+               <*> number ~? "match_min"
+               <*> fetchBool @? "disband_on_peace"
+               <*> fetchBool @? "cannot_inherit"
                <*> number ~? "attrition"
-               <*> mapSubForest troopSpec @@ "troops" )
+               <*> number ~? "maintenance_multiplier"
+               <*> number ~? "scaled_by_biggest_garrison"
+               <*> fetchBool @? "merge"
+              )
           <|> Concrete <$> label (checkKeys concreteCommands) <*> firstChild value
           <|> Scoped <$> scope command
 

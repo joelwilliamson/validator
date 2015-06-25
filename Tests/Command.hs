@@ -58,7 +58,23 @@ commandUnitTests = testGroup "Command Unit Tests"
                        , troops = [("archers",100,100),
                                    ("pikemen",200,300)]
                        , earmark = Just "test_troops"
+                       , matchCharacter = Nothing, matchMult = Nothing
+                       , matchMax = Nothing, matchMin = Nothing
+                       , disbandOnPeace = Nothing, cannotInherit = Nothing
+                       , maintenanceMultiplier = Nothing
+                       , scaledByBiggestGarrison = Nothing, merge = Nothing
                        }
+                   , successTest "Spawn a unit - 2"
+                     "spawn_unit = { province = 101 home = ROOT owner = ROOT leader = ROOT earmark = test_army troops = { archers = { 300 300 } knights = { 200 200 } } match_character = THIS match_mult = 2 match_max = 10000 match_min = 100 disband_on_peace = no cannot_inherit = no attrition = 0.1 maintenance_multiplier = 0.1 scaled_by_biggest_garrison = 2.0 merge = yes }"
+                     SpawnUnit {
+                       province = 101, home = Just Root, owner = Just Root
+                       , leader = Just Root, earmark = Just "test_army"
+                       , troops = [("archers",300,300),("knights",200,200)]
+                       , matchCharacter = Just This, matchMult = Just 2
+                       , matchMax = Just 10000, matchMin = Just 100
+                       , disbandOnPeace = Just False, cannotInherit = Just False
+                       , attrition = Just 0.1, maintenanceMultiplier = Just 0.1
+                       , scaledByBiggestGarrison = Just 2, merge = Just True }
                    , successTest "Break"
                      "break = yes"
                      Break
