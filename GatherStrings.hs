@@ -85,6 +85,7 @@ instance GatherStrings Command where
   gatherStrings (RemoveOpinion mod who _) = gatherStrings mod <> gatherStrings who
   gatherStrings (ScopedModifier name _) = gatherStrings name
   gatherStrings TriggerEvent {} = []
+  gatherStrings War {} = mempty
 
 instance GatherStrings Modifier where
   gatherStrings (Modifier _ conds) = gatherStrings conds

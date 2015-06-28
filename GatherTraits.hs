@@ -21,7 +21,8 @@ import Command as Comm(Command(ActivateTitle,
                                ReligionAuthority,
                                RemoveOpinion,
                                ScopedModifier,
-                               TriggerEvent),
+                               TriggerEvent,
+                               War),
                        Modifier(..))
 import qualified Command (Command(CreateCharacter),traits)
 import qualified Condition as Cond(Condition(..),Scope(..),ScopeType(..),Value(..))
@@ -86,6 +87,7 @@ instance GatherTraits Command where
   traits (ReligionAuthority _) = mempty
   traits (RemoveOpinion _ scope _) = traits scope
   traits (ScopedModifier _ _) = mempty
+  traits War {} = mempty
 
 instance GatherTraits Modifier where
   traits (Modifier _ _) = []

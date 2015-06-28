@@ -129,6 +129,11 @@ data Command = ActivateTitle Label Bool
              | VarOpLit Label Op Double
              | VarOpVar Label Op Label
              | VarOpScope Label Op (Scope ())
+             | War { attacker :: ScopeType
+                   , target :: ScopeType
+                   , casusBelli :: Label
+                   , thirdparty :: Maybe ScopeType
+                   , targetTier :: Label }
              | Concrete Label (Value Command)
   deriving (Eq,Ord,Show)
 
@@ -190,6 +195,12 @@ command = (ActivateTitle <$ checkKey "activate_title"
                <*> number ~? "scaled_by_biggest_garrison"
                <*> fetchBool @? "merge"
               )
+          <|> (War <$ checkKey "war"
+               <*> pure This -- Attacker
+               <*> scopeType ~@ "target"
+               <*> fetchString @@ "casus_belli"
+               <*> scopeType ~? "thirdparty_title"
+               <*> fetchString @@ "tier")
           <|> Concrete <$> label (checkKeys concreteCommands) <*> firstChild value
           <|> Scoped <$> scope command
 
@@ -343,7 +354,8 @@ concreteCommands = commands \\ ["activate_title",
                                 "change_variable","check_variable",
                                 "divide_variable","is_equal_variable",
                                 "multiply_variable","subtract_variable",
-                                "set_variable"]
+                                "set_variable",
+                                "war"]
 
 -- | A list of all commands whose argument is a string-like key.
 --

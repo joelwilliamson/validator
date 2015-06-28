@@ -281,6 +281,11 @@ commandUnitTests = testGroup "Command Unit Tests"
                        "reverse_remove_opinion = { modifier = opinion_friend who = FROM }"
                        $ RemoveOpinion { opinionModifier = "opinion_friend"
                                        , who = This, me = From }
+                     , successTest "Declare war"
+                       "war = { target = PREVPREV casus_belli = duchy_adventure thirdparty_title = PREV tier = DUKE }"
+                       $ War { attacker = This, target = PrevPrev
+                             , casusBelli = "duchy_adventure"
+                             , thirdparty = Just Prev, targetTier = "DUKE" }
                    ]
 
 makeCommand :: Text -> Either Error Command

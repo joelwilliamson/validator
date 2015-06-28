@@ -74,6 +74,7 @@ instance Localised Command where
   localisations (RemoveOpinion mod who _) = localisations mod <> localisations who
   localisations (ScopedModifier name _) = [name]
   localisations (TriggerEvent _ _ tt) = localisations tt
+  localisations War { casusBelli } = localisations casusBelli
 
 instance Localised Modifier where
   localisations (Modifier _ _) = mempty
