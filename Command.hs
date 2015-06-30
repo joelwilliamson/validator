@@ -133,7 +133,7 @@ data Command = ActivateTitle Label Bool
                    , target :: ScopeType
                    , casusBelli :: Label
                    , thirdparty :: Maybe ScopeType
-                   , targetTier :: Label }
+                   , targetTier :: Maybe Label }
              | Concrete Label (Value Command)
   deriving (Eq,Ord,Show)
 
@@ -175,6 +175,14 @@ command = (ActivateTitle <$ checkKey "activate_title"
           <|> (RemoveOpinion <$ checkKey "remove_opinion") <*> fetchString @@ "modifier" <*> scopeType ~@ "who" <*> pure This
           <|> (OpinionModifier <$ checkKey "reverse_opinion") <*> fetchString @@ "modifier" <*> pure This <*> scopeType ~@ "who" <*> duration
           <|> (RemoveOpinion <$ checkKey "reverse_remove_opinion") <*> fetchString @@ "modifier" <*> pure This  <*> scopeType ~@ "who"
+          <|> (War <$ checkKey "reverse_war"
+               <*> scopeType ~@ "target" -- Attacler
+               <*> pure This -- Defender
+               <*> fetchString @@ "casus_belli"
+               -- The "thirdparty" form is used a single time in vanilla (in dynasty_events.txt).
+               -- I am rather suspicious whether it is really valid.
+               <*> (Just <$> scopeType ~@ "thirdparty_title" <|> scopeType ~? "thirdparty")
+               <*> fetchString @? "tier")
           <|> VarOpLit <$> firstChild (checkKey "which" *> fetchString) <*> op <*> number ~@ "value"
           <|> VarOpVar <$> firstChild (checkKey "which" *> fetchString) <*> op <*> secondChild (checkKey "which" *> fetchString) -- This doesn't distinguish between scopes and variables in the same scope
           <|> (SpawnUnit <$ checkKey "spawn_unit"
@@ -200,7 +208,7 @@ command = (ActivateTitle <$ checkKey "activate_title"
                <*> scopeType ~@ "target"
                <*> fetchString @@ "casus_belli"
                <*> scopeType ~? "thirdparty_title"
-               <*> fetchString @@ "tier")
+               <*> fetchString @? "tier")
           <|> Concrete <$> label (checkKeys concreteCommands) <*> firstChild value
           <|> Scoped <$> scope command
 

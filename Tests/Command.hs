@@ -285,7 +285,12 @@ commandUnitTests = testGroup "Command Unit Tests"
                        "war = { target = PREVPREV casus_belli = duchy_adventure thirdparty_title = PREV tier = DUKE }"
                        $ War { attacker = This, target = PrevPrev
                              , casusBelli = "duchy_adventure"
-                             , thirdparty = Just Prev, targetTier = "DUKE" }
+                             , thirdparty = Just Prev, targetTier = Just "DUKE" }
+                     , successTest "Declare reverse war"
+                       "reverse_war = { target = FROM casus_belli = other_claim thirdparty = ROOT }"
+                       $ War { attacker = From, target = This
+                             , casusBelli = "other_claim"
+                             , thirdparty = Just Root, targetTier = Nothing }
                    ]
 
 makeCommand :: Text -> Either Error Command
