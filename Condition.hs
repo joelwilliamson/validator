@@ -12,7 +12,7 @@ module Condition
 import Maker
 import Scoped(Label,Atom(..))
 
-import qualified Data.Text as T(Text,take,drop)
+import qualified Data.Text as T(Text,take,drop,toUpper)
 import Control.Applicative
 
 -- | Wrapper for the concrete conditions
@@ -57,21 +57,27 @@ data ScopeType = Root | This
                | NumScope Double -- This is a fake scope. A scope should never be a number
                  deriving (Eq,Ord,Show)
 
-readScope :: Atom → ScopeType
-readScope (Label "ROOT") = Root
-readScope (Label "THIS") = This
-readScope (Label "PREV") = Prev
-readScope (Label "PREVPREV") = PrevPrev
-readScope (Label "PREVPREVPREV") = PrevPrevPrev
-readScope (Label "PREVPREVPREVPREV") = PrevPrevPrevPrev
-readScope (Label "FROM") = From
-readScope (Label "FROMFROM") = FromFrom
-readScope (Label "FROMFROMFROM") = FromFromFrom
-readScope (Label "FROMFROMFROMPREV") = FromFromFromFrom
-readScope (Label "trigger") = Trigger
-readScope (Label "limit") = Limit
+
+-- scopeMap associates scope names (in all lower case) with scope constructors.
+-- It seems that most scopes are case insensitive.
+scopeMap :: [(Label,ScopeType)]
+scopeMap = [("ROOT", Root),
+            ("THIS",This),
+            ("PREV", Prev),
+            ("PREVPREV", PrevPrev),
+            ("PREVPREVPREV", PrevPrevPrev),
+            ("PREVPREVPREVPREV", PrevPrevPrevPrev),
+            ("FROM", From),
+            ("FROMFROM", FromFrom),
+            ("FROMFROMFROM", FromFromFrom),
+            ("FROMFROMFROMPREV", FromFromFromFrom),
+            ("TRIGGER", Trigger),
+            ("LIMIT", Limit)]
 readScope (Label s)
   | T.take 13 s == "event_target:" = EventTarget $ T.drop 13 s
+  | T.toUpper s `elem` map fst scopeMap = case lookup (T.toUpper s) scopeMap of
+    Nothing -> error "Key not in association list"
+    Just v -> v
   | s `elem` characterScope = CharacterScope s
   | otherwise = IdScope s
 readScope (Number n) = NumScope n
