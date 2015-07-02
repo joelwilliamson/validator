@@ -363,7 +363,7 @@ concreteCommands = commands \\ ["activate_title",
                                 "divide_variable","is_equal_variable",
                                 "multiply_variable","subtract_variable",
                                 "set_variable",
-                                "war"]
+                                "war","reverse_war"]
 
 -- | A list of all commands whose argument is a string-like key.
 --
