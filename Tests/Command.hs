@@ -10,6 +10,7 @@ import Scoped(Error())
 import Data.Attoparsec.ByteString
 import Text.Parsec.Pos(initialPos)
 import Data.Text(Text,unlines)
+import Data.Either(isLeft)
 
 import Test.Tasty
 import Test.Tasty.HUnit
@@ -296,8 +297,11 @@ commandSuccessTests = testGroup "Command Success Tests"
                              , thirdparty = Just Root, targetTier = Nothing }
                    ]
 
-commandFailTests = testGroup "Failing tests"
-                   [failTest "Missing brace" "opinion = { who = ROOT modifier = test years = 4"]
+commandFailTests =
+  testGroup "Failing tests"
+  [ failTest "Missing brace" "opinion = { who = ROOT modifier = test years = 4"
+  , failTest "Ill-formed opinion" "opinion = { who = ROOT }"
+  ]
 
 makeCommand :: Text -> Either Error Command
 makeCommand s = case statefulParseOnly value (initialPos "test_data") s of
@@ -307,4 +311,4 @@ makeCommand s = case statefulParseOnly value (initialPos "test_data") s of
 successTest :: TestName -> Text -> Command -> TestTree
 successTest name command result = testCase name $ makeCommand command @?= Right result
 
-failTest name command = testCase name $ makeCommand command @?= Left ("",Nothing)
+failTest name command = testCase name $ isLeft (makeCommand command) @?= True
