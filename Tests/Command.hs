@@ -301,6 +301,7 @@ commandFailTests =
   testGroup "Failing tests"
   [ failTest "Missing brace" "opinion = { who = ROOT modifier = test years = 4"
   , failTest "Ill-formed opinion" "opinion = { who = ROOT }"
+  , failTest "Event missing id" "letter_event = { days = 5 }"
   ]
 
 makeCommand :: Text -> Either Error Command
