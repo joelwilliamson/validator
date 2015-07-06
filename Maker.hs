@@ -5,7 +5,7 @@ module Maker (
   (@@),(@?),(@@@),(@@#),(/@@),(/@#),(<?>),
   (~@),(~?),
   firstChild,secondChild,mapSubForest,filterSubForest,singleChild,
-  checkKey,checkKeys,checkValue,checkValues,key,
+  checkKey,checkKeys,excludeKeys,checkValue,checkValues,key,
   fetchString,label,
   Maker.number,fetchId, fetchBool,position
   ) where
@@ -133,6 +133,11 @@ checkKey k = Maker $ \t -> case rootLabel t of
 checkKeys keys = Maker $ \t → if rootLabel t `elem` map Label keys
                               then Right $ rootLabel t
                               else Left ("Check for keys failed. Found: " <> show' (rootLabel t), source t)
+
+-- | @excludeKeys keys@ succeeds with the root label provided the label is not in `keys`.
+excludeKeys keys = Maker $ \t → if not $ rootLabel t `elem` map Label keys
+                                then Right $ rootLabel t
+                                else Left ("Root label excluded: " <> show' (rootLabel t), source t)
 
 -- | @checkValue v@ succeeds if the root label of the first child is @v@.
 checkValue = firstChild . checkKey

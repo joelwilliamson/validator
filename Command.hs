@@ -210,7 +210,7 @@ command = (ActivateTitle <$ checkKey "activate_title"
                <*> scopeType ~? "thirdparty_title"
                <*> fetchString @? "tier")
           <|> Concrete <$> label (checkKeys concreteCommands) <*> firstChild value
-          <|> Scoped <$> scope command
+          <|> (Scoped <$ excludeKeys commands) <*> scope command
 
   where rlElem = (,,) <$> number <*> modifier @@@ "modifier" <*> command /@@ "modifier"
         troopSpec = (,,) <$> label key <*> firstChild number <*> firstChild (firstChild number)
