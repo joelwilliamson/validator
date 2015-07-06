@@ -17,6 +17,9 @@ import Test.Tasty.HUnit
 import Prelude hiding (unlines)
 
 commandUnitTests = testGroup "Command Unit Tests"
+                   [ commandSuccessTests, commandFailTests]
+
+commandSuccessTests = testGroup "Command Success Tests"
                    [ successTest "A simple concrete command"
                      "abandon_heresy = yes" $ Concrete "abandon_heresy" (BooleanValue True)
                    , successTest "Numeric command"
@@ -293,6 +296,9 @@ commandUnitTests = testGroup "Command Unit Tests"
                              , thirdparty = Just Root, targetTier = Nothing }
                    ]
 
+commandFailTests = testGroup "Failing tests"
+                   [failTest "Missing brace" "opinion = { who = ROOT modifier = test years = 4"]
+
 makeCommand :: Text -> Either Error Command
 makeCommand s = case statefulParseOnly value (initialPos "test_data") s of
   Left _ -> Left ("",Nothing)
@@ -300,3 +306,5 @@ makeCommand s = case statefulParseOnly value (initialPos "test_data") s of
 
 successTest :: TestName -> Text -> Command -> TestTree
 successTest name command result = testCase name $ makeCommand command @?= Right result
+
+failTest name command = testCase name $ makeCommand command @?= Left ("",Nothing)
