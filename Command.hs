@@ -38,12 +38,14 @@ setFlag =  SetFlag <$> (checkKey "set_character_flag" $> Character
                         <|> checkKey "set_title_flag" $> Title
                         <|> checkKey "set_dynasty_flag" $> Dynasty
                         <|> checkKey "set_global_flag" $> Dynasty)
+           <?> "Set flag"
 clrFlag :: Maker (Label → Command)
 clrFlag =  ClrFlag <$> (checkKey "clr_character_flag" $> Character
                         <|> checkKey "clr_province_flag" $> Province
                         <|> checkKey "clr_title_flag" $> Title
                         <|> checkKey "clr_dynasty_flag" $> Dynasty
                         <|> checkKey "clr_global_flag" $> Dynasty)
+           <?> "Clear flag"
 
 -- | A @Modifier@ is used to change the probability of something being chosen
 -- out of a random set.
@@ -175,14 +177,14 @@ command = (ActivateTitle <$ checkKey "activate_title"
           <|> (RemoveOpinion <$ checkKey "remove_opinion") <*> fetchString @@ "modifier" <*> scopeType ~@ "who" <*> pure This
           <|> (OpinionModifier <$ checkKey "reverse_opinion") <*> fetchString @@ "modifier" <*> pure This <*> scopeType ~@ "who" <*> duration
           <|> (RemoveOpinion <$ checkKey "reverse_remove_opinion") <*> fetchString @@ "modifier" <*> pure This  <*> scopeType ~@ "who"
-          <|> (War <$ checkKey "reverse_war"
+          <|> ((War <$ checkKey "reverse_war"
                <*> scopeType ~@ "target" -- Attacler
                <*> pure This -- Defender
                <*> fetchString @@ "casus_belli"
                -- The "thirdparty" form is used a single time in vanilla (in dynasty_events.txt).
                -- I am rather suspicious whether it is really valid.
                <*> (Just <$> scopeType ~@ "thirdparty_title" <|> scopeType ~? "thirdparty")
-               <*> fetchString @? "tier")
+               <*> fetchString @? "tier") <?> "Reverse War")
           <|> VarOpLit <$> firstChild (checkKey "which" *> fetchString) <*> op <*> number ~@ "value"
           <|> VarOpVar <$> firstChild (checkKey "which" *> fetchString) <*> op <*> secondChild (checkKey "which" *> fetchString) -- This doesn't distinguish between scopes and variables in the same scope
           <|> (SpawnUnit <$ checkKey "spawn_unit"
@@ -203,12 +205,12 @@ command = (ActivateTitle <$ checkKey "activate_title"
                <*> number ~? "scaled_by_biggest_garrison"
                <*> fetchBool @? "merge"
               )
-          <|> (War <$ checkKey "war"
+          <|> ((War <$ checkKey "war"
                <*> pure This -- Attacker
                <*> scopeType ~@ "target"
                <*> fetchString @@ "casus_belli"
                <*> scopeType ~? "thirdparty_title"
-               <*> fetchString @? "tier")
+               <*> fetchString @? "tier") <?> "War")
           <|> Concrete <$> label (checkKeys concreteCommands) <*> firstChild value
           <|> (Scoped <$ excludeKeys commands) <*> scope command
 
