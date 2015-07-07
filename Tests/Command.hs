@@ -302,6 +302,8 @@ commandFailTests =
   [ failTest "Missing brace" "opinion = { who = ROOT modifier = test years = 4"
   , failTest "Ill-formed opinion" "opinion = { who = ROOT }"
   , failTest "Event missing id" "letter_event = { days = 5 }"
+  , failTest "War missing target" "war = { casus_belli = duchy }"
+  , failTest "War missing CB" "war = { target = ROOT }"
   ]
 
 makeCommand :: Text -> Either Error Command
