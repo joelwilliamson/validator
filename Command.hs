@@ -9,6 +9,7 @@ module Command
          stringyCommands
        )where
 
+import Data.Monoid((<>))
 import Maker
 import Scoped(Label,EventId)
 import Condition(Condition,Scope,ScopeType(This),Value,
@@ -99,6 +100,7 @@ data Command = ActivateTitle Label Bool
                                          , enemy :: ScopeType }
              | SetFlag FlagType Label | ClrFlag FlagType Label
              | If [Condition] [Command]
+             | NumericCommand Label Double
              | OpinionModifier { opinionModifier :: Label
                                , who :: ScopeType
                                , me :: ScopeType
@@ -170,6 +172,7 @@ command = (ActivateTitle <$ checkKey "activate_title"
                <*> scopeType ~@ "title"
                <*> scopeType ~@ "enemy")
           <|> (If <$ checkKey "if") <*> mapSubForest condition @@ "limit" <*> command /@@ "limit"
+          <|> numericCommand
           <|> (OpinionModifier <$ checkKey "opinion") <*> fetchString @@ "modifier" <*> scopeType ~@ "who" <*> pure This <*> duration
           <|> (Random <$ checkKey "random") <*> number ~@ "chance" <*> modifier @@@ "modifier" <*> command /@# ["chance","modifier"]
           <|> (RandomList <$ checkKey "random_list") <*> mapSubForest rlElem
@@ -259,6 +262,10 @@ createTitle = CreateTitle <$ checkKey "create_title"
               <*> fetchString @? "base_title"
               <*> fetchBool ~? "copy_title_law"
 
+numericCommand = NumericCommand <$ checkKeys numericCommands
+                 <*> label key
+                 <*> firstChild number
+
 religionAuthority = (ReligionAuthority <$ checkKey "religion_authority")
                     <*> (Left <$> firstChild number
                          <|> Right <$> fetchString @@ "modifier")
@@ -327,6 +334,16 @@ commands =
    "vassal_opinion","vassalize_or_take_under_title",
    "vassalize_or_take_under_title_destroy_duchies","war","wealth"]
 
+numericCommands =
+  [ "add_piety_modifier","add_prestige_modifier","participation_scaled_decadence"
+  , "participation_scaled_piety", "participation_scaled_prestige"
+  , "reduce_disease", "scaled_wealth"] <>
+  [ "change_diplomacy", "change_intrigue", "change_learning", "change_martial"
+  , "change_random_civ_tech", "change_random_eco_tech", "change_random_mil_tech"
+  , "change_stewardship", "culture_techpoints", "decadence"
+  , "economy_techpoints", "fertility", "health", "military_techpoints"
+  , "piety", "prestige", "treasury" ]
+
 -- | A list of all commands that should be accepted as arguments to @`Concrete`@
 concreteCommands = commands \\ ["activate_title",
                                 "add_character_modifier", "add_province_modifier",
@@ -366,6 +383,7 @@ concreteCommands = commands \\ ["activate_title",
                                 "multiply_variable","subtract_variable",
                                 "set_variable",
                                 "war","reverse_war"]
+                   <> numericCommands
 
 -- | A list of all commands whose argument is a string-like key.
 --

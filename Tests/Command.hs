@@ -24,7 +24,7 @@ commandSuccessTests = testGroup "Command Success Tests"
                    [ successTest "A simple concrete command"
                      "abandon_heresy = yes" $ Concrete "abandon_heresy" (BooleanValue True)
                    , successTest "Numeric command"
-                     "change_diplomacy = 3" $ Concrete "change_diplomacy" (NumValue 3)
+                     "change_diplomacy = 3" $ NumericCommand "change_diplomacy" 3
                    , successTest "Adding a trait"
                      "add_trait = diligent" $ AddTrait "diligent"
                    , successTest "Removing a trait"
@@ -87,12 +87,12 @@ commandSuccessTests = testGroup "Command Success Tests"
                      $ Random 20 [Modifier 0.5 [Trait "sloth"], Modifier 2 [Trait "diligent"]] [Break]
                    , successTest "If"
                      "if = { limit = { trait = humble prestige = 5 } change_diplomacy = 2 add_trait = monk}"
-                     $ If [Trait "humble", Condition (Predicate "prestige") $ NumValue 5] [Concrete "change_diplomacy" $ NumValue 2, AddTrait "monk"]
+                     $ If [Trait "humble", Condition (Predicate "prestige") $ NumValue 5] [NumericCommand "change_diplomacy" 2, AddTrait "monk"]
                    , successTest "Random List"
                      "random_list = { 10 = { wealth = 10 } 20 = { unsafe_religion = catholic modifier = { factor = 2 trait = cynical }} 70 = { prestige = 30 } }"
                      $ RandomList [(10,[],[Concrete "wealth" $ NumValue 10]),
                                    (20,[Modifier 2 [Trait "cynical"]],[Concrete "unsafe_religion" $ Id "catholic"]),
-                                   (70,[],[Concrete "prestige" $ NumValue 30])]
+                                   (70,[],[NumericCommand "prestige" 30])]
                    , successTest "Create Character"
                      (unlines ["create_character = {"
                               , "random_traits = no"
@@ -295,6 +295,9 @@ commandSuccessTests = testGroup "Command Success Tests"
                        $ War { attacker = From, target = This
                              , casusBelli = "other_claim"
                              , thirdparty = Just Root, targetTier = Nothing }
+                     , successTest "Add piety modifier"
+                       "add_piety_modifier = 0.3"
+                       $ NumericCommand "add_piety_modifier" 0.3
                    ]
 
 commandFailTests =
@@ -305,6 +308,8 @@ commandFailTests =
   , failTest "War missing target" "war = { casus_belli = duchy }"
   , failTest "War missing CB" "war = { target = ROOT }"
   , failTest "Empty clause" "war = { }"
+  , failTest "Numeric commands can't have string args" "change_diplomacy = more"
+  , failTest "Numeric commands can't have clause args" "reduce_disease = { value = 3 }"
   ]
 
 makeCommand :: Text -> Either Error Command
