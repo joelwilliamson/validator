@@ -6,7 +6,7 @@ module Maker (
   (~@),(~?),
   firstChild,secondChild,mapSubForest,filterSubForest,singleChild,
   checkKey,checkKeys,excludeKeys,checkValue,checkValues,key,
-  fetchString,label,
+  fetchString,label,except,optional,
   Maker.number,fetchId, fetchBool,position
   ) where
 
@@ -16,7 +16,7 @@ import qualified Data.Text as T(pack,Text)
 
 import Text.Parsec(parse)
 
-import Control.Applicative
+import Control.Applicative(Alternative(empty),(<|>))
 import Data.Monoid((<>))
 import Data.Foldable(find)
 
@@ -61,6 +61,11 @@ instance Alternative Maker where
     (x@(Left (_,ix)), y@(Left (_,iy))) → if ix > iy then x else y 
     (Right x, _) -> Right x
     (_, Right y) -> Right y
+
+optional :: Maker a -> Maker (Maybe a)
+optional (Maker f) = Maker $ \t -> case f t of
+  Right r -> Right $ Just r
+  Left _ -> Right Nothing
 
 instance Monad Maker where
   return x = Maker $ \_ → Right x
@@ -151,6 +156,12 @@ checkKeys keys = Maker $ \t → if rootLabel t `elem` map Label keys
                               then Right $ rootLabel t
                               else Left (("Check for keys failed. Found: " <> show' (rootLabel t), source t)
                                          , KeyNotFound)
+
+-- | @except m1 m2@ is equivalent to `m2` if `m1` fails, and fails if `m1` succeeds
+except (Maker f1) (Maker f2) = Maker $ \t -> case f1 t of
+  Right _ -> Left (("Excepted maker succeeded: " <> show' (rootLabel t), source t)
+                   , KeyNotFound)
+  Left _ -> f2 t
 
 -- | @excludeKeys keys@ succeeds with the root label provided the label is not in `keys`.
 excludeKeys keys = Maker $ \t → if not $ rootLabel t `elem` map Label keys
