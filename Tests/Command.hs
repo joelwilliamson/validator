@@ -304,6 +304,7 @@ commandFailTests =
   , failTest "Event missing id" "letter_event = { days = 5 }"
   , failTest "War missing target" "war = { casus_belli = duchy }"
   , failTest "War missing CB" "war = { target = ROOT }"
+  , failTest "Empty clause" "war = { }"
   ]
 
 makeCommand :: Text -> Either Error Command
