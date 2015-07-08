@@ -40,7 +40,8 @@ data Value a = BooleanValue Bool
 value = BooleanValue True <$ checkKeys ["yes","true"]
         <|> BooleanValue False <$ checkKeys ["false","no"]
         <|> NumValue <$> number
-        <|> Id <$> label key
+        <|> Id <$> firstChild (except (firstChild $ checkKeys ["yes","no","true","false"])
+                               fetchString)
 
 -- | @scopedValue@ makes a value of scoped type
 scopedValue = ScopedValue <$> scopeType
@@ -135,7 +136,11 @@ predicate = Predicate <$> checkKeys predicates
 
 -- | Make a condition
 condition:: Maker Condition
-condition = trait <|> simple <|> boolean <|> variableCheck <|> (Scoped <$> scope condition)
+condition = trait
+            <|> simple
+            <|> boolean
+            <|> variableCheck
+            <|> (Scoped <$ excludeKeys predicates <*> scope condition)
   where simple  = Condition <$> predicate <*> firstChild value
         variableCheck =
           VariableCheck <$> fetchString @@ "which" <*> (Left <$> fetchString @@ "which"
@@ -223,7 +228,7 @@ predicates = ["random","AND","OR","NOT","calc_if_true"
              ,"reverse_opinion","reverse_personal_opinion","reverse_personal_opinion_diff"
              ,"revolt_risk","rightful_religious_head","ruled_years","same_guardian"
              ,"same_liege","same_realm","same_sex","scaled_wealth","sibling","stewardship"
-             ,"temporary","terrain","their_opinion","tier","title","total_claims"
-             ,"trait","treasury","troops","using_cb","vassal_of","war","war_score"
+             ,"trait","temporary","terrain","their_opinion","tier","title","total_claims"
+             ,"treasury","troops","using_cb","vassal_of","war","war_score"
              ,"war_title","war_with","was_conceived_a_bastard","wealth"
              ,"would_be_heir_under_law","year","yearly_income"]

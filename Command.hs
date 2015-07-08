@@ -10,7 +10,7 @@ module Command
        )where
 
 import Condition(Condition,Scope,ScopeType(This),Value,condition,scope,scopeType,value)
-import Control.Applicative((<|>),optional)
+import Control.Applicative((<|>))
 import Data.List((\\))
 import Data.Monoid((<>))
 import Duration(Duration(..),duration)
