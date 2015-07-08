@@ -128,6 +128,7 @@ data Command = ActivateTitle Label Bool
                          , scaledByBiggestGarrison :: Maybe Double
                          , merge :: Maybe Bool
                          }
+             | StringCommand Label Label
              | VarOpLit Label Op Double
              | VarOpVar Label Op Label
              | VarOpScope Label Op (Scope ())
@@ -206,6 +207,7 @@ command = (ActivateTitle <$ checkKey "activate_title"
                <*> number ~? "scaled_by_biggest_garrison"
                <*> fetchBool @? "merge"
               )
+          <|> (stringCommand <?> "String command")
           <|> ((War <$ checkKey "war"
                <*> pure This -- Attacker
                <*> scopeType ~@ "target"
@@ -263,6 +265,9 @@ createTitle = CreateTitle <$ checkKey "create_title"
 numericCommand = NumericCommand <$ checkKeys numericCommands
                  <*> label key
                  <*> firstChild number
+stringCommand = StringCommand <$ checkKeys stringyCommands
+                <*> label key
+                <*> fetchString
 
 religionAuthority = (ReligionAuthority <$ checkKey "religion_authority")
                     <*> (Left <$> firstChild number
@@ -381,7 +386,7 @@ concreteCommands = commands \\ ["activate_title",
                                 "multiply_variable","subtract_variable",
                                 "set_variable",
                                 "war","reverse_war"]
-                   <> numericCommands
+                   <> numericCommands <> stringyCommands
 
 -- | A list of all commands whose argument is a string-like key.
 --

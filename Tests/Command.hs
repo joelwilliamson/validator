@@ -91,7 +91,7 @@ commandSuccessTests = testGroup "Command Success Tests"
                    , successTest "Random List"
                      "random_list = { 10 = { wealth = 10 } 20 = { unsafe_religion = catholic modifier = { factor = 2 trait = cynical }} 70 = { prestige = 30 } }"
                      $ RandomList [(10,[],[Concrete "wealth" $ NumValue 10]),
-                                   (20,[Modifier 2 [Trait "cynical"]],[Concrete "unsafe_religion" $ Id "catholic"]),
+                                   (20,[Modifier 2 [Trait "cynical"]],[StringCommand "unsafe_religion" "catholic"]),
                                    (70,[],[NumericCommand "prestige" 30])]
                    , successTest "Create Character"
                      (unlines ["create_character = {"
@@ -298,6 +298,9 @@ commandSuccessTests = testGroup "Command Success Tests"
                      , successTest "Add piety modifier"
                        "add_piety_modifier = 0.3"
                        $ NumericCommand "add_piety_modifier" 0.3
+                     , successTest "Remove building"
+                       "remove_building = castle_town"
+                       $ StringCommand "remove_building" "castle_town"
                    ]
 
 commandFailTests =
@@ -310,6 +313,7 @@ commandFailTests =
   , failTest "Empty clause" "war = { }"
   , failTest "Numeric commands can't have string args" "change_diplomacy = more"
   , failTest "Numeric commands can't have clause args" "reduce_disease = { value = 3 }"
+  , failTest "String commands don't take numbers" "unsafe_religion = 5"
   ]
 
 makeCommand :: Text -> Either Error Command
