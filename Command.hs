@@ -9,15 +9,13 @@ module Command
          stringyCommands
        )where
 
+import Condition(Condition,Scope,ScopeType(This),Value,condition,scope,scopeType,value)
+import Control.Applicative((<|>),optional)
+import Data.List((\\))
 import Data.Monoid((<>))
+import Duration(Duration(..),duration)
 import Maker
 import Scoped(Label,EventId)
-import Condition(Condition,Scope,ScopeType(This),Value,
-                 condition,scope,scopeType,value)
-import Duration(Duration(..),duration)
-
-import Data.List((\\))
-import Control.Applicative((<|>),optional)
 
 ($>) = flip (<$)
 
