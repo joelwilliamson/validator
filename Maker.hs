@@ -188,7 +188,7 @@ label :: Maker Atom → Maker Label
 label (Maker f) = Maker $ \t → case f t of
   Left l → Left l
   Right (Label l) → Right l
-  Right (Number n) → Left (("Encountered number " <> show' n, source t), BadConversion)
+  Right (Number n) → Left (("Encountered number when expecting a label: " <> show' n, source t), BadConversion)
 
 -- | @m \@\@\@ key@: As @\@\@@, but return make a list with every matching subTree
 infixl 5 @@@
