@@ -17,11 +17,13 @@ data Tree a = Node {
   rootLabel :: a -- ^ The label of this node
   , subForest :: [Tree a] -- ^ Zero or more children
   , source :: Maybe SourcePos -- ^ A source location corresponding to this node
-  } deriving (Eq,Show)
+  } deriving (Show)
 
 instance Functor Tree where
   fmap f (Node a children source) = Node (f a) (map (fmap f) children) source
 
+instance Eq a ⇒ Eq (Tree a) where
+  (Node lroot lsub _) == (Node rroot rsub _) = lroot == rroot && lsub == rsub
 
 -- | Neat 2-dimensional drawing of a tree.
 drawTree :: Tree Text -> Text
