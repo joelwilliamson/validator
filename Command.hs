@@ -60,6 +60,7 @@ data Command = ActivateTitle Label Bool
                                         , perspective :: ScopeType
                                         , index :: Double
                                         , grantTitle :: ScopeType }
+             | BooleanCommand Label Bool
              | Break
              | BuildHolding Label Label ScopeType
              | ChangeTech Label Double
@@ -155,6 +156,10 @@ command = (ActivateTitle <$ checkKey "activate_title"
               <*> scopeType ~@ "perspective"
               <*> number ~@ "index"
               <*> scopeType ~@ "grant_title")
+          <|> ((BooleanCommand <$ checkKeys booleanCommands
+                <*> label key
+                <*> fetchBool)
+               <?> "Boolean Command")
           <|> (Break <$ checkKey "break")
           <|> (BuildHolding <$ checkKey "build_holding"
                <*> fetchString @@ "title"
@@ -349,6 +354,24 @@ numericCommands =
   , "economy_techpoints", "fertility", "health", "military_techpoints"
   , "piety", "prestige", "treasury" ]
 
+booleanCommands =
+  [ "abandon_heresy", "abdicate", "activate_plot", "add_number_to_name"
+  , "ambition_succeeds", "banish", "become_heretic", "cancel_ambition"
+  , "clear_global_event_targets", "clear_revolt", "clear_wealth"
+  , "convert_to_castle", "convert_to_city", "convert_to_temple"
+  , "convert_to_tribal", "create_family_palace", "cure_illness"
+  , "destroy_random_building", "diplomatic_immunity", "excommunicate"
+  , "make_primary_spouse", "make_primary_title", "plot_succeeds"
+  , "province_capital", "rebel_defection", "recalc_succession"
+  , "refill_holding_levy", "reveal_plot_w_message"
+  , "set_allow_free_duchy_revocation", "set_allow_free_infidel_revocation"
+  , "set_allow_free_revocation", "set_allow_title_revocation"
+  , "set_allow_free_vice_royalty_revocation", "set_allow_vice_royalties"
+  , "set_appoint_generals", "set_appoint_regents", "set_protected_inheritance"
+  , "set_the_kings_full_peace", "set_the_kings_peace"
+  , "set_tribal_vassal_levy_control", "set_tribal_vassal_tax_income"
+  ]
+
 -- | A list of all commands that should be accepted as arguments to @`Concrete`@
 concreteCommands = commands \\ ["activate_title",
                                 "add_character_modifier", "add_province_modifier",
@@ -388,7 +411,7 @@ concreteCommands = commands \\ ["activate_title",
                                 "multiply_variable","subtract_variable",
                                 "set_variable",
                                 "war","reverse_war"]
-                   <> numericCommands <> stringyCommands
+                   <> numericCommands <> stringyCommands <> booleanCommands
 
 -- | A list of all commands whose argument is a string-like key.
 --

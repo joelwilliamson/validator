@@ -22,7 +22,9 @@ commandUnitTests = testGroup "Command Unit Tests"
 
 commandSuccessTests = testGroup "Command Success Tests"
                    [ successTest "A simple concrete command"
-                     "abandon_heresy = yes" $ Concrete "abandon_heresy" (BooleanValue True)
+                     "set_coa = e_byzantium" $ Concrete "set_coa" (Id "e_byzantium")
+                   , successTest "Boolean command"
+                     "abandon_heresy = yes" $ BooleanCommand "abandon_heresy" True
                    , successTest "Numeric command"
                      "change_diplomacy = 3" $ NumericCommand "change_diplomacy" 3
                    , successTest "Adding a trait"
