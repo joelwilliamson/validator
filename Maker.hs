@@ -6,7 +6,7 @@ module Maker (
   (~@),(~?),
   firstChild,secondChild,mapSubForest,filterSubForest,singleChild,
   checkKey,checkKeys,excludeKeys,checkValue,checkValues,key,
-  fetchString,label,except,optional,
+  fetchString,label,except,optional,defaultingTo,
   Maker.number,fetchId, fetchBool,position
   ) where
 
@@ -190,6 +190,12 @@ label (Maker f) = Maker $ \t → case f t of
   Right (Label l) → Right l
   Right (Number n) → Left (("Encountered number when expecting a label: " <> show' n, source t), BadConversion)
 
+-- | @m `defaultingTo` v@ makes `m`, but if it fails, it returns `v`
+defaultingTo :: Maker a → a → Maker a
+(Maker f) `defaultingTo` value = Maker $ \t → case f t of
+  Left _ → Right value
+  r@(Right _) → r
+  
 -- | @m \@\@\@ key@: As @\@\@@, but return make a list with every matching subTree
 infixl 5 @@@
 (@@@) :: Maker a -> Label -> Maker [a]

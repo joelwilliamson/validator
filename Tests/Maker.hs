@@ -72,6 +72,12 @@ makerTests = testGroup "Maker tests"
              , testCase "checkKeys - Fail"
                $ parseMake (checkKeys ["k1","k2"]) "key = value"
                @?= Left ("Check for keys failed. Found: Label \"key\"", Just $ newPos "test" 1 1)
+             , testCase "defaulting - yes"
+               $ parseMake (firstChild number `defaultingTo` 0) "k = v"
+               @?= Right 0
+             , testCase "defaulting - no"
+               $ parseMake (firstChild number `defaultingTo` 0) "k = 10"
+               @?= Right 10
              ]
 
 parseMake :: Maker a → T.Text → Either Error a
