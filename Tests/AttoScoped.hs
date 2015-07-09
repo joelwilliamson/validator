@@ -26,6 +26,15 @@ parseTests = testGroup "Parsing Tests"
              , successTest "With newline"
                "outer = #end of line comment\n\tinner\n"
                $ Node "outer" [Node "inner" [] Nothing] Nothing
+             , testCase "No closing brace"
+               $ statefulParseOnly value (initialPos "test") "outer = { left = right"
+               @?= Left "Failed reading: takeWhile1"
+             , testCase "Only a single element when expecting a pair"
+               $ statefulParseOnly value (initialPos "test") "key"
+               @?= Left "'=': not enough input"
+             , successTest "Quoted string"
+               "key = \"value\""
+               $ Node "key" [Node "value" [] Nothing] Nothing
              ]
 
 successTest :: String → T.Text → Tree Atom → TestTree
