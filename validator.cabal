@@ -67,7 +67,7 @@ executable Server
                  , zip-archive
   default-language:     Haskell2010
   default-extensions:    RecordWildCards, NamedFieldPuns, OverloadedStrings, RecordWildCards, UnicodeSyntax
-  ghc-options:          -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing -threaded -fhpc
+  ghc-options:          -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing -threaded
   ghc-prof-options:     -fprof-auto
                         "-with-rtsopts=-N -p -s -i0.1"
                         -auto-all
@@ -128,7 +128,7 @@ library
   
   -- Base language which the package is written in.
   default-language:    Haskell2010
-  ghc-options:         -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing -fhpc
+  ghc-options:         -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing
 --  ghc-prof-options:     -fprof-auto
 --                        -auto-all
 --                        -caf-all
@@ -149,6 +149,7 @@ Test-Suite tests
                         , OverloadedStrings
                         , RecordWildCards
                         , UnicodeSyntax
+  GHC-Options:          -Wall -fno-warn-missing-signatures
   GHC-Prof-Options:     -fprof-auto
                         -auto-all
                         -caf-all
