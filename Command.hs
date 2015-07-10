@@ -65,7 +65,7 @@ data Command = ActivateTitle Label Bool
              | BuildHolding Label Label ScopeType
              | ChangeTech Label Double
              | TriggerEvent EventId (Maybe Duration) (Maybe Label)
-             | CreateCharacter { age :: Double
+             | CreateCharacter { age :: Maybe Double
                                , name :: Label
                                , hasNickName :: Maybe Label
                                , attributes :: [Double]
@@ -236,8 +236,8 @@ createCharacter = CreateCharacter <$ checkKeys ["create_character"
                                                ,"create_random_priest"
                                                ,"create_random_soldier"
                                                ,"create_random_steward"]
-                  <*> number ~@ "age"
                   <*> fetchString @@ "name"
+                  <*> number ~? "age"
                   <*> fetchString @? "has_nickname"
                   <*> mapSubForest (firstChild number) @@ "attributes"
                   <*> fetchString @@@ "trait"

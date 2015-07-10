@@ -127,7 +127,7 @@ commandSuccessTests = testGroup "Command Success Tests"
                               , "trait = chaste"
                               , "trait = temperate }"])
                      (CreateCharacter {
-                         age = 40
+                         age = Just 40
                          , name = "Hassan"
                          , hasNickName = Just "the_testy"
                          , attributes = [6,8,9,12,12]
@@ -179,7 +179,7 @@ commandSuccessTests = testGroup "Command Success Tests"
                               , "trait = chaste"
                               , "trait = temperate }"])
                      (CreateCharacter {
-                         age = 40
+                         age = Just 40
                          , name = "Hassan"
                          , hasNickName = Just "the_testy"
                          , attributes = [6,8,9,12,12]
@@ -303,6 +303,57 @@ commandSuccessTests = testGroup "Command Success Tests"
                      , successTest "Remove building"
                        "remove_building = castle_town"
                        $ StringCommand "remove_building" "castle_town"
+                     , successTest "Character with unspecified age"
+                     (unlines ["create_random_soldier = {"
+                              , "random_traits = no"
+                              , "name = \"Hassan\""
+                              , "dynasty = random"
+                              , "religion = ROOT"
+                              , "culture = persian"
+                              , "female = no"
+                              , "has_nickname = the_testy"
+                              , "attributes = {"
+                              , "martial = 6"
+                              , "diplomacy = 8"
+                              , "stewardship = 9"
+                              , "intrigue = 12"
+                              , "learning = 12"
+                              , "}"
+                              , "health = 6"
+                              , "fertility = 0.8"
+                              , "mother = FROM"
+                              , "father = FROMFROM"
+                              , "race = testish"
+                              , "dna = DNA"
+                              , "flag = \"test_flag\""
+                              , "employer = THIS"
+                              , "trait = elusive_shadow"
+                              , "trait = patient"
+                              , "trait = zealous"
+                              , "trait = scholar"
+                              , "trait = chaste"
+                              , "trait = temperate }"])
+                     (CreateCharacter {
+                         age = Nothing
+                         , name = "Hassan"
+                         , hasNickName = Just "the_testy"
+                         , attributes = [6,8,9,12,12]
+                         , traits = ["elusive_shadow","patient","zealous",
+                                    "scholar","chaste","temperate"]
+                         , health = Just 6
+                         , fertility = Just 0.8
+                         , randomTraits = Just False
+                         , female = False
+                         , employer = Just This
+                         , religion = Just Root
+                         , culture = IdScope "persian"
+                         , dynasty = "random"
+                         , dna = Just "DNA"
+                         , flag = Just "test_flag"
+                         , mother = Just From
+                         , father = Just FromFrom
+                         , race = Just $ IdScope "testish"
+                         })
                    ]
 
 commandFailTests =
