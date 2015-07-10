@@ -70,7 +70,7 @@ data Command = ActivateTitle Label Bool
                                , hasNickName :: Maybe Label
                                , attributes :: [Double]
                                , traits :: [Label]
-                               , health :: Double
+                               , health :: Maybe Double
                                , fertility :: Maybe Double
                                , randomTraits :: Maybe Bool
                                , female :: Bool
@@ -241,7 +241,7 @@ createCharacter = CreateCharacter <$ checkKeys ["create_character"
                   <*> fetchString @? "has_nickname"
                   <*> mapSubForest (firstChild number) @@ "attributes"
                   <*> fetchString @@@ "trait"
-                  <*> number ~@ "health"
+                  <*> number ~? "health"
                   <*> number ~? "fertility"
                   <*> fetchBool @? "random_traits"
                   <*> (fetchBool @@ "female") `defaultingTo` False
