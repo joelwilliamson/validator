@@ -245,7 +245,9 @@ commandSuccessTests = testGroup "Command Success Tests"
                                      , copyTitleLaws = Nothing }
                      , successTest "Death" "death = { death_reason = death_disease killer = FROMFROMFROM }"
                        $ Death { deathReason = "death_disease"
-                               , killer = FromFromFrom }
+                               , killer = Just FromFromFrom }
+                     , successTest "Death (no killer)" "death = { death_reason = death_mystery }"
+                       $ Death { deathReason = "death_mystery", killer = Nothing }
                      , successTest "Gain Settlements"
                        "gain_settlements_under_title = { title = PREV enemy = ROOT }"
                        GainSettlementsUnderTitle { title = Prev, enemy = Root }

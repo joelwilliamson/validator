@@ -94,7 +94,7 @@ data Command = ActivateTitle Label Bool
                            , baseTitle :: Maybe Label
                            , copyTitleLaws :: Maybe Bool }
              | Death { deathReason :: Label
-                     , killer :: ScopeType }
+                     , killer :: Maybe ScopeType }
              | GainSettlementsUnderTitle { title :: ScopeType
                                          , enemy :: ScopeType }
              | SetFlag FlagType Label | ClrFlag FlagType Label
@@ -171,7 +171,7 @@ command = (ActivateTitle <$ checkKey "activate_title"
           <|> triggerEvent
           <|> createCharacter
           <|> createTitle
-          <|> (Death <$ checkKey "death") <*> fetchString @@ "death_reason" <*> scopeType ~@ "killer"
+          <|> (Death <$ checkKey "death") <*> fetchString @@ "death_reason" <*> scopeType ~? "killer"
           <|> ((GainSettlementsUnderTitle <$ checkKey "gain_settlements_under_title")
                <*> scopeType ~@ "title"
                <*> scopeType ~@ "enemy")
