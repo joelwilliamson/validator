@@ -239,7 +239,7 @@ createCharacter = CreateCharacter <$ checkKeys ["create_character"
                   <*> number ~? "age"
                   <*> (fetchString @@ "name") `defaultingTo` ""
                   <*> fetchString @? "has_nickname"
-                  <*> mapSubForest (firstChild number) @@ "attributes"
+                  <*> (mapSubForest (firstChild number) @@ "attributes") `defaultingTo` []
                   <*> fetchString @@@ "trait"
                   <*> number ~? "health"
                   <*> number ~? "fertility"

@@ -548,6 +548,46 @@ commandSuccessTests = testGroup "Command Success Tests"
                          , father = Just FromFrom
                          , race = Just $ IdScope "testish"
                          })
+                         , successTest "Character with unspecified attributes"
+                           (unlines ["create_random_soldier = {"
+                              , "random_traits = no"
+                              , "dynasty = random"
+                              , "culture = persian"
+                              , "has_nickname = the_testy"
+                              , "fertility = 0.8"
+                              , "mother = FROM"
+                              , "father = FROMFROM"
+                              , "race = testish"
+                              , "dna = DNA"
+                              , "flag = \"test_flag\""
+                              , "employer = THIS"
+                              , "trait = elusive_shadow"
+                              , "trait = patient"
+                              , "trait = zealous"
+                              , "trait = scholar"
+                              , "trait = chaste"
+                              , "trait = temperate }"])
+                     (CreateCharacter {
+                         age = Nothing
+                         , name = ""
+                         , hasNickName = Just "the_testy"
+                         , attributes = []
+                         , traits = ["elusive_shadow","patient","zealous",
+                                    "scholar","chaste","temperate"]
+                         , health = Nothing
+                         , fertility = Just 0.8
+                         , randomTraits = Just False
+                         , female = False
+                         , employer = Just This
+                         , religion = Nothing
+                         , culture = IdScope "persian"
+                         , dynasty = "random"
+                         , dna = Just "DNA"
+                         , flag = Just "test_flag"
+                         , mother = Just From
+                         , father = Just FromFrom
+                         , race = Just $ IdScope "testish"
+                         })
                        ]
 
 commandFailTests =
