@@ -75,7 +75,7 @@ data Command = ActivateTitle Label Bool
                                , randomTraits :: Maybe Bool
                                , female :: Bool
                                , employer :: Maybe ScopeType
-                               , religion :: ScopeType
+                               , religion :: Maybe ScopeType
                                , culture :: ScopeType
                                , dynasty :: Label
                                , dna :: Maybe Label
@@ -246,7 +246,7 @@ createCharacter = CreateCharacter <$ checkKeys ["create_character"
                   <*> fetchBool @? "random_traits"
                   <*> fetchBool @@ "female"
                   <*> scopeType ~? "employer"
-                  <*> scopeType ~@ "religion"
+                  <*> scopeType ~? "religion"
                   <*> scopeType ~@ "culture"
                   <*> fetchString @@ "dynasty"
                   <*> fetchString @? "dna"
