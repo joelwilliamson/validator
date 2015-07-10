@@ -244,7 +244,7 @@ createCharacter = CreateCharacter <$ checkKeys ["create_character"
                   <*> number ~@ "health"
                   <*> number ~? "fertility"
                   <*> fetchBool @? "random_traits"
-                  <*> fetchBool @@ "female"
+                  <*> (fetchBool @@ "female") `defaultingTo` False
                   <*> scopeType ~? "employer"
                   <*> scopeType ~? "religion"
                   <*> scopeType ~@ "culture"
