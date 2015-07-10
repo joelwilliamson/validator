@@ -588,6 +588,13 @@ commandSuccessTests = testGroup "Command Success Tests"
                          , father = Just FromFrom
                          , race = Just $ IdScope "testish"
                          })
+                           , successTest "Opinion modifier with no duration"
+                             "opinion = { modifier = test_modifier who = PREV }"
+                             $ OpinionModifier {
+                               opinionModifier = "test_modifier"
+                               , who = Prev
+                               , me = This
+                               , dur = Days (-1)}
                        ]
 
 commandFailTests =

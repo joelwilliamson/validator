@@ -177,12 +177,22 @@ command = (ActivateTitle <$ checkKey "activate_title"
                <*> scopeType ~@ "enemy")
           <|> (If <$ checkKey "if") <*> mapSubForest condition @@ "limit" <*> command /@@ "limit"
           <|> numericCommand
-          <|> (OpinionModifier <$ checkKey "opinion") <*> fetchString @@ "modifier" <*> scopeType ~@ "who" <*> pure This <*> duration
+          <|> ((OpinionModifier <$ checkKey "opinion"
+                <*> fetchString @@ "modifier"
+                <*> scopeType ~@ "who"
+                <*> pure This
+                <*> duration `defaultingTo` (Days (-1)))
+               <?> "opinion")
           <|> (Random <$ checkKey "random") <*> number ~@ "chance" <*> modifier @@@ "modifier" <*> command /@# ["chance","modifier"]
           <|> (RandomList <$ checkKey "random_list") <*> mapSubForest rlElem
           <|> religionAuthority
           <|> (RemoveOpinion <$ checkKey "remove_opinion") <*> fetchString @@ "modifier" <*> scopeType ~@ "who" <*> pure This
-          <|> (OpinionModifier <$ checkKey "reverse_opinion") <*> fetchString @@ "modifier" <*> pure This <*> scopeType ~@ "who" <*> duration
+          <|> ((OpinionModifier <$ checkKey "reverse_opinion"
+                <*> fetchString @@ "modifier"
+                <*> pure This
+                <*> scopeType ~@ "who"
+                <*> duration `defaultingTo` (Days (-1)))
+               <?> "reverse_opinion")
           <|> (RemoveOpinion <$ checkKey "reverse_remove_opinion") <*> fetchString @@ "modifier" <*> pure This  <*> scopeType ~@ "who"
           <|> ((War <$ checkKey "reverse_war"
                <*> scopeType ~@ "target" -- Attacler
