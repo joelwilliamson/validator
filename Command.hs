@@ -257,7 +257,7 @@ createCharacter = CreateCharacter <$ checkKeys ["create_character"
                   <*> (fetchBool @@ "female") `defaultingTo` False
                   <*> scopeType ~? "employer"
                   <*> scopeType ~? "religion"
-                  <*> scopeType ~@ "culture"
+                  <*> (scopeType ~@ "culture") `defaultingTo` This
                   <*> fetchString @@ "dynasty"
                   <*> fetchString @? "dna"
                   <*> fetchString @? "flag"
