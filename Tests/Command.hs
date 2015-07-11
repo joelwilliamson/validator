@@ -688,6 +688,9 @@ commandSuccessTests = testGroup "Command Success Tests"
                                  , father = Just FromFrom
                                  , race = Just $ IdScope "testish"
                                  })
+                            , successTest "Add province modifier (with 'modifier' instead of 'name')"
+                              "add_province_modifier = { modifier = test }"
+                              $ ScopedModifier "test" (Days $ -1)
                        ]
 
 commandFailTests =

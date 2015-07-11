@@ -147,8 +147,8 @@ command = (ActivateTitle <$ checkKey "activate_title"
            <*> fetchString @@ "title"
            <*> fetchBool @@ "status")
           <|> (ScopedModifier <$ checkKeys ["add_character_modifier","add_province_modifier"]
-               <*> fetchString @@ "name" <*> duration)
-
+               <*> (fetchString @@ "name" <|> fetchString @@ "modifier")
+               <*> duration `defaultingTo` (Days $ -1))
           <|> (AddTrait <$ checkKey "add_trait" <*> fetchString)
           <|> (RemoveTrait <$ checkKey "remove_trait" <*> fetchString)
           <|> (BestFitCharacterForTitle <$ checkKey "best_fit_character_for_title"
