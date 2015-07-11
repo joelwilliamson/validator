@@ -78,6 +78,12 @@ makerTests = testGroup "Maker tests"
              , testCase "defaulting - no"
                $ parseMake (firstChild number `defaultingTo` 0) "k = 10"
                @?= Right 10
+             , testCase "excludeKeys - succeed"
+               $ parseMake (excludeKeys ["k1","k2"]) "k3 = v"
+               @?= Right "k3"
+             , testCase "excludeKeys - fail"
+               $ parseMake (excludeKeys ["k1","k2"]) "k2 = v"
+               @?= Left ("Root label excluded: Label \"k2\"", Just $ newPos "test" 1 1)
              ]
 
 parseMake :: Maker a → T.Text → Either Error a
