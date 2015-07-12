@@ -36,6 +36,10 @@ instance GatherStrings a ⇒ GatherStrings [a] where
 instance GatherStrings a ⇒ GatherStrings (Maybe a) where
   gatherStrings = concatMap gatherStrings
 
+instance (GatherStrings a, GatherStrings b) ⇒ GatherStrings (Either a b) where
+  gatherStrings (Left l) = gatherStrings l
+  gatherStrings (Right r) = gatherStrings r
+
 instance GatherStrings Command where
   gatherStrings (If conds comms) = gatherStrings conds <> gatherStrings comms
   gatherStrings Break = []

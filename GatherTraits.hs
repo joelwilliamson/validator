@@ -54,6 +54,10 @@ instance GatherTraits a ⇒ GatherTraits (Maybe a) where
   traits Nothing = []
   traits (Just a) = traits a
 
+instance (GatherTraits a, GatherTraits b) ⇒ GatherTraits (Either a b) where
+  traits (Left a) = traits a
+  traits (Right b) = traits b
+
 instance GatherTraits Command where
   traits (AddTrait t) = [t]
   traits (RemoveTrait t) = [t]

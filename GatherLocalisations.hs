@@ -37,6 +37,10 @@ instance Localised a ⇒ Localised (Maybe a) where
   localisations Nothing = mempty
   localisations (Just x) = localisations x
 
+instance (Localised a, Localised b) ⇒ Localised (Either a b) where
+  localisations (Left a) = localisations a
+  localisations (Right b) = localisations b
+
 
 instance Localised Command where
   localisations (If conds comms) = localisations conds <> localisations comms
