@@ -77,7 +77,7 @@ data Command = ActivateTitle Label Bool
                                , employer :: Maybe ScopeType
                                , religion :: Maybe ScopeType
                                , culture :: ScopeType
-                               , dynasty :: Maybe Label
+                               , dynasty :: Maybe (Either Label Double)
                                , dna :: Maybe Label
                                , flag :: Maybe Label
                                , father :: Maybe ScopeType
@@ -258,7 +258,7 @@ createCharacter = CreateCharacter <$ checkKeys ["create_character"
                   <*> scopeType ~? "employer"
                   <*> scopeType ~? "religion"
                   <*> (scopeType ~@ "culture") `defaultingTo` This
-                  <*> fetchString @? "dynasty"
+                  <*> (oneOf fetchString $ firstChild number) @? "dynasty"
                   <*> fetchString @? "dna"
                   <*> fetchString @? "flag"
                   <*> scopeType ~? "father"
