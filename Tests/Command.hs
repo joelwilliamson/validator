@@ -1,14 +1,12 @@
 module Tests.Command where
 
-import AttoScoped(statefulParseOnly,value)
 import Condition(Value(..),ScopeType(..),Condition(..),Predicate(..))
 import Command
-import Duration(Duration(..),duration)
-import Maker(runMaker)
+import Duration(Duration(..))
 import Scoped(Error())
 
-import Data.Attoparsec.ByteString
-import Text.Parsec.Pos(initialPos)
+import Tests.QuickMaker(quickMake)
+
 import Data.Text(Text,unlines)
 import Data.Either(isLeft)
 
@@ -781,9 +779,7 @@ commandFailTests =
   ]
 
 makeCommand :: Text -> Either Error Command
-makeCommand s = case statefulParseOnly value (initialPos "test_data") s of
-  Left _ -> Left ("",Nothing)
-  Right s -> runMaker command s
+makeCommand = quickMake command
 
 successTest :: TestName -> Text -> Command -> TestTree
 successTest name command result = testCase name $ makeCommand command @?= Right result
