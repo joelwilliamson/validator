@@ -9,7 +9,7 @@ module AttoScoped(
   literal,
   sep,
   value,
-  block,
+  rhs,
   statefulParseOnly
   ) where
 
