@@ -5,6 +5,7 @@ module Command
          FlagType(..),
          Modifier(..),
          Op(..),
+         TroopSpec(..),
          command,
          stringyCommands
        )where
@@ -112,16 +113,12 @@ data Command = ActivateTitle Label Bool
                              , me :: ScopeType }
              | Scoped (Scope Command)
              | ScopedModifier Label Duration
-             | SpawnUnit { province :: Double
+             | SpawnUnit { province :: Either Double ScopeType
                          , owner :: Maybe ScopeType
                          , leader :: Maybe ScopeType
                          , home :: Maybe ScopeType
                          , earmark :: Maybe Label
-                         , troops :: [(Label,Double,Double)]
-                         , matchCharacter :: Maybe ScopeType
-                         , matchMult :: Maybe Double
-                         , matchMax :: Maybe Double
-                         , matchMin :: Maybe Double
+                         , composition :: TroopSpec
                          , disbandOnPeace :: Maybe Bool
                          , cannotInherit :: Maybe Bool
                          , attrition :: Maybe Double
@@ -140,6 +137,13 @@ data Command = ActivateTitle Label Bool
                    , targetTier :: Maybe Label }
              | Concrete Label (Value Command)
   deriving (Eq,Ord,Show)
+
+data TroopSpec = FixedSpec [(Label,Double,Double)]
+               | MatchSpec { matchCharacter :: ScopeType
+                          , matchMultiplier :: Double
+                          , matchMin :: Maybe Double
+                          , matchMax :: Maybe Double
+                          } deriving (Eq, Ord, Show)
 
 -- | Make a @Command@.
 command :: Maker Command
@@ -205,16 +209,12 @@ command = (ActivateTitle <$ checkKey "activate_title"
           <|> VarOpLit <$> firstChild (checkKey "which" *> fetchString) <*> op <*> number ~@ "value"
           <|> VarOpVar <$> firstChild (checkKey "which" *> fetchString) <*> op <*> secondChild (checkKey "which" *> fetchString) -- This doesn't distinguish between scopes and variables in the same scope
           <|> (SpawnUnit <$ checkKey "spawn_unit"
-               <*> number ~@ "province"
+               <*> (oneOf number scopeType) ~@ "province"
                <*> scopeType ~? "owner"
                <*> scopeType ~? "leader"
                <*> scopeType ~? "home"
                <*> label key ~? "earmark"
-               <*> mapSubForest troopSpec @@ "troops"
-               <*> scopeType ~? "match_character"
-               <*> number ~? "match_mult"
-               <*> number ~? "match_max"
-               <*> number ~? "match_min"
+               <*> (fixedSpec <|> matchSpec)
                <*> fetchBool @? "disband_on_peace"
                <*> fetchBool @? "cannot_inherit"
                <*> number ~? "attrition"
@@ -233,7 +233,13 @@ command = (ActivateTitle <$ checkKey "activate_title"
           <|> (Scoped <$ excludeKeys commands) <*> scope command
 
   where rlElem = (,,) <$> number <*> modifier @@@ "modifier" <*> command /@@ "modifier"
-        troopSpec = (,,) <$> label key <*> firstChild number <*> firstChild (firstChild number)
+        fixedSpec = FixedSpec <$> (mapSubForest ((,,) <$> label key <*> firstChild number <*> firstChild (firstChild number)) @@ "troops")
+        matchSpec = MatchSpec <$>
+                    scopeType ~@ "match_character"
+                    <*> number ~@ "match_mult"
+                    <*> number ~? "match_min"
+                    <*> number ~? "match_max"
+
 
 triggerEvent = TriggerEvent <$ checkKeys ["character_event","letter_event","narrative_event","province_event","repeat_event"]
                  <*> fetchId @@ "id"

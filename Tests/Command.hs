@@ -56,28 +56,50 @@ commandSuccessTests = testGroup "Command Success Tests"
                    , successTest "Spawn a unit"
                      "spawn_unit = { province = 342 owner = THIS leader = FROM home = PREV attrition = 1 troops = { archers = { 100 100 } pikemen = { 200 300 }} earmark = test_troops }"
                      $ SpawnUnit {
-                       province = 342
+                       province = Left 342
                        , owner = Just This
                        , leader = Just From
                        , home = Just Prev
                        , attrition = Just 1
-                       , troops = [("archers",100,100),
-                                   ("pikemen",200,300)]
+                       , composition = FixedSpec [("archers",100,100)
+                                                 ,("pikemen",200,300)]
                        , earmark = Just "test_troops"
-                       , matchCharacter = Nothing, matchMult = Nothing
-                       , matchMax = Nothing, matchMin = Nothing
                        , disbandOnPeace = Nothing, cannotInherit = Nothing
                        , maintenanceMultiplier = Nothing
                        , scaledByBiggestGarrison = Nothing, merge = Nothing
                        }
-                   , successTest "Spawn a unit - 2"
-                     "spawn_unit = { province = 101 home = ROOT owner = ROOT leader = ROOT earmark = test_army troops = { archers = { 300 300 } knights = { 200 200 } } match_character = THIS match_mult = 2 match_max = 10000 match_min = 100 disband_on_peace = no cannot_inherit = no attrition = 0.1 maintenance_multiplier = 0.1 scaled_by_biggest_garrison = 2.0 merge = yes }"
+                    , successTest "Spawn a unit - province is scopetype"
+                     "spawn_unit = { province = FROMFROM owner = THIS leader = FROM home = PREV attrition = 1 troops = { archers = { 100 100 } pikemen = { 200 300 }} earmark = test_troops }"
+                     $ SpawnUnit {
+                       province = Right FromFrom
+                       , owner = Just This
+                       , leader = Just From
+                       , home = Just Prev
+                       , attrition = Just 1
+                       , composition = FixedSpec [("archers",100,100)
+                                                 ,("pikemen",200,300)]
+                       , earmark = Just "test_troops"
+                       , disbandOnPeace = Nothing, cannotInherit = Nothing
+                       , maintenanceMultiplier = Nothing
+                       , scaledByBiggestGarrison = Nothing, merge = Nothing
+                       }
+                   , successTest "Spawn a unit - matching composition"
+                     "spawn_unit = { province = 101 home = ROOT owner = ROOT leader = ROOT earmark = test_army match_character = THIS match_mult = 2 match_max = 10000 match_min = 100 disband_on_peace = no cannot_inherit = no attrition = 0.1 maintenance_multiplier = 0.1 scaled_by_biggest_garrison = 2.0 merge = yes }"
                      SpawnUnit {
-                       province = 101, home = Just Root, owner = Just Root
+                       province = Left 101, home = Just Root, owner = Just Root
                        , leader = Just Root, earmark = Just "test_army"
-                       , troops = [("archers",300,300),("knights",200,200)]
-                       , matchCharacter = Just This, matchMult = Just 2
-                       , matchMax = Just 10000, matchMin = Just 100
+                       , composition = MatchSpec { matchCharacter = This, matchMultiplier = 2
+                                                 , matchMax = Just 10000, matchMin = Just 100 }
+                       , disbandOnPeace = Just False, cannotInherit = Just False
+                       , attrition = Just 0.1, maintenanceMultiplier = Just 0.1
+                       , scaledByBiggestGarrison = Just 2, merge = Just True }
+                    , successTest "Spawn a unit - matching composition - no min/max"
+                     "spawn_unit = { province = 101 home = ROOT owner = ROOT leader = ROOT earmark = test_army match_character = THIS match_mult = 2 disband_on_peace = no cannot_inherit = no attrition = 0.1 maintenance_multiplier = 0.1 scaled_by_biggest_garrison = 2.0 merge = yes }"
+                     SpawnUnit {
+                       province = Left 101, home = Just Root, owner = Just Root
+                       , leader = Just Root, earmark = Just "test_army"
+                       , composition = MatchSpec { matchCharacter = This, matchMultiplier = 2
+                                                 , matchMax = Nothing, matchMin = Nothing }
                        , disbandOnPeace = Just False, cannotInherit = Just False
                        , attrition = Just 0.1, maintenanceMultiplier = Just 0.1
                        , scaledByBiggestGarrison = Just 2, merge = Just True }
