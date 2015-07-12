@@ -179,7 +179,7 @@ command = (ActivateTitle <$ checkKey "activate_title"
           <|> ((GainSettlementsUnderTitle <$ checkKey "gain_settlements_under_title")
                <*> scopeType ~@ "title"
                <*> scopeType ~@ "enemy")
-          <|> (If <$ checkKey "if") <*> mapSubForest condition @@ "limit" <*> command /@@ "limit"
+          <|> (If <$ checkKey "if") <*> (mapSubForest condition @@ "limit") `defaultingTo` [] <*> command /@@ "limit"
           <|> numericCommand
           <|> ((OpinionModifier <$ checkKey "opinion"
                 <*> fetchString @@ "modifier"
