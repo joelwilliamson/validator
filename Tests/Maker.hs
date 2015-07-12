@@ -84,6 +84,12 @@ makerTests = testGroup "Maker tests"
              , testCase "excludeKeys - fail"
                $ parseMake (excludeKeys ["k1","k2"]) "k2 = v"
                @?= Left ("Root label excluded: Label \"k2\"", Just $ newPos "test" 1 1)
+             , testCase "either - left"
+               $ parseMake (oneOf fetchBool fetchString) "k = true"
+               @?= Right (Left True)
+             , testCase "either - right"
+               $ parseMake (oneOf fetchBool fetchString) "k = truth"
+               @?= Right (Right "truth")
              ]
 
 parseMake :: Maker a → T.Text → Either Error a

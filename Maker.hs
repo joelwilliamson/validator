@@ -6,7 +6,7 @@ module Maker (
   (~@),(~?),
   firstChild,secondChild,mapSubForest,filterSubForest,singleChild,
   checkKey,checkKeys,excludeKeys,checkValue,checkValues,key,
-  fetchString,label,except,optional,defaultingTo,
+  fetchString,label,except,optional,defaultingTo,oneOf,
   Maker.number,fetchId, fetchBool,position
   ) where
 
@@ -95,6 +95,9 @@ secondChild (Maker f) = Maker $ \t → case subForest t of
   [] → Left (("No children",source t), MissingChild)
   [_] → Left (("Only one child", source t), MissingChild)
   (_:x:_) → f x
+
+oneOf :: Maker a → Maker b → Maker (Either a b)
+oneOf m1 m2 = (Left <$> m1) <|> (Right <$> m2)
 
 -- | @mapSubForest m@ applies @m@ to every child node.
 mapSubForest (Maker f) = Maker $ \t -> mapM f $ subForest t
