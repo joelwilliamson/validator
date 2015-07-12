@@ -17,7 +17,7 @@ import qualified Data.Text as T(Text)
 import Control.Applicative
 
 -- | Wrapper for the concrete conditions
-newtype Predicate = Predicate Atom
+newtype Predicate = Predicate Label
                   deriving (Eq,Ord,Show)
 
 -- | A @Condition@ is a boolean predicate.
@@ -61,7 +61,7 @@ scope maker = Scope <$> scopeType <*> limit <*> content
   where limit = condition @@@ "limit"
         content = maker /@@ "limit"
 
-predicate = Predicate <$> checkKeys predicates
+predicate = Predicate <$> label (checkKeys predicates)
 
 -- | Make a condition
 condition:: Maker Condition
