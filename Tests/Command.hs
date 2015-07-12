@@ -759,6 +759,12 @@ commandSuccessTests = testGroup "Command Success Tests"
                                   , father = Just FromFrom
                                   , race = Just $ IdScope "testish"
                                   })
+                            , successTest "Disable viceroyalties"
+                              "set_allow_vice_royalties = no"
+                              $ SetAllowViceRoyalties (Left False)
+                            , successTest "Allow kingdom viceroyalties"
+                              "set_allow_vice_royalties = king"
+                              $ SetAllowViceRoyalties (Right "king")
                             ]
 
 commandFailTests =

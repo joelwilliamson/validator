@@ -113,6 +113,7 @@ data Command = ActivateTitle Label Bool
                              , me :: ScopeType }
              | Scoped (Scope Command)
              | ScopedModifier Label Duration
+             | SetAllowViceRoyalties (Either Bool Label)
              | SpawnUnit { province :: Either Double ScopeType
                          , owner :: Maybe ScopeType
                          , leader :: Maybe ScopeType
@@ -208,6 +209,8 @@ command = (ActivateTitle <$ checkKey "activate_title"
                <*> fetchString @? "tier") <?> "Reverse War")
           <|> VarOpLit <$> firstChild (checkKey "which" *> fetchString) <*> op <*> number ~@ "value"
           <|> VarOpVar <$> firstChild (checkKey "which" *> fetchString) <*> op <*> secondChild (checkKey "which" *> fetchString) -- This doesn't distinguish between scopes and variables in the same scope
+          <|> (SetAllowViceRoyalties <$ checkKey "set_allow_vice_royalties"
+               <*> oneOf fetchBool fetchString)
           <|> (SpawnUnit <$ checkKey "spawn_unit"
                <*> (oneOf number scopeType) ~@ "province"
                <*> scopeType ~? "owner"
@@ -382,7 +385,7 @@ booleanCommands =
   , "refill_holding_levy", "reveal_plot_w_message"
   , "set_allow_free_duchy_revocation", "set_allow_free_infidel_revocation"
   , "set_allow_free_revocation", "set_allow_title_revocation"
-  , "set_allow_free_vice_royalty_revocation", "set_allow_vice_royalties"
+  , "set_allow_free_vice_royalty_revocation"
   , "set_appoint_generals", "set_appoint_regents", "set_protected_inheritance"
   , "set_the_kings_full_peace", "set_the_kings_peace"
   , "set_tribal_vassal_levy_control", "set_tribal_vassal_tax_income"
@@ -421,6 +424,7 @@ concreteCommands = commands \\ ["activate_title",
                                 "remove_opinion",
                                 "repeat_event",
                                 "reverse_opinion", "reverse_remove_opinion",
+                                "set_allow_vice_royalties",
                                 "spawn_unit",
                                 "change_variable","check_variable",
                                 "divide_variable","is_variable_equal",
