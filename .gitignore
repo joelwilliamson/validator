@@ -14,6 +14,10 @@ CheckFile
 *.hp
 *.tix
 
+TAGS
+hpc-markup
+runtests.sh
+
 cabal.sandbox.config
 shakespeare/
 svn.zip
