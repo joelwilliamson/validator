@@ -69,8 +69,8 @@ predicate = Predicate <$> label (checkKeys predicates)
 -- | Make a condition
 condition:: Maker Condition
 condition = trait
-            <|> simple
             <|> boolean
+            <|> simple
             <|> variableCheck
             <|> (Scoped <$ excludeKeys predicates <*> scope condition)
   where simple  = Condition <$> predicate <*> firstChild value
