@@ -13,12 +13,15 @@ import Maker
 import Scoped(Label,Atom(..))
 import ScopeType(ScopeType(..),scopeType)
 
+import Data.String(IsString(..))
 import qualified Data.Text as T(Text)
 import Control.Applicative
 
 -- | Wrapper for the concrete conditions
 newtype Predicate = Predicate Label
                   deriving (Eq,Ord,Show)
+instance Data.String.IsString Predicate where
+  fromString = Predicate . fromString
 
 -- | A @Condition@ is a boolean predicate.
 data Condition = Condition Predicate (Value ())
