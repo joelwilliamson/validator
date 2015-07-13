@@ -24,7 +24,7 @@ instance Data.String.IsString Predicate where
   fromString = Predicate . fromString
 
 -- | A @Condition@ is a boolean predicate.
-data Condition = Condition Predicate (Value ())
+data Condition = Condition Label (Value ())
                  | Scoped (Scope Condition)
                  | VariableCheck Label (Either Label Double)
                  | Or [Condition]
@@ -64,7 +64,7 @@ scope maker = Scope <$> scopeType <*> limit <*> content
   where limit = condition @@@ "limit"
         content = maker /@@ "limit"
 
-predicate = Predicate <$> label (checkKeys predicates)
+predicate = label $ checkKeys unclassifiedPredicates
 
 -- | Make a condition
 condition:: Maker Condition
