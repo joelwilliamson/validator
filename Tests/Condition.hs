@@ -10,12 +10,15 @@ import Test.Tasty.HUnit
 
 conditionTests = testGroup "Condition Unit Tests"
                   [ testCase "A simple predicate condition"
-                    $ makeCondition "is_ruler = yes" @?= Right (Condition "is_ruler" (BooleanValue True))
+                    $ makeCondition "is_ruler = yes" @?= Right (BooleanCondition "is_ruler" True)
                   , testCase "A numeric predicate"
                     $ makeCondition "yearly_income = 75" @?= Right (Condition "yearly_income" (NumValue 75))
                   , testCase "And operator"
                     $ makeCondition "AND = { yearly_income = 50 wealth = 200 }"
                     @?= Right (And [Condition "yearly_income" (NumValue 50), Condition "wealth" (NumValue 200)])
+                  , testCase "Boolean true"
+                    $ makeCondition "rebel = no"
+                    @?= Right (BooleanCondition "rebel" False)
                   ]
 
 makeCondition = quickMake condition

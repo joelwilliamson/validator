@@ -14,6 +14,7 @@ import Scoped(Label,Atom(..))
 import ScopeType(ScopeType(..),scopeType)
 
 import Data.String(IsString(..))
+import Data.List((\\))
 import qualified Data.Text as T(Text)
 import Control.Applicative
 
@@ -25,6 +26,7 @@ instance Data.String.IsString Predicate where
 
 -- | A @Condition@ is a boolean predicate.
 data Condition = Condition Label (Value ())
+                 | BooleanCondition Label Bool
                  | Scoped (Scope Condition)
                  | VariableCheck Label (Either Label Double)
                  | Or [Condition]
@@ -70,6 +72,9 @@ predicate = label $ checkKeys unclassifiedPredicates
 condition:: Maker Condition
 condition = trait
             <|> boolean
+            <|> (BooleanCondition
+                 <$> label (checkKeys booleanPredicates)
+                 <*> fetchBool)
             <|> simple
             <|> variableCheck
             <|> (Scoped <$ excludeKeys predicates <*> scope condition)
@@ -164,3 +169,35 @@ predicates = ["random","AND","OR","NOT","calc_if_true"
              ,"treasury","troops","using_cb","vassal_of","war","war_score"
              ,"war_title","war_with","was_conceived_a_bastard","wealth"
              ,"would_be_heir_under_law","year","yearly_income"]
+
+booleanPredicates = [
+  "ai", "always", "borders_major_river", "can_be_given_away"
+  , "can_change_religion", "can_call_crusade", "can_have_more_leadership_traits"
+  , "conquest_culture", "controls_religion", "diplomatic_immunity"
+  , "dislikes_tribal_organization", "father_of_unborn_unknown"
+  , "flank_has_leader", "from_ruler_dynasty", "has_autocephaly"
+  , "has_called_crusade", "has_concubinage", "has_crown_law_title"
+  , "has_disease", "has_empty_holding", "has_epidemic", "has_guardian"
+  , "has_heresies", "has_holder", "has_horde_culture", "has_lover"
+  , "has_newly_acquired_holdings", "has_overseas_holdings", "has_owner"
+  , "has_polygamy", "has_regent", "has_regiments", "has_siege", "has_trade_post"
+  , "holy_order", "independent", "in_battle", "in_command", "in_revolt"
+  , "in_siege", "is_abroad", "is_adult", "is_alive", "is_at_sea", "is_attacker"
+  , "is_betrothed", "is_capital", "is_chancellor", "is_conquered"
+  , "is_contested", "is_councillor", "is_crown_law_title", "is_dying"
+  , "is_father_real_father", "is_female", "is_feudal", "is_former_lover"
+  , "is_heretic", "is_ill", "is_ironman", "is_land", "is_landed"
+  , "is_landless_type_title", "is_looting", "is_lowborn", "is_main_spouse"
+  , "is_marriage_adult", "is_married_matrilineally", "is_marshal"
+  , "is_merchant_republic", "is_occupied", "is_patrician", "is_playable"
+  , "is_plot_active", "is_pregnant", "is_pretender", "is_priest"
+  , "is_primary_holder_title", "is_primary_holder_title_tier"
+  , "is_primary_type_title", "is_primary_war_attacker", "is_primary_war_defender"
+  , "is_recent_grant", "is_reincarnated", "is_republic", "is_ruler"
+  , "is_spiritual", "is_spymaster", "is_theocracy", "is_titular", "is_treasurer"
+  , "is_tribal", "is_vice_royalty", "is_winter", "mercenary", "multiplayer"
+  , "pacifist", "preparing_invasion", "prisoner", "rebel", "temporary", "war"
+  , "was_conceived_a_bastard"
+  ]
+
+unclassifiedPredicates = predicates \\ booleanPredicates
