@@ -1,8 +1,10 @@
 
 
 import Test.Tasty
-import Tests.Command
 import Tests.AttoScoped
+import Tests.Command
+import Tests.Condition
 import Tests.Maker
+import Tests.ScopeType
 
-main = defaultMain $ testGroup "Tests" [ commandUnitTests, parseTests, makerTests ]
+main = defaultMain $ testGroup "Tests" [ commandUnitTests, conditionTests, parseTests, makerTests, scopeTypeTests ]
