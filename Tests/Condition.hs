@@ -17,8 +17,11 @@ conditionTests = testGroup "Condition Unit Tests"
                     $ makeCondition "AND = { yearly_income = 50 wealth = 200 }"
                     @?= Right (And [Condition "yearly_income" (NumValue 50), Condition "wealth" (NumValue 200)])
                   , testCase "Boolean true"
-                    $ makeCondition "rebel = no"
-                    @?= Right (BooleanCondition "rebel" False)
+                    $ makeCondition "rebel = yes"
+                    @?= Right (BooleanCondition "rebel" True)
+                  , testCase "Boolean false"
+                    $ makeCondition "is_plot_active = no"
+                    @?= Right (BooleanCondition "is_plot_active" False)
                   ]
 
 makeCondition = quickMake condition
