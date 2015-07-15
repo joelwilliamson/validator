@@ -34,6 +34,12 @@ conditionTests = testGroup "Condition Unit Tests"
                   , testCase "Is capital - scope"
                     $ makeCondition "is_capital = ROOT"
                     @?= Right (ScopedOrBoolean "is_capital" (Right Root))
+                  , testCase "Conquest culture - boolean"
+                    $ makeCondition "conquest_culture = yes"
+                    @?= Right (ScopedOrBoolean "conquest_culture" (Left True))
+                  , testCase "Conquest culture - scope"
+                    $ makeCondition "conquest_culture = ROOT"
+                    @?= Right (ScopedOrBoolean "conquest_culture" (Right Root))
                   ]
 
 makeCondition = quickMake condition

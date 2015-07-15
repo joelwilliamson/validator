@@ -186,7 +186,7 @@ predicates = ["random","AND","OR","NOT","calc_if_true"
 booleanPredicates = [
   "ai", "always", "borders_major_river", "can_be_given_away"
   , "can_change_religion", "can_call_crusade", "can_have_more_leadership_traits"
-  , "conquest_culture", "controls_religion", "diplomatic_immunity"
+  , "controls_religion", "diplomatic_immunity"
   , "dislikes_tribal_organization", "father_of_unborn_unknown"
   , "flank_has_leader", "from_ruler_dynasty", "has_autocephaly"
   , "has_called_crusade", "has_concubinage", "has_crown_law_title"
@@ -240,7 +240,7 @@ numericPredicates = [
   , "stewardship", "wealth", "year"
   ]
 
-scopedOrBooleanPredicates = [ "is_capital" ]
+scopedOrBooleanPredicates = [ "conquest_culture", "is_capital" ]
 scopedOrNumericPredicates = [ "province_id" ]
 
 unclassifiedPredicates = predicates \\ (booleanPredicates <> numericPredicates)
