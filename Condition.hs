@@ -30,6 +30,8 @@ data Condition = Condition Label (Value ())
                  | BooleanCondition Label Bool
                  | NumericCondition Label Double
                  | Scoped (Scope Condition)
+                 | ScopedOrBoolean Label (Either Bool ScopeType)
+                 | ScopedOrNumeric Label (Either Double ScopeType)
                  | VariableCheck Label (Either Label Double)
                  | Or [Condition]
                  | And [Condition]
@@ -80,6 +82,12 @@ condition = trait
             <|> (NumericCondition
                  <$> label (checkKeys numericPredicates)
                  <*> firstChild number)
+            <|> (ScopedOrBoolean
+                 <$> label (checkKeys scopedOrBooleanPredicates)
+                 <*> oneOf fetchBool (firstChild scopeType))
+            <|> (ScopedOrNumeric
+                 <$> label (checkKeys scopedOrNumericPredicates)
+                 <*> firstChild (oneOf number scopeType))
             <|> simple
             <|> variableCheck
             <|> (Scoped <$ excludeKeys predicates <*> scope condition)
@@ -188,7 +196,7 @@ booleanPredicates = [
   , "has_polygamy", "has_regent", "has_regiments", "has_siege", "has_trade_post"
   , "holy_order", "independent", "in_battle", "in_command", "in_revolt"
   , "in_siege", "is_abroad", "is_adult", "is_alive", "is_at_sea", "is_attacker"
-  , "is_betrothed", "is_capital", "is_chancellor", "is_conquered"
+  , "is_betrothed", "is_chancellor", "is_conquered"
   , "is_contested", "is_councillor", "is_crown_law_title", "is_dying"
   , "is_father_real_father", "is_female", "is_feudal", "is_former_lover"
   , "is_heretic", "is_ill", "is_ironman", "is_land", "is_landed"
@@ -226,10 +234,13 @@ numericPredicates = [
   , "num_of_settlements", "num_of_spouses", "num_of_titles", "num_of_trade_posts"
   , "num_of_trade_post_diff", "num_of_traits", "num_of_unique_dynasty_vassals"
   , "num_of_vassals", "num_traits", "over_max_demesne_size", "over_vassal_limit"
-  , "personality_traits", "piety", "prestige", "province_id"
+  , "personality_traits", "piety", "prestige"
   , "real_month_of_year", "realm_diplomacy", "realm_intrigue", "realm_learning"
   , "realm_martial", "realm_size", "realm_stewardship", "ruled_years"
   , "stewardship", "wealth", "year"
   ]
+
+scopedOrBooleanPredicates = [ "is_capital" ]
+scopedOrNumericPredicates = [ "province_id" ]
 
 unclassifiedPredicates = predicates \\ (booleanPredicates <> numericPredicates)

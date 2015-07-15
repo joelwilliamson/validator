@@ -22,6 +22,18 @@ conditionTests = testGroup "Condition Unit Tests"
                   , testCase "Boolean false"
                     $ makeCondition "is_plot_active = no"
                     @?= Right (BooleanCondition "is_plot_active" False)
+                  , testCase "Province id - numeric"
+                    $ makeCondition "province_id = 1107"
+                    @?= Right (ScopedOrNumeric "province_id" (Left 1107))
+                  , testCase "Province id - scope"
+                    $ makeCondition "province_id = PREV"
+                    @?= Right (ScopedOrNumeric "province_id" (Right Prev))
+                  , testCase "Is capital - boolean"
+                    $ makeCondition "is_capital = yes"
+                    @?= Right (ScopedOrBoolean "is_capital" (Left True))
+                  , testCase "Is capital - scope"
+                    $ makeCondition "is_capital = ROOT"
+                    @?= Right (ScopedOrBoolean "is_capital" (Right Root))
                   ]
 
 makeCondition = quickMake condition
