@@ -63,7 +63,7 @@ data Command = ActivateTitle Label Bool
                                         , grantTitle :: ScopeType }
              | BooleanCommand Label Bool
              | Break
-             | BuildHolding Label Label ScopeType
+             | BuildHolding (Maybe Label) Label ScopeType
              | ChangeTech Label Double
              | TriggerEvent EventId (Maybe Duration) (Maybe Label)
              | CreateCharacter { age :: Maybe Double
@@ -167,7 +167,7 @@ command = (ActivateTitle <$ checkKey "activate_title"
                <?> "Boolean Command")
           <|> (Break <$ checkKey "break")
           <|> (BuildHolding <$ checkKey "build_holding"
-               <*> fetchString @@ "title"
+               <*> fetchString @? "title"
                <*> fetchString @@ "type"
                <*> scopeType ~@ "holder")
           <|> (setFlag <*> fetchString)

@@ -62,7 +62,7 @@ instance GatherStrings Command where
     gatherStrings title
     <> gatherStrings perspective
     <> gatherStrings title'
-  gatherStrings (BuildHolding prov holding holder) = prov : holding : gatherStrings holder
+  gatherStrings (BuildHolding name holding holder) = holding : gatherStrings name <> gatherStrings holder
   gatherStrings (ChangeTech tech _) = [tech]
   gatherStrings (CreateCharacter { name, hasNickName, employer, religion, culture, dynasty, flag, father, mother, race }) =
     gatherStrings name
@@ -95,7 +95,7 @@ instance GatherStrings Modifier where
   gatherStrings (Modifier _ conds) = gatherStrings conds
 
 instance GatherStrings Condition where
-  gatherStrings (Condition (Predicate _) v) = gatherStrings v
+  gatherStrings (Condition _ v) = gatherStrings v
   gatherStrings (Condition.Scoped s) = gatherStrings s
   gatherStrings (VariableCheck _ _) = []
   gatherStrings (Trait _) = []

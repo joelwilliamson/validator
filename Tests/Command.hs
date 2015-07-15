@@ -236,7 +236,7 @@ commandSuccessTests = testGroup "Command Success Tests"
                      $ TriggerEvent ("test",12) (Just $ Days 5) (Just "An event")
                    , successTest "Build holding"
                      "build_holding = { title = b_masyaf type = castle holder = ROOT }"
-                     $ BuildHolding "b_masyaf" "castle" Root
+                     $ BuildHolding (Just "b_masyaf") "castle" Root
                    , successTest "Change legalism"
                      "change_tech = { technology = TECH_LEGALISM value = 1 }"
                      $ ChangeTech "TECH_LEGALISM" 1
