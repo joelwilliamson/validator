@@ -109,7 +109,7 @@ commandSuccessTests = testGroup "Command Success Tests"
                      $ Random 20 [Modifier 0.5 [Trait "sloth"], Modifier 2 [Trait "diligent"]] [Break]
                    , successTest "If"
                      "if = { limit = { trait = humble prestige = 5 } change_diplomacy = 2 add_trait = monk}"
-                     $ If [Trait "humble", Condition "prestige" $ NumValue 5] [NumericCommand "change_diplomacy" 2, AddTrait "monk"]
+                     $ If [Trait "humble", NumericCondition "prestige" 5] [NumericCommand "change_diplomacy" 2, AddTrait "monk"]
                    , successTest "Random List"
                      "random_list = { 10 = { wealth = 10 } 20 = { unsafe_religion = catholic modifier = { factor = 2 trait = cynical }} 70 = { prestige = 30 } }"
                      $ RandomList [(10,[],[Concrete "wealth" $ NumValue 10]),

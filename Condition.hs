@@ -15,6 +15,7 @@ import ScopeType(ScopeType(..),scopeType)
 
 import Data.String(IsString(..))
 import Data.List((\\))
+import Data.Monoid((<>))
 import qualified Data.Text as T(Text)
 import Control.Applicative
 
@@ -27,6 +28,7 @@ instance Data.String.IsString Predicate where
 -- | A @Condition@ is a boolean predicate.
 data Condition = Condition Label (Value ())
                  | BooleanCondition Label Bool
+                 | NumericCondition Label Double
                  | Scoped (Scope Condition)
                  | VariableCheck Label (Either Label Double)
                  | Or [Condition]
@@ -75,6 +77,9 @@ condition = trait
             <|> (BooleanCondition
                  <$> label (checkKeys booleanPredicates)
                  <*> fetchBool)
+            <|> (NumericCondition
+                 <$> label (checkKeys numericPredicates)
+                 <*> firstChild number)
             <|> simple
             <|> variableCheck
             <|> (Scoped <$ excludeKeys predicates <*> scope condition)
@@ -200,4 +205,31 @@ booleanPredicates = [
   , "was_conceived_a_bastard"
   ]
 
-unclassifiedPredicates = predicates \\ booleanPredicates
+numericPredicates = [
+  -- Double predicates
+  "base_health", "demesne_efficiency", "decadence", "dynasty_realm_power"
+  , "fertility", "monthly_income", "plot_power", "relative_power_to_liege"
+  , "religion_authority", "revolt_risk", "scaled_wealth", "treasury", "war_score"
+  , "yearly_income"
+  ] <> [
+  -- Integer predicates
+  "age", "combat_rating", "count", "demesne_size", "diplomacy", "gold", "health"
+  , "health_traits", "imprisoned_days", "intrigue", "learning"
+  , "lifestyle_traits", "loot", "martial", "month"
+  , "num_fitting_characters_for_title", "num_of_baron_titles", "num_of_buildings"
+  , "num_of_children", "num_of_claims", "num_of_consorts", "num_of_count_titles"
+  , "num_of_duke_titles", "num_of_dynasty_members", "num_of_emperor_titles"
+  , "num_of_empty_holdings", "num_of_extra_landed_titles"
+  , "num_of_faction_backers", "num_of_friends", "num_of_holy_sites"
+  , "num_of_king_titles", "num_of_lovers", "num_of_max_settlements"
+  , "num_of_plot_backers", "num_of_prisoners", "num_of_rivals"
+  , "num_of_settlements", "num_of_spouses", "num_of_titles", "num_of_trade_posts"
+  , "num_of_trade_post_diff", "num_of_traits", "num_of_unique_dynasty_vassals"
+  , "num_of_vassals", "num_traits", "over_max_demesne_size", "over_vassal_limit"
+  , "personality_traits", "piety", "prestige", "province_id"
+  , "real_month_of_year", "realm_diplomacy", "realm_intrigue", "realm_learning"
+  , "realm_martial", "realm_size", "realm_stewardship", "ruled_years"
+  , "stewardship", "wealth", "year"
+  ]
+
+unclassifiedPredicates = predicates \\ (booleanPredicates <> numericPredicates)
