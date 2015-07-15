@@ -763,6 +763,12 @@ commandSuccessTests = testGroup "Command Success Tests"
                             , successTest "Allow kingdom viceroyalties"
                               "set_allow_vice_royalties = king"
                               $ SetAllowViceRoyalties (Right "king")
+                            , successTest "Clear wealth - boolean arg"
+                              "clear_wealth = yes"
+                              $ ClearWealth (Left True)
+                            , successTest "Clear wealth - character arg"
+                              "clear_wealth = PREV"
+                              $ ClearWealth (Right Prev)
                             ]
 
 commandFailTests =

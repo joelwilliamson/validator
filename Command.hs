@@ -65,6 +65,7 @@ data Command = ActivateTitle Label Bool
              | Break
              | BuildHolding (Maybe Label) Label ScopeType
              | ChangeTech Label Double
+             | ClearWealth (Either Bool ScopeType)
              | TriggerEvent EventId (Maybe Duration) (Maybe Label)
              | CreateCharacter { age :: Maybe Double
                                , name :: Label
@@ -174,6 +175,7 @@ command = (ActivateTitle <$ checkKey "activate_title"
           <|> (clrFlag <*> fetchString)
           <|> ChangeTech <$ checkKey "change_tech" <*> fetchString @@ "technology" <*> number ~@ "value"
           <|> triggerEvent
+          <|> (ClearWealth <$ checkKey "clear_wealth" <*> oneOf fetchBool (firstChild scopeType))
           <|> createCharacter
           <|> createTitle
           <|> (Death <$ checkKey "death") <*> fetchString @@ "death_reason" <*> scopeType ~? "killer"
@@ -376,7 +378,7 @@ numericCommands =
 booleanCommands =
   [ "abandon_heresy", "abdicate", "activate_plot", "add_number_to_name"
   , "ambition_succeeds", "banish", "become_heretic", "cancel_ambition"
-  , "clear_global_event_targets", "clear_revolt", "clear_wealth"
+  , "clear_global_event_targets", "clear_revolt"
   , "convert_to_castle", "convert_to_city", "convert_to_temple"
   , "convert_to_tribal", "create_family_palace", "cure_illness"
   , "destroy_random_building", "diplomatic_immunity", "excommunicate"
