@@ -12,15 +12,20 @@ import Command as Comm(Command(ActivateTitle,
                                Scoped,
                                Break,If,
                                BestFitCharacterForTitle,
+                               BooleanCommand,
                                BuildHolding,
                                ChangeTech,
+                               ClearWealth,
                                CreateTitle,
                                Death,
                                GainSettlementsUnderTitle,
+                               NumericCommand,
                                OpinionModifier,
                                ReligionAuthority,
                                RemoveOpinion,
                                ScopedModifier,
+                               SetAllowViceRoyalties,
+                               StringCommand,
                                TriggerEvent,
                                War),
                        Modifier(..))
@@ -60,11 +65,15 @@ instance (GatherTraits a, GatherTraits b) ⇒ GatherTraits (Either a b) where
 
 instance GatherTraits Command where
   traits (AddTrait t) = [t]
+  traits (BooleanCommand _ _) = mempty
+  traits (ClearWealth _) = mempty
+  traits (NumericCommand _ _) = mempty
   traits (RemoveTrait t) = [t]
   traits (If conds comms) = traits conds <> traits comms
   traits Break = []
   traits (Random _ _ comms) = traits comms
   traits (RandomList os) = traits os
+  traits (SetAllowViceRoyalties _) = mempty
   traits (Comm.Scoped s) = traits s
   traits (SetFlag _ _) = [] -- Flags never are localised
   traits (ClrFlag _ _) = []
@@ -91,6 +100,7 @@ instance GatherTraits Command where
   traits (ReligionAuthority _) = mempty
   traits (RemoveOpinion _ scope _) = traits scope
   traits (ScopedModifier _ _) = mempty
+  traits (StringCommand _ _) = mempty
   traits War {} = mempty
 
 instance GatherTraits Modifier where

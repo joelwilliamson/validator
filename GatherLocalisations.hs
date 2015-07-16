@@ -44,13 +44,18 @@ instance (Localised a, Localised b) ⇒ Localised (Either a b) where
 
 instance Localised Command where
   localisations (If conds comms) = localisations conds <> localisations comms
+  localisations (BooleanCommand _ _) = mempty
   localisations Break = mempty
+  localisations (ClearWealth _) = mempty
+  localisations (NumericCommand _ _) = mempty
   localisations (Random _ _ comms) = localisations comms
   localisations (RandomList os) = localisations os
   localisations (Comm.Scoped s) = localisations s
+  localisations (SetAllowViceRoyalties _) = mempty
   localisations (SetFlag _ _) = mempty -- Flags never are localised
   localisations (ClrFlag _ _) = mempty
   localisations SpawnUnit {} = mempty
+  localisations (StringCommand _ _) = mempty
   localisations VarOpLit {} = mempty
   localisations VarOpVar {} = mempty
   localisations VarOpScope {} = mempty

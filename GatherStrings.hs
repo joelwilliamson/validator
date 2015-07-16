@@ -3,7 +3,7 @@ module GatherStrings(GatherStrings(gatherStrings)) where
 
 import Scoped(Label)
 import Command as Comm(Command(..),Modifier(..),stringyCommands)
-import Condition(Condition(..),Predicate(..),Scope(..),ScopeType(..),Value(..))
+import Condition(Condition(..),Scope(..),ScopeType(..),Value(..))
 import Event as E(Event(..),Option(..))
 import Decision(Decision(..))
 
@@ -62,8 +62,10 @@ instance GatherStrings Command where
     gatherStrings title
     <> gatherStrings perspective
     <> gatherStrings title'
+  gatherStrings (BooleanCommand _ _) = mempty
   gatherStrings (BuildHolding name holding holder) = holding : gatherStrings name <> gatherStrings holder
   gatherStrings (ChangeTech tech _) = [tech]
+  gatherStrings (ClearWealth _) = mempty
   gatherStrings (CreateCharacter { name, hasNickName, employer, religion, culture, dynasty, flag, father, mother, race }) =
     gatherStrings name
     <> gatherStrings hasNickName
@@ -83,11 +85,14 @@ instance GatherStrings Command where
     <> gatherStrings base
   gatherStrings (Death reason killer) = gatherStrings reason <> gatherStrings killer
   gatherStrings (GainSettlementsUnderTitle title enemy) = gatherStrings title <> gatherStrings enemy
+  gatherStrings (NumericCommand _ _) = mempty
   gatherStrings (OpinionModifier mod who _ _) = gatherStrings mod <> gatherStrings who
   gatherStrings (ReligionAuthority (Left _)) = mempty
   gatherStrings (ReligionAuthority (Right mod)) = gatherStrings mod
   gatherStrings (RemoveOpinion mod who _) = gatherStrings mod <> gatherStrings who
+  gatherStrings (SetAllowViceRoyalties _) = mempty
   gatherStrings (ScopedModifier name _) = gatherStrings name
+  gatherStrings (StringCommand _ s) = [s]
   gatherStrings TriggerEvent {} = []
   gatherStrings War {} = mempty
 
@@ -95,8 +100,12 @@ instance GatherStrings Modifier where
   gatherStrings (Modifier _ conds) = gatherStrings conds
 
 instance GatherStrings Condition where
+  gatherStrings (BooleanCondition _ _) = mempty
   gatherStrings (Condition _ v) = gatherStrings v
+  gatherStrings (NumericCondition _ _) = mempty
   gatherStrings (Condition.Scoped s) = gatherStrings s
+  gatherStrings (ScopedOrBoolean _ _) = mempty
+  gatherStrings (ScopedOrNumeric _ _) = mempty
   gatherStrings (VariableCheck _ _) = []
   gatherStrings (Trait _) = []
   gatherStrings (Or cs) = gatherStrings cs
