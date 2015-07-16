@@ -769,6 +769,15 @@ commandSuccessTests = testGroup "Command Success Tests"
                             , successTest "Clear wealth - character arg"
                               "clear_wealth = PREV"
                               $ ClearWealth (Right Prev)
+                            , successTest "Scaled wealth - simple"
+                              "scaled_wealth = 5"
+                              $ ScaledWealth 5
+                            , successTest "Scaled wealth - min bound"
+                              "scaled_wealth = { value = 2 min = 10 }"
+                              $ ScaledWealthBounded 2 (Just 10) Nothing
+                            , successTest "Scaled wealth - max bound"
+                              "scaled_wealth = { value = 5 max = 1000 }"
+                              $ ScaledWealthBounded 5 Nothing (Just 1000)
                             ]
 
 commandFailTests =

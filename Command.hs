@@ -112,6 +112,9 @@ data Command = ActivateTitle Label Bool
              | RemoveOpinion { opinionModifier :: Label
                              , who :: ScopeType
                              , me :: ScopeType }
+             | ScaledWealth Double
+             | ScaledWealthBounded Double (Maybe Double) (Maybe Double)
+               -- ^ ScaledWealthBounded factor minimum maximum
              | Scoped (Scope Command)
              | ScopedModifier Label Duration
              | SetAllowViceRoyalties (Either Bool Label)
@@ -211,6 +214,14 @@ command = (ActivateTitle <$ checkKey "activate_title"
                <*> fetchString @? "tier") <?> "Reverse War")
           <|> VarOpLit <$> firstChild (checkKey "which" *> fetchString) <*> op <*> number ~@ "value"
           <|> VarOpVar <$> firstChild (checkKey "which" *> fetchString) <*> op <*> secondChild (checkKey "which" *> fetchString) -- This doesn't distinguish between scopes and variables in the same scope
+          <|> ((ScaledWealth <$ checkKey "scaled_wealth"
+                <*> firstChild number)
+               <?> "scaled_wealth")
+          <|> ((ScaledWealthBounded <$ checkKey "scaled_wealth"
+                <*> number ~@ "value"
+                <*> number ~? "min"
+                <*> number ~? "max")
+               <?> "scaled_wealth")
           <|> (SetAllowViceRoyalties <$ checkKey "set_allow_vice_royalties"
                <*> oneOf fetchBool fetchString)
           <|> (SpawnUnit <$ checkKey "spawn_unit"
@@ -368,7 +379,7 @@ commands =
 numericCommands =
   [ "add_piety_modifier","add_prestige_modifier","participation_scaled_decadence"
   , "participation_scaled_piety", "participation_scaled_prestige"
-  , "reduce_disease", "scaled_wealth"] <>
+  , "reduce_disease" ] <>
   [ "change_diplomacy", "change_intrigue", "change_learning", "change_martial"
   , "change_random_civ_tech", "change_random_eco_tech", "change_random_mil_tech"
   , "change_stewardship", "culture_techpoints", "decadence"
@@ -426,6 +437,7 @@ concreteCommands = commands \\ ["activate_title",
                                 "remove_opinion",
                                 "repeat_event",
                                 "reverse_opinion", "reverse_remove_opinion",
+                                "scaled_wealth",
                                 "set_allow_vice_royalties",
                                 "spawn_unit",
                                 "change_variable","check_variable",
