@@ -42,4 +42,12 @@ conditionTests = testGroup "Condition Unit Tests"
                     @?= Right (ScopedOrBoolean "conquest_culture" (Right Root))
                   ]
 
+scopeTests = testGroup "Scope unit tests"
+             [
+               testCase "Simple limited scope"
+               $ makeScope "any_realm_character = { limit = { wealth = 75 } age = 50"
+               @?= Right (Scope Root [NumericCondition "wealth" 75] [NumericCondition "age" 50])
+             ]
+
 makeCondition = quickMake condition
+makeScope = quickMake (scope condition)
