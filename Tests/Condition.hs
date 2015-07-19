@@ -45,8 +45,10 @@ conditionTests = testGroup "Condition Unit Tests"
 scopeTests = testGroup "Scope unit tests"
              [
                testCase "Simple limited scope"
-               $ makeScope "any_realm_character = { limit = { wealth = 75 } age = 50"
-               @?= Right (Scope Root [NumericCondition "wealth" 75] [NumericCondition "age" 50])
+               $ makeScope "any_realm_character = { limit = { wealth = 75 } age = 50 }"
+               @?= Right (Scope { scopeType_ = (CharacterScope "any_realm_character")
+                          , limit = [NumericCondition "wealth" 75]
+                          , content = [NumericCondition "age" 50]})
              ]
 
 makeCondition = quickMake condition

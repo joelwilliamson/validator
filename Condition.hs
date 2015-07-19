@@ -67,7 +67,7 @@ data Scope a = Scope {
 -- | Make a scope
 scope :: Maker a → Maker (Scope a)
 scope maker = Scope <$> scopeType <*> limit <*> content
-  where limit = condition @@@ "limit"
+  where limit = mapSubForest condition @@ "limit"
         content = maker /@@ "limit"
 
 predicate = label $ checkKeys unclassifiedPredicates

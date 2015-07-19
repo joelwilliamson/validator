@@ -7,4 +7,4 @@ import Tests.Condition
 import Tests.Maker
 import Tests.ScopeType
 
-main = defaultMain $ testGroup "Tests" [ commandUnitTests, conditionTests, parseTests, makerTests, scopeTypeTests ]
+main = defaultMain $ testGroup "Tests" [ commandUnitTests, conditionTests, parseTests, makerTests, scopeTests, scopeTypeTests ]
