@@ -54,6 +54,12 @@ scopeTests = testGroup "Scope unit tests"
                @?= Right (Scope { scopeType_ = CharacterScope "random_vassal"
                                 , limit = []
                                 , content = [NumericCondition "age" 15]})
+             , testCase "Two limit clauses"
+               $ makeScope "random_courtier = { limit = { age = 15 } limit = { trait = wroth } martial = 20 }"
+               @?= Right (Scope { scopeType_ = CharacterScope "random_courtier"
+                                , limit = [NumericCondition "age" 15
+                                           , Trait "wroth"]
+                                , content = [NumericCondition "martial" 20] })
              ]
 
 makeCondition = quickMake condition
