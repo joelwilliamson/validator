@@ -49,6 +49,11 @@ scopeTests = testGroup "Scope unit tests"
                @?= Right (Scope { scopeType_ = (CharacterScope "any_realm_character")
                           , limit = [NumericCondition "wealth" 75]
                           , content = [NumericCondition "age" 50]})
+             , testCase "No limit scpope"
+               $ makeScope "random_vassal = { age = 15 }"
+               @?= Right (Scope { scopeType_ = CharacterScope "random_vassal"
+                                , limit = []
+                                , content = [NumericCondition "age" 15]})
              ]
 
 makeCondition = quickMake condition
