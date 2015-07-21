@@ -7,6 +7,7 @@ import Condition(Condition(..),Scope(..),ScopeType(..),Value(..))
 import Event as E(Event(..),Option(..))
 import Decision(Decision(..))
 
+import qualified Data.Set as S
 import Data.Text(Text)
 import Data.Monoid((<>))
 import Data.Maybe(fromMaybe)
@@ -39,6 +40,9 @@ instance GatherStrings a ⇒ GatherStrings (Maybe a) where
 instance (GatherStrings a, GatherStrings b) ⇒ GatherStrings (Either a b) where
   gatherStrings (Left l) = gatherStrings l
   gatherStrings (Right r) = gatherStrings r
+
+instance (GatherStrings a) => GatherStrings (S.Set a) where
+  gatherStrings s = gatherStrings $ S.toList s
 
 instance GatherStrings Command where
   gatherStrings (If conds comms) = gatherStrings conds <> gatherStrings comms

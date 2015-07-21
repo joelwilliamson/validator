@@ -3,6 +3,8 @@ module Tests.Condition where
 import Condition
 import Tests.QuickMaker(quickMake)
 
+import qualified Data.Set as S
+
 
 import Test.Tasty(testGroup)
 import Test.Tasty.HUnit
@@ -47,19 +49,25 @@ scopeTests = testGroup "Scope unit tests"
                testCase "Simple limited scope"
                $ makeScope "any_realm_character = { limit = { wealth = 75 } age = 50 }"
                @?= Right (Scope { scopeType_ = (CharacterScope "any_realm_character")
-                          , limit = [NumericCondition "wealth" 75]
+                          , limit = S.fromList [NumericCondition "wealth" 75]
                           , content = [NumericCondition "age" 50]})
              , testCase "No limit scpope"
                $ makeScope "random_vassal = { age = 15 }"
                @?= Right (Scope { scopeType_ = CharacterScope "random_vassal"
-                                , limit = []
+                                , limit = mempty
                                 , content = [NumericCondition "age" 15]})
              , testCase "Two limit clauses"
                $ makeScope "random_courtier = { limit = { age = 15 } limit = { trait = wroth } martial = 20 }"
                @?= Right (Scope { scopeType_ = CharacterScope "random_courtier"
-                                , limit = [NumericCondition "age" 15
-                                           , Trait "wroth"]
+                                , limit = S.fromList [NumericCondition "age" 15
+                                                   , Trait "wroth"]
                                 , content = [NumericCondition "martial" 20] })
+             , testCase "Disordered limit clauses"
+               $ makeScope "any_realm_title = { limit = { claimed_by = PREV conquest_culture = yes } is_occupied = no }"
+               @?= Right (Scope { scopeType_ = TitleScope "any_realm_title"
+                                , limit = S.fromList [ScopedOrBoolean "conquest_culture" (Left True)
+                                                     , Condition "claimed_by" (Id "PREV")]
+                                , content = [BooleanCondition "is_occupied" False]})
              ]
 
 makeCondition = quickMake condition

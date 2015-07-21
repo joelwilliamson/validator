@@ -35,6 +35,7 @@ import Event as E(Event(..),Option(..))
 import Decision(Decision(..))
 
 import Data.Monoid((<>))
+import qualified Data.Set as S
 
 -- | Any type that can contain a reference to a trait should belong to this class.
 class GatherTraits t where
@@ -62,6 +63,9 @@ instance GatherTraits a ⇒ GatherTraits (Maybe a) where
 instance (GatherTraits a, GatherTraits b) ⇒ GatherTraits (Either a b) where
   traits (Left a) = traits a
   traits (Right b) = traits b
+
+instance GatherTraits a => GatherTraits (S.Set a) where
+  traits s = traits $ S.toList s
 
 instance GatherTraits Command where
   traits (AddTrait t) = [t]

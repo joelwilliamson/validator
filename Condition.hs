@@ -15,6 +15,7 @@ import ScopeType(ScopeType(..),scopeType)
 
 import Data.String(IsString(..))
 import Data.List((\\))
+import qualified Data.Set as S
 import Data.Monoid((<>))
 import qualified Data.Text as T(Text)
 import Control.Applicative
@@ -60,14 +61,14 @@ scopedValue = ScopedValue <$> scopeType
 -- characters or titles. Each one creates a new entry on the scope stack.
 data Scope a = Scope {
   scopeType_ :: ScopeType,
-  limit :: [Condition],
+  limit :: S.Set Condition,
   content :: [a]
   } deriving (Eq,Ord,Show)
 
 -- | Make a scope
 scope :: Maker a → Maker (Scope a)
 scope maker = Scope <$> scopeType <*> limit <*> content
-  where limit = concat <$> mapSubForest condition @@@ "limit"
+  where limit = S.fromList . concat <$> mapSubForest condition @@@ "limit"
         content = maker /@@ "limit"
 
 predicate = label $ checkKeys unclassifiedPredicates
