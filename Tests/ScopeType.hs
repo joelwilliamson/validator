@@ -24,6 +24,8 @@ scopeTypeTests = testGroup "Scope Type tests" [
     $ makeScope "job_spiritual = { break = yes }" @?= Right (CharacterScope "job_spiritual")
   , testCase "Title scope"
     $ makeScope "e_persia = { break = yes }" @?= Right (IdScope "e_persia")
+  , testCase "Concrete title scope"
+    $ makeScope "primary_title = e_britannia" @?= Right (TitleScope "primary_title")
   , testCase "Province scope"
     $ makeScope "1103 = { break = yes }" @?= Right (NumScope 1103)
   ]

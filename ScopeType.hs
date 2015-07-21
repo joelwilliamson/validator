@@ -16,6 +16,7 @@ data ScopeType = Root | This
                | Trigger | Limit
                | EventTarget Label
                | CharacterScope Label -- This is something like "any_..." or "top_liege"
+               | TitleScope Label -- any_realm_title, crusade_target
                | IdScope Label -- This is something like "e_..." or "%trait_name%"
                | NumScope Double -- This is a fake scope. A scope should never be a number
                  deriving (Eq,Ord,Show)
@@ -42,6 +43,7 @@ readScope (Label s)
     Nothing -> error "Key not in association list"
     Just v -> v
   | s `elem` characterScope = CharacterScope s
+  | s `elem` titleScope = TitleScope s
   | otherwise = IdScope s
 readScope (Number n) = NumScope n
 
@@ -79,4 +81,17 @@ characterScope = [
   ,"religion_head","rightful_religious_head_scope","ruler","spouse"
   ,"spouse_even_if_dead","supported_claimant","top_liege","trade_post_owner"
   ,"job_chancellor","job_marshal","job_treasurer","job_spymaster","job_spiritual"
+  ]
+
+titleScope :: [Label]
+titleScope = [
+  "any_claim", "any_de_jure_vassal_title", "any_direct_de_jure_vassal_title"
+  , "any_demesne_title", "any_heir_title", "any_potential_tribal_county"
+  , "any_pretender_title", "any_province_holding", "any_realm_title"
+  , "capital_holding", "county", "crownlaw_title", "crusade_target"
+  , "dejure_liege_title", "duchy", "empire", "family_palace", "invasion_target"
+  , "kingdom", "new_title", "plot_target_title", "primary_title", "random_claim"
+  , "random_demesne_title", "random_potential_tribal_county"
+  , "random_province_holding", "random_realm_title", "supported_claimant_title"
+  , "realm", "succ_law_title", "thirdparty_title_scope"
   ]
