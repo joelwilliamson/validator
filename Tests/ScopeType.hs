@@ -22,8 +22,16 @@ scopeTypeTests = testGroup "Scope Type tests" [
     $ makeScope "event_target: = { break = yes }" @?= Right (EventTarget "")
   , testCase "Character scope"
     $ makeScope "job_spiritual = { break = yes }" @?= Right (CharacterScope "job_spiritual")
-  , testCase "Title scope"
-    $ makeScope "e_persia = { break = yes }" @?= Right (IdScope "e_persia")
+  , testCase "Empire scope"
+    $ makeScope "e_persia = { break = yes }" @?= Right (FixedTitle Empire "persia")
+  , testCase "Kingdom scope"
+    $ makeScope "k_england = { break = yes }" @?= Right (FixedTitle Kingdom "england")
+  , testCase "Duchy scope"
+    $ makeScope "d_latium = { break = yes }" @?= Right (FixedTitle Duchy "latium")
+  , testCase "County scope"
+    $ makeScope "c_cairo = { break = yes }" @?= Right (FixedTitle County "cairo")
+  , testCase "Barony scope"
+    $ makeScope "b_paris = { break = yes }" @?= Right (FixedTitle Barony "paris")
   , testCase "Concrete title scope"
     $ makeScope "primary_title = e_britannia" @?= Right (TitleScope "primary_title")
   , testCase "Province scope"

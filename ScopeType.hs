@@ -1,12 +1,16 @@
 -- | ScopeTypes are used to introduce new scopes
 module ScopeType(
   ScopeType(..)
+  , Tier(..)
   , scopeType
   ) where
 
 import Scoped(Atom(Label,Number),Label())
 import Maker(key)
 import qualified Data.Text as T
+
+data Tier = Barony | County | Duchy | Kingdom | Empire
+          deriving (Eq,Ord,Show)
 
 -- | Identify the type of the element a scope references, or move around the
 -- scope stack.
@@ -17,6 +21,7 @@ data ScopeType = Root | This
                | EventTarget Label
                | CharacterScope Label -- This is something like "any_..." or "top_liege"
                | TitleScope Label -- any_realm_title, crusade_target
+               | FixedTitle Tier Label
                | IdScope Label -- This is something like "e_..." or "%trait_name%"
                | NumScope Double -- This is a fake scope. A scope should never be a number
                  deriving (Eq,Ord,Show)
@@ -44,6 +49,11 @@ readScope (Label s)
     Just v -> v
   | s `elem` characterScope = CharacterScope s
   | s `elem` titleScope = TitleScope s
+  | T.isPrefixOf "b_" s = FixedTitle Barony $ T.drop 2 s
+  | T.isPrefixOf "c_" s = FixedTitle County $ T.drop 2 s
+  | T.isPrefixOf "d_" s = FixedTitle Duchy $ T.drop 2 s
+  | T.isPrefixOf "k_" s = FixedTitle Kingdom $ T.drop 2 s
+  | T.isPrefixOf "e_" s = FixedTitle Empire $ T.drop 2 s
   | otherwise = IdScope s
 readScope (Number n) = NumScope n
 
