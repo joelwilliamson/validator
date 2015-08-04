@@ -42,6 +42,11 @@ conditionTests = testGroup "Condition Unit Tests"
                   , testCase "Conquest culture - scope"
                     $ makeCondition "conquest_culture = ROOT"
                     @?= Right (ScopedOrBoolean "conquest_culture" (Right Root))
+                  , testCase "Counted scope"
+                    $ makeCondition "any_courtier = { trait = brave count = 4 }"
+                    @?= Right (Scoped $ Scope { scopeType_ = CharacterScope "any_courtier"
+                                              , limit = mempty
+                                              , content = [Trait "brave", NumericCondition "count" 4]})
                   ]
 
 scopeTests = testGroup "Scope unit tests"
