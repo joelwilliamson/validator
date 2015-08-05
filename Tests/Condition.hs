@@ -47,6 +47,12 @@ conditionTests = testGroup "Condition Unit Tests"
                     @?= Right (Scoped $ Scope { scopeType_ = CharacterScope "any_courtier"
                                               , limit = mempty
                                               , content = [Trait "brave", NumericCondition "count" 4]})
+                  , testCase "Nor block"
+                    $ makeCondition "NOR = { religion = catholic culture = norman }"
+                    @?= Right (Not [Condition "religion" $ Id "catholic", Condition "culture" $ Id "norman"])
+                  , testCase "Nand block"
+                    $ makeCondition "NAND = { wealth = 50 age = 16 }"
+                    @?= Right (Nand [NumericCondition "wealth" 50, NumericCondition "age" 16])
                   ]
 
 scopeTests = testGroup "Scope unit tests"

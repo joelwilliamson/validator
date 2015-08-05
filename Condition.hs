@@ -36,7 +36,8 @@ data Condition = Condition Label (Value ())
                  | VariableCheck Label (Either Label Double)
                  | Or [Condition]
                  | And [Condition]
-                 | Not Condition
+                 | Not [Condition]
+                 | Nand [Condition]
                  | Trait Label
                  deriving (Eq,Ord,Show)
 
@@ -98,7 +99,8 @@ condition = trait
                                                        <|> Right <$> number @@ "value")
         boolean = And <$> (checkKey "AND" *> mapSubForest condition)
                   <|> Or <$> (checkKey "OR" *> mapSubForest condition)
-                  <|> Not <$> (checkKey "NOT" *> firstChild condition)
+                  <|> Not <$> (checkKeys ["NOT","NOR"] *> mapSubForest condition)
+                  <|> Nand <$> (checkKey "NAND" *> mapSubForest condition)
         trait = Trait <$ checkKey "trait" <*> fetchString
  
 predicates :: [Label]
