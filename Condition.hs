@@ -84,6 +84,10 @@ condition = trait
             <|> (NumericCondition
                  <$> label (checkKeys numericPredicates)
                  <*> firstChild number)
+            <|> ((\cond scope value -> Scoped $ Scope scope mempty [NumericCondition cond value])
+                 <$> label (checkKeys numericPredicates)
+                 <*> scopeType ~@ "character"
+                 <*> number ~@ "value")
             <|> (ScopedOrBoolean
                  <$> label (checkKeys scopedOrBooleanPredicates)
                  <*> oneOf fetchBool (firstChild scopeType))

@@ -53,6 +53,9 @@ conditionTests = testGroup "Condition Unit Tests"
                   , testCase "Nand block"
                     $ makeCondition "NAND = { wealth = 50 age = 16 }"
                     @?= Right (Nand [NumericCondition "wealth" 50, NumericCondition "age" 16])
+                  , testCase "Compare in other scope"
+                    $ makeCondition "num_of_trade_post_diff = { character = FROMFROM value = 10 }"
+                    @?= Right (Scoped (Scope FromFrom mempty [NumericCondition "num_of_trade_post_diff" 10]))
                   ]
 
 scopeTests = testGroup "Scope unit tests"
