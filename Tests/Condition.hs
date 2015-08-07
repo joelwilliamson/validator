@@ -56,6 +56,9 @@ conditionTests = testGroup "Condition Unit Tests"
                   , testCase "Compare in other scope"
                     $ makeCondition "num_of_trade_post_diff = { character = FROMFROM value = 10 }"
                     @?= Right (Scoped (Scope FromFrom mempty [NumericCondition "num_of_trade_post_diff" 10]))
+                  , testCase "Religion Authority can take a scope as argument"
+                    $ makeCondition "religion_authority = ROOT"
+                    @?= Right (ScopedOrNumeric "religion_authority" (Right Root))
                   ]
 
 scopeTests = testGroup "Scope unit tests"

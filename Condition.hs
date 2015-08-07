@@ -224,8 +224,7 @@ numericPredicates = [
   -- Double predicates
   "base_health", "demesne_efficiency", "decadence", "dynasty_realm_power"
   , "fertility", "monthly_income", "plot_power", "relative_power_to_liege"
-  , "religion_authority", "revolt_risk", "scaled_wealth", "treasury", "war_score"
-  , "yearly_income"
+  , "revolt_risk", "scaled_wealth", "treasury", "war_score", "yearly_income"
   ] <> [
   -- Integer predicates
   "age", "combat_rating", "count", "demesne_size", "diplomacy", "gold", "health"
@@ -248,6 +247,6 @@ numericPredicates = [
   ]
 
 scopedOrBooleanPredicates = [ "conquest_culture", "is_capital" ]
-scopedOrNumericPredicates = [ "province_id" ]
+scopedOrNumericPredicates = [ "province_id", "religion_authority" ]
 
 unclassifiedPredicates = predicates \\ (booleanPredicates <> numericPredicates)
