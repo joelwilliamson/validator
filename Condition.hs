@@ -97,10 +97,11 @@ condition = trait
             <|> simple
             <|> variableCheck
             <|> (Scoped <$ excludeKeys predicates <*> scope condition)
-  where simple  = Condition <$> predicate <*> firstChild value
+  where simple  = Condition <$> predicate <*> firstChild value <?> "Concrete predicate"
         variableCheck =
           VariableCheck <$> fetchString @@ "which" <*> (Left <$> fetchString @@ "which"
                                                        <|> Right <$> number @@ "value")
+          <?> "variable check"
         boolean = And <$> (checkKey "AND" *> mapSubForest condition)
                   <|> Or <$> (checkKey "OR" *> mapSubForest condition)
                   <|> Not <$> (checkKeys ["NOT","NOR"] *> mapSubForest condition)
