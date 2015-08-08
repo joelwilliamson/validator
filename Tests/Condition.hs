@@ -59,6 +59,9 @@ conditionTests = testGroup "Condition Unit Tests"
                   , testCase "Religion Authority can take a scope as argument"
                     $ makeCondition "religion_authority = ROOT"
                     @?= Right (ScopedOrNumeric "religion_authority" (Right Root))
+                  , testCase "Variable check"
+                    $ makeCondition "is_variable_equal = { which = v1 value = 10 }"
+                    @?= Right (VariableCheck "v1" (Right 10))
                   ]
 
 scopeTests = testGroup "Scope unit tests"

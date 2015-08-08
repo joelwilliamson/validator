@@ -99,8 +99,8 @@ condition = trait
             <|> (Scoped <$ excludeKeys predicates <*> scope condition)
   where simple  = Condition <$> predicate <*> firstChild value <?> "Concrete predicate"
         variableCheck =
-          VariableCheck <$> fetchString @@ "which" <*> (Left <$> fetchString @@ "which"
-                                                       <|> Right <$> number @@ "value")
+          VariableCheck <$> fetchString @@ "which" <*> (Right <$> number ~@ "value"
+                                                       <|> Left <$> fetchString @@ "which")
           <?> "variable check"
         boolean = And <$> (checkKey "AND" *> mapSubForest condition)
                   <|> Or <$> (checkKey "OR" *> mapSubForest condition)
@@ -250,4 +250,4 @@ numericPredicates = [
 scopedOrBooleanPredicates = [ "conquest_culture", "is_capital" ]
 scopedOrNumericPredicates = [ "province_id", "religion_authority" ]
 
-unclassifiedPredicates = predicates \\ (booleanPredicates <> numericPredicates)
+unclassifiedPredicates = predicates \\ (booleanPredicates <> numericPredicates <> [ "is_variable_equal" ])
