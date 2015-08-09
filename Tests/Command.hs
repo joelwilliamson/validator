@@ -778,6 +778,12 @@ commandSuccessTests = testGroup "Command Success Tests"
                             , successTest "Scaled wealth - max bound"
                               "scaled_wealth = { value = 5 max = 1000 }"
                               $ ScaledWealthBounded 5 Nothing (Just 1000)
+                            , successTest "Opinion - Default Target"
+                              "opinion = { modifier = claim_refused years = 5}"
+                              $ OpinionModifier { opinionModifier = "claim_refused"
+                                        , who = Root
+                                        , me = This
+                                        , dur = Years 5 }
                             ]
 
 commandFailTests =

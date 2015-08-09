@@ -10,13 +10,14 @@ module Command
          stringyCommands
        )where
 
-import Condition(Condition,Scope,ScopeType(This),Value,condition,scope,scopeType,value)
+import Condition(Condition,Scope,Value,condition,scope,scopeType,value)
 import Control.Applicative((<|>))
 import Data.List((\\))
 import Data.Monoid((<>))
 import Duration(Duration(..),duration)
 import Maker
 import Scoped(Label,EventId)
+import ScopeType(ScopeType(Root,This))
 
 ($>) = flip (<$)
 
@@ -189,21 +190,29 @@ command = (ActivateTitle <$ checkKey "activate_title"
           <|> numericCommand
           <|> ((OpinionModifier <$ checkKey "opinion"
                 <*> fetchString @@ "modifier"
-                <*> scopeType ~@ "who"
+                <*> (scopeType ~@ "who") `defaultingTo` Root
                 <*> pure This
                 <*> duration `defaultingTo` (Days (-1)))
                <?> "opinion")
           <|> (Random <$ checkKey "random") <*> number ~@ "chance" <*> modifier @@@ "modifier" <*> command /@# ["chance","modifier"]
           <|> (RandomList <$ checkKey "random_list") <*> mapSubForest rlElem
           <|> religionAuthority
-          <|> (RemoveOpinion <$ checkKey "remove_opinion") <*> fetchString @@ "modifier" <*> scopeType ~@ "who" <*> pure This
+          <|> ((RemoveOpinion <$ checkKey "remove_opinion"
+                <*> fetchString @@ "modifier"
+                <*> (scopeType ~@ "who") `defaultingTo` Root
+                <*> pure This)
+               <?> "remove_opinion")
           <|> ((OpinionModifier <$ checkKey "reverse_opinion"
                 <*> fetchString @@ "modifier"
                 <*> pure This
-                <*> scopeType ~@ "who"
+                <*> (scopeType ~@ "who") `defaultingTo` Root
                 <*> duration `defaultingTo` (Days (-1)))
                <?> "reverse_opinion")
-          <|> (RemoveOpinion <$ checkKey "reverse_remove_opinion") <*> fetchString @@ "modifier" <*> pure This  <*> scopeType ~@ "who"
+          <|> ((RemoveOpinion <$ checkKey "reverse_remove_opinion"
+                <*> fetchString @@ "modifier"
+                <*> pure This
+                <*> (scopeType ~@ "who") `defaultingTo` Root)
+               <?> "reverse_remove_opinion")
           <|> ((War <$ checkKey "reverse_war"
                <*> scopeType ~@ "target" -- Attacler
                <*> pure This -- Defender
