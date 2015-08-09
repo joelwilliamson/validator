@@ -20,8 +20,10 @@ data DecisionType = GenericDecision
                   | GenderLaw
                   | Law
                   | PlotDecision
+                  | SettlementDecision
                   | SuccessionLaw
                   | TargettedDecision
+                  | TitleDecision
                   | VassalDecision
                   deriving (Eq,Ord,Show)
 
@@ -31,8 +33,10 @@ decisionTypeM = GenericDecision <$ checkKey "decisions"
                 <|> GenderLaw <$ checkKey "gender_laws"
                 <|> Law <$ checkKey "laws"
                 <|> PlotDecision <$ checkKey "plot_decisions"
+                <|> SettlementDecision <$ checkKey "settlement_decisions"
                 <|> SuccessionLaw <$ checkKey "succession_laws"
                 <|> TargettedDecision <$ checkKey "targetted_decisions"
+                <|> TitleDecision <$ checkKey "title_decisions"
                 <|> VassalDecision <$ checkKey "vassal_decisions"
                 <?> "decision type"
 
