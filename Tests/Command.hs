@@ -263,6 +263,18 @@ commandSuccessTests = testGroup "Command Success Tests"
                                      , customCreated = Nothing
                                      , baseTitle = Nothing
                                      , copyTitleLaws = Nothing }
+                     , successTest "Create title - no name"
+                       "create_title = { tier = DUKE holder = THIS }"
+                       CreateTitle { tier = "DUKE"
+                                   , landless = Nothing
+                                   , temporary = Nothing
+                                   , rebel = Nothing
+                                   , titleCulture = Nothing
+                                   , name = ""
+                                   , holder = This
+                                   , customCreated = Nothing
+                                   , baseTitle = Nothing
+                                   , copyTitleLaws = Nothing }
                      , successTest "Death" "death = { death_reason = death_disease killer = FROMFROMFROM }"
                        $ Death { deathReason = "death_disease"
                                , killer = Just FromFromFrom }
