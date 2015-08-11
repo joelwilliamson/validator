@@ -237,6 +237,9 @@ commandSuccessTests = testGroup "Command Success Tests"
                    , successTest "Build holding"
                      "build_holding = { title = b_masyaf type = castle holder = ROOT }"
                      $ BuildHolding (Just "b_masyaf") "castle" Root
+                   , successTest "Build holding - no holder"
+                     "build_holding = { type = castle }"
+                     $ BuildHolding Nothing "castle" This
                    , successTest "Change legalism"
                      "change_tech = { technology = TECH_LEGALISM value = 1 }"
                      $ ChangeTech "TECH_LEGALISM" 1

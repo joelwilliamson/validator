@@ -174,7 +174,7 @@ command = (ActivateTitle <$ checkKey "activate_title"
           <|> (BuildHolding <$ checkKey "build_holding"
                <*> fetchString @? "title"
                <*> fetchString @@ "type"
-               <*> scopeType ~@ "holder")
+               <*> (scopeType ~@ "holder") `defaultingTo` This)
           <|> (setFlag <*> fetchString)
           <|> (clrFlag <*> fetchString)
           <|> ChangeTech <$ checkKey "change_tech" <*> fetchString @@ "technology" <*> number ~@ "value"
