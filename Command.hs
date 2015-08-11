@@ -401,7 +401,7 @@ booleanCommands =
   , "clear_global_event_targets", "clear_revolt"
   , "convert_to_castle", "convert_to_city", "convert_to_temple"
   , "convert_to_tribal", "create_family_palace", "cure_illness"
-  , "destroy_random_building", "diplomatic_immunity", "excommunicate"
+  , "diplomatic_immunity", "excommunicate"
   , "make_primary_spouse", "make_primary_title", "plot_succeeds"
   , "province_capital", "rebel_defection", "recalc_succession"
   , "refill_holding_levy", "reveal_plot_w_message"

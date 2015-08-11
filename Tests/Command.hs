@@ -799,6 +799,12 @@ commandSuccessTests = testGroup "Command Success Tests"
                                         , who = Root
                                         , me = This
                                         , dur = Years 5 }
+                            , successTest "Destroy random building - boolean"
+                              "destroy_random_building = yes"
+                              $ Concrete "destroy_random_building" (BooleanValue True)
+                            , successTest "Destroy random building - scope"
+                              "destroy_random_building = this"
+                              $ Concrete "destroy_random_building" (Id "this")
                             ]
 
 commandFailTests =
