@@ -1,4 +1,5 @@
 -- | Traverse the AST to find any localisation keys
+
 module GatherLocalisations(Localised(localisations)) where
 
 import Scoped(Label)
@@ -81,6 +82,8 @@ instance Localised Command where
   localisations (ReligionAuthority (Left _)) = mempty
   localisations (ReligionAuthority (Right mod)) = localisations mod
   localisations (RemoveOpinion mod who _) = localisations mod <> localisations who
+  localisations (ScaledWealth _) = mempty
+  localisations (ScaledWealthBounded _ _ _) = mempty
   localisations (ScopedModifier name _) = [name]
   localisations (TriggerEvent _ _ tt) = localisations tt
   localisations War { casusBelli } = localisations casusBelli
