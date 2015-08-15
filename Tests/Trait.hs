@@ -16,6 +16,9 @@ traitTests =
     $ makeTrait "vampire = { birth = 1 cannot_marry = yes immortal = yes religious = yes }"
     @?= Right (defaultTrait { trait_name = "vampire", birth = 1, cannot_marry = True
                             , immortal = True, religious = True })
+  , testCase "A test with modifiers"
+    $ makeTrait "brainiac = { learning = 10 birth = 0 }"
+    @?= Right (defaultTrait { trait_name = "brainiac" })
   ]
 
 makeTrait = quickMake trait
