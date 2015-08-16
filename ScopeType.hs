@@ -8,6 +8,7 @@ module ScopeType(
 import Scoped(Atom(Label,Number),Label())
 import Maker(key)
 import qualified Data.Text as T
+import Data.Maybe(fromMaybe)
 
 data Tier = Barony | County | Duchy | Kingdom | Empire
           deriving (Eq,Ord,Show)
@@ -44,9 +45,8 @@ scopeMap = [("ROOT", Root),
             ("LIMIT", Limit)]
 readScope (Label s)
   | T.take 13 s == "event_target:" = EventTarget $ T.drop 13 s
-  | T.toUpper s `elem` map fst scopeMap = case lookup (T.toUpper s) scopeMap of
-    Nothing -> error "Key not in association list"
-    Just v -> v
+  | T.toUpper s `elem` map fst scopeMap = fromMaybe (error "Key not in association list")
+                                          $ lookup (T.toUpper s) scopeMap
   | s `elem` characterScope = CharacterScope s
   | s `elem` titleScope = TitleScope s
   | T.isPrefixOf "b_" s = FixedTitle Barony $ T.drop 2 s

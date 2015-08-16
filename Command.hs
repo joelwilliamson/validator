@@ -192,7 +192,7 @@ command = (ActivateTitle <$ checkKey "activate_title"
                 <*> fetchString @@ "modifier"
                 <*> (scopeType ~@ "who") `defaultingTo` Root
                 <*> pure This
-                <*> duration `defaultingTo` (Days (-1)))
+                <*> duration `defaultingTo` Days (-1))
                <?> "opinion")
           <|> (Random <$ checkKey "random") <*> number ~@ "chance" <*> modifier @@@ "modifier" <*> command /@# ["chance","modifier"]
           <|> (RandomList <$ checkKey "random_list") <*> mapSubForest rlElem
@@ -206,7 +206,7 @@ command = (ActivateTitle <$ checkKey "activate_title"
                 <*> fetchString @@ "modifier"
                 <*> pure This
                 <*> (scopeType ~@ "who") `defaultingTo` Root
-                <*> duration `defaultingTo` (Days (-1)))
+                <*> duration `defaultingTo` Days (-1))
                <?> "reverse_opinion")
           <|> ((RemoveOpinion <$ checkKey "reverse_remove_opinion"
                 <*> fetchString @@ "modifier"
@@ -234,7 +234,7 @@ command = (ActivateTitle <$ checkKey "activate_title"
           <|> (SetAllowViceRoyalties <$ checkKey "set_allow_vice_royalties"
                <*> oneOf fetchBool fetchString)
           <|> (SpawnUnit <$ checkKey "spawn_unit"
-               <*> (oneOf number scopeType) ~@ "province"
+               <*> oneOf number scopeType ~@ "province"
                <*> scopeType ~? "owner"
                <*> scopeType ~? "leader"
                <*> scopeType ~? "home"
@@ -289,7 +289,7 @@ createCharacter = CreateCharacter <$ checkKeys ["create_character"
                   <*> scopeType ~? "employer"
                   <*> scopeType ~? "religion"
                   <*> (scopeType ~@ "culture") `defaultingTo` This
-                  <*> (oneOf fetchString $ firstChild number) @? "dynasty"
+                  <*> oneOf fetchString (firstChild number) @? "dynasty"
                   <*> fetchString @? "dna"
                   <*> fetchString @? "flag"
                   <*> scopeType ~? "father"

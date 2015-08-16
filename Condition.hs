@@ -52,8 +52,8 @@ data Value a = BooleanValue Bool
 value = BooleanValue True <$ checkKeys ["yes","true"]
         <|> BooleanValue False <$ checkKeys ["false","no"]
         <|> NumValue <$> number
-        <|> Id <$> (except (firstChild $ checkKeys ["yes","no","true","false"])
-                    $ label key)
+        <|> Id <$> except (firstChild $ checkKeys ["yes","no","true","false"])
+                    (label key)
 
 -- | @scopedValue@ makes a value of scoped type
 scopedValue = ScopedValue <$> scopeType

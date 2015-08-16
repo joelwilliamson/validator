@@ -40,7 +40,7 @@ data Reason = KeyNotFound
 -- | @runMaker maker t@ uses the description provided by @maker@ to construct an
 -- @a@.
 runMaker :: Maker a → Tree Atom → Either Error a
-runMaker (Maker f) = \t -> case f t of
+runMaker (Maker f) t = case f t of
   Left (e,_) -> Left e
   Right r -> Right r
 
@@ -167,7 +167,7 @@ except (Maker f1) (Maker f2) = Maker $ \t -> case f1 t of
   Left _ -> f2 t
 
 -- | @excludeKeys keys@ succeeds with the root label provided the label is not in `keys`.
-excludeKeys keys = Maker $ \t → if not $ rootLabel t `elem` map Label keys
+excludeKeys keys = Maker $ \t → if rootLabel t `notElem` map Label keys
                                 then Right $ rootLabel t
                                 else Left (("Root label excluded: " <> show' (rootLabel t), source t)
                                            , KeyNotFound)

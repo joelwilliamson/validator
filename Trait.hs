@@ -79,7 +79,7 @@ trait = Trait
         <*> tolerations
   where boolProp key = ((fetchBool @@ key) `defaultingTo` False) <?> key
         intProp :: Label → Maker (Maybe Int)
-        intProp key = (fmap round) <$> number ~? key <?> key
+        intProp key = fmap round <$> number ~? key <?> key
         opposites = error "opposite traits are not implemented"
         tolerations = return []
 

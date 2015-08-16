@@ -100,8 +100,8 @@ readDecisionFile file = do
 
 readFiles :: (FilePath → IO (Maybe [a])) → [FilePath] → IO [a]
 readFiles handler files = do
-  checked ← sequence $ map handler files
-  case filter (isNothing) checked of
+  checked ← mapM handler files
+  case filter isNothing checked of
     [] → return $ concatMap fromJust checked
     _ → exitWith $ ExitFailure 1
   
