@@ -10,7 +10,7 @@ module Condition
        ) where
 
 import Maker
-import Scoped(Label,Atom(..))
+import Scoped(Label)
 import ScopeType(ScopeType(..),scopeType)
 
 import Data.String(IsString(..))

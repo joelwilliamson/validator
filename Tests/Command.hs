@@ -1,6 +1,6 @@
 module Tests.Command where
 
-import Condition(Value(..),ScopeType(..),Condition(..),Predicate(..))
+import Condition(Value(..),ScopeType(..),Condition(..))
 import Command
 import Duration(Duration(..))
 import Scoped(Error())
