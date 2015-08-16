@@ -93,7 +93,7 @@ Test-Suite tests
                         , OverloadedStrings
                         , RecordWildCards
                         , UnicodeSyntax
-  GHC-Options:          -Wall -fno-warn-missing-signatures
+  GHC-Options:          -Wall -fno-warn-missing-signatures -fno-warn-name-shadowing
   GHC-Prof-Options:     -fprof-auto
                         -auto-all
                         -caf-all
