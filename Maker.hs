@@ -4,7 +4,7 @@ module Maker (
   Maker(),runMaker,
   (@@),(@?),(@@@),(@@#),(/@@),(/@#),(<?>),
   (~@),(~?),
-  firstChild,secondChild,mapSubForest,filterSubForest,singleChild,
+  firstChild,secondChild,mapSubForest,tryMap,filterSubForest,singleChild,
   checkKey,checkKeys,excludeKeys,checkValue,checkValues,key,
   fetchString,label,except,optional,defaultingTo,oneOf,
   Maker.number,fetchId, fetchBool,position
@@ -19,6 +19,7 @@ import Text.Parsec(parse)
 import Control.Applicative(Alternative(empty),(<|>))
 import Data.Monoid((<>))
 import Data.Foldable(find)
+import Data.Either(rights)
 
 import Prelude hiding (concat,lookup)
 
@@ -101,6 +102,10 @@ oneOf m1 m2 = (Left <$> m1) <|> (Right <$> m2)
 
 -- | @mapSubForest m@ applies @m@ to every child node.
 mapSubForest (Maker f) = Maker $ \t -> mapM f $ subForest t
+
+-- | @tryMap m@ applies @m@ to every child node for which it succeeds
+tryMap :: Maker a → Maker [a]
+tryMap (Maker f) = Maker $ \t -> Right $ rights $ map f $ subForest t
 
 -- | @filterSubForest p m@ removes any subtree that @o@ doesn't match, then
 -- applies @m@ to the entire result.

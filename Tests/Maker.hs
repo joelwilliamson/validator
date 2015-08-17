@@ -90,6 +90,9 @@ makerTests = testGroup "Maker tests"
              , testCase "either - right"
                $ parseMake (oneOf fetchBool fetchString) "k = truth"
                @?= Right (Right "truth")
+             , testCase "tryMap"
+               $ parseMake (tryMap $ checkKeys ["a","c"]) "k = { a = 1 b = 2 c = 3 }"
+               @?= Right ["a","c"]
              ]
 
 parseMake :: Maker a → T.Text → Either Error a
