@@ -1,6 +1,7 @@
 module Tests.Trait where
 
 import Trait
+import Modifier
 
 import Tests.QuickMaker(quickMake)
 
@@ -18,7 +19,7 @@ traitTests =
                             , immortal = True, religious = True })
   , testCase "A test with modifiers"
     $ makeTrait "brainiac = { learning = 10 birth = 0 }"
-    @?= Right (defaultTrait { trait_name = "brainiac" })
+    @?= Right (defaultTrait { trait_name = "brainiac", modifiers = [Modifier "learning" 10]})
   ]
 
 makeTrait = quickMake trait

@@ -7,6 +7,7 @@ module Trait (
   ) where
 
 import Maker
+import Modifier
 import Scoped(Label)
 
 data Trait = Trait {
@@ -42,6 +43,7 @@ data Trait = Trait {
   , religious_branch :: Maybe Label
   , ruler_designer_cost :: Maybe Int -- ^ The postive cost in the Ruler Designer
   , tolerates :: [Label] -- ^ A list of the religion groups tolerated by this character
+  , modifiers :: [Modifier]
   } deriving (Eq, Ord, Show)
 
 trait :: Maker Trait
@@ -77,6 +79,7 @@ trait = Trait
         <*> fetchString @? "religious_branch"
         <*> intProp "ruler_designer_cost"
         <*> tolerations
+        <*> tryMap modifier
   where boolProp key = ((fetchBool @@ key) `defaultingTo` False) <?> key
         intProp :: Label → Maker (Maybe Int)
         intProp key = fmap round <$> number ~? key <?> key
@@ -95,4 +98,4 @@ defaultTrait =
         , prevent_decadence = False, priest = False, pilgrimage = False
         , random = False, rebel_inherited = False, religious = False
         , religious_branch = Nothing, ruler_designer_cost = Nothing
-        , tolerates = [] }
+        , tolerates = [], modifiers = [] }
